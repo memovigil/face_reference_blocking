@@ -224,6 +224,37 @@ const toClient = (page, p) => page.evaluate((p) => {
   check(ms.tri === 1 && ms.plumb >= 4, `paso C: triángulo y plomadas (${JSON.stringify(ms)})`);
   await page.screenshot({ path: `${out}/paso-C.png` });
 
+  // --- Fase 3: paso D ---------------------------------------------------------
+  await page.getByRole('button', { name: /Blocking de planos/ }).click();
+  ly = await page.evaluate(() => window.__encaje.store.get().layers);
+  check(ly.structure && !ly.points && !ly.envelope, 'paso D enciende Estructura y apaga Puntos');
+  const countFaces = () => page.evaluate(() => window.__encaje.derive(window.__encaje.store.get()).blocking.faces.length);
+  const counts = {};
+  for (const [lv, label] of [['grande', 'Grande'], ['medio', 'Medio'], ['fino', 'Fino']]) {
+    await page.getByRole('button', { name: label, exact: true }).click();
+    counts[lv] = await countFaces();
+  }
+  check(counts.grande < counts.medio && counts.medio < counts.fino, `niveles: más planos de Grande a Fino (${JSON.stringify(counts)})`);
+  await page.waitForFunction(() => document.querySelectorAll('.l-blocking .bk-hard').length > 0, null, { timeout: 5000 }).catch(() => {});
+  const lines = await page.evaluate(() => ({ contour: document.querySelector('.l-blocking .bk-contour')?.getAttribute('d')?.length ?? 0, hard: document.querySelector('.l-blocking .bk-hard')?.getAttribute('d')?.length ?? 0 }));
+  check(lines.contour > 0 && lines.hard > 0, 'el blocking dibuja contorno y cambios de plano');
+  await page.getByLabel('Nombres de los planos').check();
+  const names = await page.evaluate(() => document.querySelectorAll('.bk-name').length);
+  check(names > 10, `nombres de los planos (${names})`);
+  await page.getByRole('button', { name: 'Ocultar foto' }).click();
+  check((await page.evaluate(() => window.__encaje.store.get().photoOpacity)) === 0, '«Ocultar foto» deja solo el blocking');
+  await page.getByRole('button', { name: 'Ver foto' }).click();
+  await page.locator('[data-fid=bk-width]').fill('2');
+  check((await page.evaluate(() => window.__encaje.store.get().blockLineWidth)) === 2, 'grosor de línea');
+  await page.screenshot({ path: `${out}/paso-D.png` });
+  const quality = await page.evaluate(async () => {
+    const { blockingQuality } = await import('/src/geom/blocking.ts');
+    const q = blockingQuality(window.__encaje.derive(window.__encaje.store.get()).blocking);
+    return { floating: q.floating.length, crossed: q.selfIntersecting.length };
+  });
+  check(quality.floating === 0 && quality.crossed === 0, `sin planos sueltos ni polígonos cruzados (${JSON.stringify(quality)})`);
+  await page.evaluate(() => window.__encaje.store.set({ blockNames: false, blockLineWidth: 1, blockLevel: 'grande' }));
+
   // Diagnóstico visible.
   check(await page.locator('.diag-card h2').isVisible(), 'el diagnóstico está en el panel');
 

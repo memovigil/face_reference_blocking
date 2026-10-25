@@ -711,6 +711,48 @@ svg.overlay .ss {
   stroke-width: 1.5px;
 }
 
+/* Paso D · blocking: contorno azul 2 px, cambios de plano grafito 1.5 px. */
+.bk {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.bk-halo {
+  stroke: var(--halo);
+  stroke-width: calc(3.6px * var(--bk-w, 1));
+  opacity: 0.55;
+}
+
+.bk-contour {
+  stroke: var(--struct);
+  stroke-width: calc(2px * var(--bk-w, 1));
+}
+
+.bk-hard {
+  stroke: var(--graphite);
+  stroke-width: calc(1.5px * var(--bk-w, 1));
+}
+
+.bk-accent {
+  stroke-width: calc(2.2px * var(--bk-w, 1));
+}
+
+.bk-soft {
+  stroke: var(--graphite);
+  stroke-width: calc(0.8px * var(--bk-w, 1));
+  opacity: 0.25;
+}
+
+.bk-name text {
+  font-family: var(--font-ui);
+  font-size: 10px;
+  fill: var(--graphite);
+  paint-order: stroke;
+  stroke: var(--halo);
+  stroke-width: 3px;
+}
+
 .lm-facing {
   stroke: var(--measure);
   stroke-width: 1.5px;
@@ -1144,6 +1186,24 @@ svg.overlay .ss {
   border-radius: 0;
   height: 2px;
   background: var(--measure);
+}
+
+.sw-bk-contour {
+  border-radius: 0;
+  height: 2px;
+  background: var(--struct);
+}
+
+.sw-bk-hard {
+  border-radius: 0;
+  height: 2px;
+  background: var(--graphite);
+}
+
+.sw-bk-accent {
+  border-radius: 0;
+  height: 3px;
+  background: var(--graphite);
 }
 
 .sw-level {

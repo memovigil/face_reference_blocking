@@ -1,5 +1,6 @@
 // Panel derecho: estado de la detección, pasos, tarjeta del paso y diagnóstico.
 
+import { BLOCK_LEVELS } from '../geom/planes';
 import type { KeyGroup } from '../detect/keypoints';
 import type { ExpressionId } from '../geom/expression';
 import { buildMeasures } from '../geom/measures';
@@ -13,7 +14,7 @@ import { estimateTag, keyLabel } from './labels';
 
 export const STEP_ORDER: readonly StepId[] = ['R', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'];
 /** Fase en la que se construyó la app actual (los pasos de fases futuras se ven desactivados). */
-export const CURRENT_PHASE = 2;
+export const CURRENT_PHASE = 3;
 
 /** Diferencia mínima (en desviaciones típicas) para presentar un rasgo como distintivo. */
 const DISTINCTIVE_Z = 1;
@@ -134,6 +135,8 @@ function stepSignature(s: AppState, d: Derived | null): string {
       return `${d.loomis.sphere.radius.toFixed(1)}|${d.loomis.sphere.rms.toFixed(1)}|${d.jaw?.angle.toFixed(0) ?? ''}|${d.expression.flags.lipsO}`;
     case 'C':
       return buildMeasures(s.landmarks!, d).items.map((i) => i.text).join('|') + JSON.stringify(s.checkedMeasures);
+    case 'D':
+      return `${s.blockLevel}|${s.blockLineWidth}|${s.blockNames}|${s.photoOpacity > 0}|${d.blocking?.faces.length ?? 0}|${d.blocking?.faces.filter((f) => f.front).length ?? 0}`;
     case 'I':
       return mostDistinctive(d.metrics).map((m) => m.def.id).join(',');
     default:
@@ -306,6 +309,31 @@ function renderStepCard(
       h('h3', {}, es.measures.title),
       h('p', { class: 'hint' }, es.measures.help),
       list,
+    );
+  } else if (d && s.step === 'D') {
+    const b = d.blocking;
+    const seg = h('div', { 'class': 'seg-group', 'role': 'group', 'aria-label': es.blocking.level });
+    for (const lv of BLOCK_LEVELS) {
+      const btn = h('button', { 'type': 'button', 'class': 'seg', 'data-fid': `level-${lv}`, 'aria-pressed': String(s.blockLevel === lv) }, es.blocking.levels[lv]);
+      btn.addEventListener('click', () => store.set({ blockLevel: lv }));
+      seg.append(btn);
+    }
+    const photoBtn = h('button', { 'type': 'button', 'class': 'btn', 'data-fid': 'bk-photo', 'aria-pressed': String(s.photoOpacity > 0) }, s.photoOpacity > 0 ? es.blocking.hidePhoto : es.blocking.showPhoto);
+    photoBtn.addEventListener('click', () => store.set((st) => ({ photoOpacity: st.photoOpacity > 0 ? 0 : 1 })));
+    const width = h('input', { 'type': 'range', 'min': 0.5, 'max': 2.5, 'step': 0.25, 'value': s.blockLineWidth, 'data-fid': 'bk-width', 'aria-label': es.blocking.lineWidth });
+    width.addEventListener('input', () => store.set({ blockLineWidth: Number(width.value) }));
+    const names = h('input', { 'type': 'checkbox', 'data-fid': 'bk-names', 'checked': s.blockNames });
+    names.addEventListener('change', () => store.set({ blockNames: names.checked }));
+    children.push(
+      h('h3', {}, es.steps.legend),
+      legend([['sw-bk-contour', es.legend.blockContour], ['sw-bk-hard', es.legend.blockHard], ['sw-bk-accent', es.legend.blockAccent]]),
+      h('div', { class: 'control-row' }, h('span', {}, es.blocking.level), seg),
+      h('p', { class: 'hint' }, es.blocking.levelHelp[s.blockLevel]),
+      h('div', { class: 'control-row' }, h('span', {}, es.blocking.lineWidth), width),
+      h('div', { class: 'control-row' }, h('span', {}, es.blocking.photo), photoBtn),
+      h('label', { class: 'control-row' }, names, h('span', {}, es.blocking.names)),
+      h('p', { class: 'hint' }, es.blocking.how),
+      b ? h('p', { class: 'hint' }, es.blocking.stats(b.faces.length, b.faces.filter((f) => f.front).length, b.ms)) : null,
     );
   } else if (d && s.step === 'I') {
     const top = mostDistinctive(d.metrics).filter((v) => Math.abs(v.z) >= DISTINCTIVE_Z);

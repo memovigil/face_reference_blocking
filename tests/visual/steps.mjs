@@ -1,5 +1,6 @@
 // Captura cada paso habilitado (R, A, B, C, I…) para una o varias fotos.
 // Uso: node tests/visual/steps.mjs <carpeta-salida> <foto> [<foto>…] [--steps=R,A,B,C,I] [--zoom=1]
+//      [--levels=grande,medio,fino] (paso D: una captura por nivel) [--names=1] [--photo=0]
 import { chromium } from 'playwright';
 import { mkdirSync } from 'node:fs';
 import { basename, extname, join } from 'node:path';
@@ -30,10 +31,21 @@ for (const f of photos) {
   );
   const name = basename(f, extname(f)).slice(0, 12);
   for (const st of steps) {
-    await page.evaluate((st) => window.__encaje.store.set({ step: st }), st);
-    if (flags.zoom) await page.evaluate((z) => window.__encaje.viewer.setZoom(Number(z)), flags.zoom);
-    await page.waitForTimeout(250);
-    await page.screenshot({ path: join(out, `${name}-${st}.jpg`), quality: 82 });
+    const levels = st === 'D' && flags.levels ? flags.levels.split(',') : [null];
+    for (const lv of levels) {
+      await page.evaluate(
+        ({ st, lv, names, photo }) => {
+          const set = { step: st, blockNames: names === '1' };
+          if (lv) set.blockLevel = lv;
+          if (photo !== undefined) set.photoOpacity = Number(photo);
+          window.__encaje.store.set(set);
+        },
+        { st, lv, names: flags.names, photo: flags.photo },
+      );
+      if (flags.zoom) await page.evaluate((z) => window.__encaje.viewer.setZoom(Number(z)), flags.zoom);
+      await page.waitForTimeout(250);
+      await page.screenshot({ path: join(out, `${name}-${st}${lv ? `-${lv}` : ''}.jpg`), quality: 82 });
+    }
   }
   console.log(`${name}: ${steps.length} pasos`);
 }

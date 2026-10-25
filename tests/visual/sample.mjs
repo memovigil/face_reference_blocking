@@ -46,11 +46,32 @@ check(info.envelope === 'silhouette', 'la envolvente sale de la silueta');
 
 const jpg = await page.evaluate(() => window.__encaje.store.get().image.canvas.toDataURL('image/jpeg', 0.9));
 writeFileSync(join(out, 'muestra.jpg'), Buffer.from(jpg.split(',')[1], 'base64'));
-for (const st of ['R', 'A', 'B', 'C', 'I']) {
+for (const st of ['R', 'A', 'B', 'C', 'D', 'I']) {
   await page.evaluate((st) => window.__encaje.store.set({ step: st }), st);
   await page.waitForTimeout(300);
   await page.screenshot({ path: join(out, `muestra-${st}.jpg`), quality: 82 });
 }
+
+// Paso D: los tres niveles, y el medio sin foto y con nombres (prueba de humo).
+const bq = [];
+for (const lv of ['grande', 'medio', 'fino']) {
+  await page.evaluate((lv) => window.__encaje.store.set({ step: 'D', blockLevel: lv }), lv);
+  await page.waitForTimeout(250);
+  await page.screenshot({ path: join(out, `muestra-D-${lv}.jpg`), quality: 82 });
+  bq.push(
+    await page.evaluate(async (lv) => {
+      const { blockingQuality } = await import('/src/geom/blocking.ts');
+      const b = window.__encaje.derive(window.__encaje.store.get()).blocking;
+      const q = blockingQuality(b);
+      return { lv, faces: q.faces, floating: q.floating.length, crossed: q.selfIntersecting.length, ms: b.ms };
+    }, lv),
+  );
+}
+for (const q of bq) check(q.floating === 0 && q.crossed === 0 && q.ms < 50, `blocking ${q.lv}: ${q.faces} planos, sin sueltos ni cruzados, ${q.ms.toFixed(1)} ms`);
+await page.evaluate(() => window.__encaje.store.set({ blockLevel: 'medio', blockNames: true, photoOpacity: 0 }));
+await page.waitForTimeout(250);
+await page.screenshot({ path: join(out, 'muestra-D-medio-nombres.jpg'), quality: 82 });
+await page.evaluate(() => window.__encaje.store.set({ blockNames: false, photoOpacity: 1 }));
 check(errors.length === 0, `sin errores de página${errors.length ? `: ${errors.join(' | ')}` : ''}`);
 await browser.close();
 console.log(fails ? `\n${fails} FALLAS` : '\nTodo OK');

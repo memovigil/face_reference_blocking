@@ -8,6 +8,7 @@
 
 import { buildKeyPoints, EAR_LOBE, EAR_TOP, earAnchors, estimateExtras, interpupillaryPx, type ExtraEstimate, type ExtraId, type KeyPoint } from '../detect/keypoints';
 import { FACE_OVAL } from '../detect/landmarkMap';
+import { buildBlocking, type Blocking } from '../geom/blocking';
 import { circumscribe, edgeAngles, negativeSpaces, plumbLine, type Envelope } from '../geom/envelope';
 import { closeJaw, MANDIBLE, readExpression, type ExpressionReading, type JawClosing } from '../geom/expression';
 import { rayToFrontal, toFrontal, type FrontalFace } from '../geom/frontal';
@@ -36,6 +37,8 @@ export interface Derived {
   loomis: Loomis;
   metrics: MetricValue[];
   envelope: Envelope;
+  /** Poliedro del paso D (solo se calcula en ese paso). */
+  blocking: Blocking | null;
 }
 
 /** Memoriza el último resultado de `fn` mientras sus entradas sean las mismas (===). */
@@ -184,6 +187,24 @@ const envelopeStage = memo((sil: HeadSilhouette | null, seg: AppState['segmentat
   };
 });
 
+const blockingStage = memo((landmarks: Vec3[], level: AppState['blockLevel'], pose: PoseEstimate, frontal: FrontalFace, loomis: Loomis, kps: KeyPoint[]) => {
+  const ears = (['R', 'L'] as const).flatMap((side) => {
+    const top = keyPoint(kps, `earTop${side}`);
+    const lobe = keyPoint(kps, `earLobe${side}`);
+    return top?.visible && lobe?.visible ? [{ side, top: top.p, lobe: lobe.p }] : [];
+  });
+  return buildBlocking(landmarks, level, interpupillaryPx(landmarks), {
+    frame: pose.frame,
+    frontal: frontal.points,
+    center: loomis.sphere.center,
+    radius: loomis.sphere.radius,
+    ears,
+  });
+});
+
+/** Pasos que usan el blocking. */
+const BLOCKING_STEPS: readonly AppState['step'][] = ['D'];
+
 export function derive(s: AppState): Derived | null {
   if (!s.landmarks || !s.detection) return null;
   const pose = poseStage(s.landmarks, s.detection, s.poseAdjust, anchorsFor(s.extrasPlaced));
@@ -210,5 +231,6 @@ export function derive(s: AppState): Derived | null {
     loomis,
     metrics,
     envelope,
+    blocking: BLOCKING_STEPS.includes(s.step) ? blockingStage(s.landmarks, s.blockLevel, pose, frontal, loomis, keypoints) : null,
   };
 }

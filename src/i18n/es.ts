@@ -17,7 +17,7 @@ export const es = {
   dropHere: 'Suelta la foto para cargarla',
   sample: 'Probar con la muestra',
   sampleName: 'muestra 3D',
-  sampleHint: 'La muestra es una cabeza 3D generada aquí mismo, con luz clave desde arriba a la derecha. No es la foto de una persona.',
+  sampleHint: 'La muestra es una cabeza femenina 3D generada aquí mismo, con luz clave desde arriba a la derecha. No es la foto de una persona.',
 
   status: {
     'empty': 'Sin foto',
@@ -183,6 +183,26 @@ export const es = {
     jawOpen: 'Mandíbula real, abierta',
     measures: 'Medidas y plomadas',
     levels: 'Niveles',
+    blockContour: 'Contorno exterior',
+    blockHard: 'Cambio de plano (más de 20°)',
+    blockAccent: 'Órbita y base de la nariz (acentos)',
+  },
+
+  blocking: {
+    level: 'Nivel',
+    levels: { grande: 'Grande', medio: 'Medio', fino: 'Fino' },
+    levelHelp: {
+      grande: 'Planos grandes: frente, sienes, órbitas, nariz en cuña, mejillas, boca, mentón y mandíbula.',
+      medio: 'La lista anatómica completa: unos 30 tipos de plano, contando una vez los pares izquierdo y derecho.',
+      fino: 'Además separa el ojo, el rojo de los labios, el plano bajo el labio inferior y la rama de la mandíbula. Las aristas suaves se ven tenues.',
+    },
+    how: 'Cada plano se ajusta a los puntos de esa zona de tu foto; las aristas aparecen solo donde el plano cambia de dirección.',
+    photo: 'Foto debajo',
+    showPhoto: 'Ver foto',
+    hidePhoto: 'Ocultar foto',
+    lineWidth: 'Grosor de línea',
+    names: 'Nombres de los planos',
+    stats: (faces: number, visible: number, ms: number) => `${faces} planos, ${visible} de frente a la cámara · ${ms < 1 ? '<1' : Math.round(ms)} ms`,
   },
 
   envelope: {
@@ -234,8 +254,8 @@ export const es = {
     respect: 'Respétalo: si lo corriges hacia el promedio, se pierde el parecido.',
     nothing: 'En lo que se puede medir, esta cara está muy cerca del promedio: el parecido va a estar en los detalles y en las masas de valor.',
     all: 'Todas las proporciones',
-    canonNote: 'El canon es un promedio, no un ideal. Una diferencia de menos de una desviación típica está dentro del margen de medición.',
-    sources: { fotos: 'promedio medido en fotos de referencia', loomis: 'canon de Loomis', neoclasico: 'canon de tercios iguales' } as Record<string, string>,
+    canonNote: 'El canon es un promedio de rostros femeninos, no un ideal. Una diferencia de menos de una desviación típica está dentro del margen de medición.',
+    sources: { fotos: 'promedio medido en fotos de rostros femeninos', loomis: 'canon de Loomis', neoclasico: 'canon de tercios iguales' } as Record<string, string>,
     notes: {
       estimated: 'estimado: confirma el punto en «Revisar puntos»',
       smile: 'con sonrisa: la boca se ve más ancha',

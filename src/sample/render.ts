@@ -19,7 +19,7 @@ import { FACE_OVAL, LEFT_EYE_CONTOUR, RIGHT_EYE_CONTOUR } from '../detect/landma
 import { projectCanonical, rotationFromAngles, type PoseAngles, type SimilarityFit } from '../geom/pose';
 import { apply3, cross3, dot3, len3, norm3, sub3, v3, type Mat3, type Vec3 } from '../geom/vec';
 
-/** Pose de la muestra: ¾ hacia la derecha de la foto, un poco hacia abajo. */
+/** Pose de la muestra (una mujer de cabello largo): ¾ hacia la derecha de la foto, un poco hacia abajo. */
 export const SAMPLE_POSE: PoseAngles = { yaw: 24, pitch: 6, roll: 3 };
 /** Dirección hacia la luz clave en el marco de cámara (x derecha, y arriba, z hacia la cámara). */
 export const SAMPLE_LIGHT: Vec3 = norm3(v3(0.55, 0.62, 0.56));
@@ -32,8 +32,10 @@ export interface SampleRender {
   frame: Pick<SimilarityFit, 'rotation' | 'scale' | 'translation'>;
 }
 
-type Part = 'face' | 'skull' | 'ear' | 'neck' | 'torso';
-const PART_ID: Record<Part, number> = { face: 0, skull: 1, ear: 2, neck: 3, torso: 4 };
+type Part = 'face' | 'skull' | 'ear' | 'neck' | 'torso' | 'hairMass';
+const PART_ID: Record<Part, number> = { face: 0, skull: 1, ear: 2, neck: 3, torso: 4, hairMass: 5 };
+/** El cabello largo solo existe detrás de este plano (z canónica): no tapa la cara. */
+const HAIR_FRONT_Z = -3.2;
 
 interface Mesh {
   pos: Vec3[];
@@ -42,6 +44,8 @@ interface Mesh {
   part: Uint8Array; // por triángulo
   /** 0–1 por vértice: cuánto cabello hay (se interpola y se corta en 0.5). */
   hair?: Float32Array;
+  /** Coordenadas de textura de la cara (canónico sin deformar). */
+  uv?: Vec3[];
 }
 
 // ---------------------------------------------------------------------------
@@ -93,10 +97,31 @@ function hairStart(y: number): number {
   return table[table.length - 1][1];
 }
 
+/**
+ * Rasgos de la muestra: la malla canónica con mandíbula y nariz algo más
+ * angostas y labios más llenos (esta versión se centra en rostros femeninos).
+ */
+function feminize(p: Vec3): Vec3 {
+  let { x, y, z } = p;
+  // Tercio inferior más angosto hacia el mentón.
+  x *= 1 - 0.07 * smooth(2, 8, -y);
+  // Nariz más angosta.
+  const nose = (1 - smooth(1.2, 2.6, Math.abs(x))) * (1 - smooth(2.6, 3.8, Math.abs(y - 0.5)));
+  x *= 1 - 0.1 * nose;
+  // Labios más llenos: se abren en vertical alrededor de la línea de la boca.
+  const yc = -3.75;
+  const lips = (1 - smooth(2.2, 3.0, Math.abs(x))) * (1 - smooth(0.9, 1.5, Math.abs(y - yc)));
+  y = yc + (y - yc) * (1 + 0.12 * lips);
+  z += 0.15 * lips;
+  return v3(x, y, z);
+}
+
 /** Cara + cráneo en una sola malla (comparten los puntos del óvalo). */
 function headMesh(): Mesh {
   const pos: Vec3[] = [];
-  for (let i = 0; i < 468; i++) pos.push(canon(i));
+  for (let i = 0; i < 468; i++) pos.push(feminize(canon(i)));
+  const uv: Vec3[] = [];
+  for (let i = 0; i < 468; i++) uv.push(canon(i));
   const tris = Array.from(CANONICAL_TRIANGLES);
   const part: number[] = new Array(tris.length / 3).fill(PART_ID.face);
   // Hacia atrás desde el borde de la cara hasta el polo de la nuca. Cada tramo
@@ -156,7 +181,7 @@ function headMesh(): Mesh {
     const nb = mesh.nrm[b];
     mesh.nrm[i] = norm3(v3(na.x + (nb.x - na.x) * f, na.y + (nb.y - na.y) * f, na.z + (nb.z - na.z) * f));
   }
-  return { ...mesh, hair: Float32Array.from(hair) };
+  return { ...mesh, hair: Float32Array.from(hair), uv };
 }
 
 /** Elipsoide (UV) con giro opcional. */
@@ -196,10 +221,10 @@ function neck(): Mesh {
   const nu = 40;
   const rows: [number, number, number, number][] = [
     // y, z del eje, radio x, radio z
-    [-2, -4.6, 5.0, 5.0],
-    [-9, -5.0, 5.3, 5.4],
-    [-14, -5.6, 5.7, 5.8],
-    [-17.5, -6.0, 7.6, 6.4],
+    [-2, -4.6, 4.5, 4.7],
+    [-9, -5.0, 4.6, 4.9],
+    [-14, -5.6, 5.0, 5.2],
+    [-16.5, -6.0, 7.4, 6.0],
   ];
   for (const [y, zc, rx, rz] of rows) {
     for (let i = 0; i <= nu; i++) {
@@ -256,7 +281,9 @@ function sceneMeshes(): Mesh[] {
     // Oreja: plana, algo inclinada hacia atrás y separada de la cabeza.
     ellipsoid(v3(sx * 7.9, 1.2, -4.5), v3(0.75, 3.1, 1.75), 'ear', mulM(rotY(sx * 18), rotX(-14)), 24, 16),
   );
-  return [headMesh(), ...ears, neck(), ellipsoid(v3(0, -24.5, -6.2), v3(21, 8, 11), 'torso')];
+  // Cabello largo: un volumen detrás de la cara que cae hasta los hombros.
+  const hairMass = ellipsoid(v3(0, -3.2, -6.3), v3(8.9, 12.6, 7.9), 'hairMass', undefined, 56, 36);
+  return [headMesh(), ...ears, hairMass, neck(), ellipsoid(v3(0, -23.2, -6.2), v3(19, 7.5, 10), 'torso')];
 }
 
 // ---------------------------------------------------------------------------
@@ -265,7 +292,7 @@ function sceneMeshes(): Mesh[] {
 type RGB = [number, number, number];
 const SKIN: RGB = [0.86, 0.71, 0.6];
 const HAIR: RGB = [0.2, 0.135, 0.095];
-const CLOTH: RGB = [0.34, 0.4, 0.47];
+const CLOTH: RGB = [0.28, 0.4, 0.42];
 const css = (c: RGB) => `rgb(${c.map((x) => Math.round(x * 255)).join(',')})`;
 
 /** Textura de la cara en coordenadas canónicas (x, y). */
@@ -301,20 +328,35 @@ function faceTexture(): ImageData {
   }
   // Labios.
   path([61, 185, 40, 39, 37, 0, 267, 269, 270, 409, 291, 375, 321, 405, 314, 17, 84, 181, 91, 146]);
-  g.fillStyle = 'rgb(176,98,92)';
+  g.fillStyle = 'rgb(186,96,102)';
   g.fill();
   g.beginPath();
   [78, 191, 80, 81, 82, 13, 312, 311, 310, 415, 308].forEach((i, k) => (k ? g.lineTo(...at(i)) : g.moveTo(...at(i))));
   g.strokeStyle = 'rgb(92,46,44)';
   g.lineWidth = 0.09 * TEX.ppcm;
   g.stroke();
-  // Cejas.
-  for (const ids of [
-    [46, 53, 52, 65, 55, 107, 66, 105, 63, 70],
-    [276, 283, 282, 295, 285, 336, 296, 334, 293, 300],
+  // Cejas finas: el borde de arriba se acerca al de abajo.
+  for (const [lower, upper] of [
+    [
+      [46, 53, 52, 65, 55],
+      [70, 63, 105, 66, 107],
+    ],
+    [
+      [276, 283, 282, 295, 285],
+      [300, 293, 334, 296, 336],
+    ],
   ]) {
-    path(ids);
-    g.fillStyle = 'rgba(78,54,38,0.78)';
+    const lo = lower.map(at);
+    const up = upper.map((i, k) => {
+      const [ux, uy] = at(i);
+      const [lx, ly] = lo[k];
+      const f = k === 0 ? 0.35 : 0.6; // la cola, más delgada
+      return [lx + (ux - lx) * f, ly + (uy - ly) * f] as [number, number];
+    });
+    g.beginPath();
+    [...lo, ...up.reverse()].forEach((q, k) => (k ? g.lineTo(...q) : g.moveTo(...q)));
+    g.closePath();
+    g.fillStyle = 'rgba(70,48,34,0.85)';
     g.fill();
   }
   // Ojos: esclerótica, iris, pupila y línea de pestañas.
@@ -347,8 +389,8 @@ function faceTexture(): ImageData {
     g.beginPath();
     upper.forEach((i, k) => (k ? g.lineTo(...at(i)) : g.moveTo(...at(i))));
     g.lineTo(...at(c[8]));
-    g.strokeStyle = 'rgb(40,28,22)';
-    g.lineWidth = 0.13 * TEX.ppcm;
+    g.strokeStyle = 'rgb(34,24,20)';
+    g.lineWidth = 0.17 * TEX.ppcm;
     g.stroke();
   }
   return g.getImageData(0, 0, W, H);
@@ -408,6 +450,7 @@ export function renderSample(opts: SampleOptions = {}): SampleRender {
   // 1 · Mapa de sombras: profundidad hacia la luz (mayor = más cerca de la luz).
   for (const { m, lit } of prepared) {
     for (let t = 0; t < m.tris.length; t += 3) {
+      if (m.part[t / 3] === PART_ID.hairMass && (m.pos[m.tris[t]].z + m.pos[m.tris[t + 1]].z + m.pos[m.tris[t + 2]].z) / 3 > HAIR_FRONT_Z) continue;
       const [a, b, c] = [lit[m.tris[t]], lit[m.tris[t + 1]], lit[m.tris[t + 2]]];
       raster(a[0], a[1], b[0], b[1], c[0], c[1], SM, SM, (x, y, wa, wb, wc) => {
         const d = wa * a[2] + wb * b[2] + wc * c[2];
@@ -468,21 +511,25 @@ export function renderSample(opts: SampleOptions = {}): SampleRender {
         const z = wa * cam[ia].z + wb * cam[ib].z + wc * cam[ic].z;
         const k = y * w + x;
         if (z <= zbuf[k]) return;
+        const P = m.pos;
+        const cz = wa * P[ia].z + wb * P[ib].z + wc * P[ic].z;
+        if (part === PART_ID.hairMass && cz > HAIR_FRONT_Z) return;
         zbuf[k] = z;
         const kc = v3(wa * cam[ia].x + wb * cam[ib].x + wc * cam[ic].x, wa * cam[ia].y + wb * cam[ib].y + wc * cam[ic].y, z);
         let n = v3(wa * nCam[ia].x + wb * nCam[ib].x + wc * nCam[ic].x, wa * nCam[ia].y + wb * nCam[ib].y + wc * nCam[ic].y, wa * nCam[ia].z + wb * nCam[ib].z + wc * nCam[ic].z);
         n = norm3(n);
         if (n.z < 0) n = v3(n.x, n.y, 0.02); // silueta: evita el negro puro en el borde
-        const P = m.pos;
         const cx = wa * P[ia].x + wb * P[ib].x + wc * P[ic].x;
         const cy = wa * P[ia].y + wb * P[ib].y + wc * P[ic].y;
-        const cz = wa * P[ia].z + wb * P[ib].z + wc * P[ic].z;
         let alb: RGB;
         let spec = 0.05;
         let shin = 28;
         if (part === PART_ID.face) {
-          const tx = Math.min(texW - 1, Math.max(0, Math.round((cx - TEX.x0) * TEX.ppcm)));
-          const ty = Math.min(texH - 1, Math.max(0, Math.round((TEX.y0 + TEX.h - cy) * TEX.ppcm)));
+          const U = m.uv ?? P;
+          const ux = wa * U[ia].x + wb * U[ib].x + wc * U[ic].x;
+          const uy = wa * U[ia].y + wb * U[ib].y + wc * U[ic].y;
+          const tx = Math.min(texW - 1, Math.max(0, Math.round((ux - TEX.x0) * TEX.ppcm)));
+          const ty = Math.min(texH - 1, Math.max(0, Math.round((TEX.y0 + TEX.h - uy) * TEX.ppcm)));
           const q = (ty * texW + tx) * 4;
           alb = [tex.data[q] / 255, tex.data[q + 1] / 255, tex.data[q + 2] / 255];
         } else if (part === PART_ID.skull) {
@@ -493,6 +540,12 @@ export function renderSample(opts: SampleOptions = {}): SampleRender {
             spec = 0.09;
             shin = 14;
           } else alb = SKIN;
+        } else if (part === PART_ID.hairMass) {
+          // Mechones verticales.
+          const s = 0.86 + 0.14 * Math.sin(Math.atan2(cx, cz + 6.3) * 36 + cy * 0.25);
+          alb = [HAIR[0] * s, HAIR[1] * s, HAIR[2] * s];
+          spec = 0.08;
+          shin = 12;
         } else if (part === PART_ID.torso) {
           alb = CLOTH;
           spec = 0.01;

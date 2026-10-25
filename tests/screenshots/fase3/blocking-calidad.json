@@ -1,0 +1,51 @@
+{
+ "fecha": "2026-10-25T22:45:28.156Z",
+ "que_es": "Criterios numéricos del blocking (§12.2) sobre las 155 fotos de referencia del usuario: planos sin vecinos (menos de dos aristas compartidas), polígonos con autointersección en su plano, polígonos con algún ángulo interior mayor de 200° (promedio por foto) y tiempo de cálculo del poliedro (ms, incluido el cráneo). Solo resúmenes; las fotos no se versionan.",
+ "summary": {
+  "grande": {
+   "fotos": 155,
+   "planos": 21,
+   "conPlanosSueltos": 0,
+   "planosSueltos": [],
+   "conAutointerseccion": 0,
+   "autointersecciones": [],
+   "concavosPromedio": 5.1,
+   "msMediana": 0.7,
+   "msP95": 1.4,
+   "msMax": 15.7
+  },
+  "medio": {
+   "fotos": 155,
+   "planos": 51,
+   "conPlanosSueltos": 0,
+   "planosSueltos": [],
+   "conAutointerseccion": 2,
+   "autointersecciones": [
+    [
+     "lowerLipLL",
+     1
+    ],
+    [
+     "upperLipLR",
+     1
+    ]
+   ],
+   "concavosPromedio": 11.1,
+   "msMediana": 2,
+   "msP95": 3.2,
+   "msMax": 14.4
+  },
+  "fino": {
+   "fotos": 155,
+   "planos": 59,
+   "conPlanosSueltos": 0,
+   "planosSueltos": [],
+   "conAutointerseccion": 0,
+   "autointersecciones": [],
+   "concavosPromedio": 9.8,
+   "msMediana": 2.6,
+   "msP95": 3.5,
+   "msMax": 13.3
+  }
+ }
+}

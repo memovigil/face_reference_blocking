@@ -5,7 +5,8 @@
 //      → detección, pose y clasificación por casos (batch.mjs).
 //   3. Pose con verdad conocida (pose-synth.mjs) sobre la foto frontal.
 //   4. Interacciones del visor (interact.mjs).
-//   5. Muestra de ejemplo con pose conocida (sample.mjs).
+//   5. Muestra de ejemplo con pose conocida (sample.mjs), incluido el blocking.
+//   6. Regiones del blocking pintadas sobre la malla canónica (regions.mjs).
 // Levanta el servidor de Vite si no está corriendo.
 // Uso: npm run test:visual
 import { spawn } from 'node:child_process';
@@ -77,9 +78,11 @@ console.log('\n== interacciones');
 const inter = await run('interact.mjs', [join(root, 'tests/fixtures/mediapipe/face_stylizer_raw_face_demo.png'), join(out, 'interaccion')]);
 console.log('\n== muestra de ejemplo');
 const sample = await run('sample.mjs', [join(out, 'muestra')]);
+console.log('\n== regiones del blocking');
+const regions = await run('regions.mjs', [join(out, 'regiones')]);
 
-writeFileSync(join(out, 'resumen.json'), JSON.stringify({ fecha: new Date().toISOString(), summary, batches, synth: synth.code, interact: inter.code, sample: sample.code }, null, 1));
+writeFileSync(join(out, 'resumen.json'), JSON.stringify({ fecha: new Date().toISOString(), summary, batches, synth: synth.code, interact: inter.code, sample: sample.code, regions: regions.code }, null, 1));
 server?.kill();
-const failed = summary.some((s) => s.code) || batches.some((b) => b.code) || synth.code || inter.code || sample.code;
+const failed = summary.some((s) => s.code) || batches.some((b) => b.code) || synth.code || inter.code || sample.code || regions.code;
 console.log(failed ? '\nHAY FALLAS — revisa la salida' : `\nListo. Capturas en ${out.replace(root + '/', '')}`);
 process.exit(failed ? 1 : 0);

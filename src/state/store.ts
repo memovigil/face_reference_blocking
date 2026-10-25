@@ -2,6 +2,7 @@
 // La vista (zoom y desplazamiento) vive en el visor, no aquí: cambia a cada
 // cuadro y no debe redibujar las capas.
 
+import type { BlockLevel } from '../geom/planes';
 import type { Detection } from '../detect/faceLandmarker';
 import type { ExtraId } from '../detect/keypoints';
 import type { Segmentation } from '../detect/segment';
@@ -37,6 +38,10 @@ export interface AppState {
   envelopeSides: number;
   /** Medidas del paso C marcadas como «ya lo revisé». */
   checkedMeasures: Record<string, boolean>;
+  /** Paso D: nivel de simplificación, grosor de línea y nombres de los planos. */
+  blockLevel: BlockLevel;
+  blockLineWidth: number;
+  blockNames: boolean;
   step: StepId;
   layers: Record<LayerId, boolean>;
   lineOpacity: number;
@@ -60,6 +65,9 @@ export const initialState: AppState = {
   ignoreExpressions: {},
   envelopeSides: 8,
   checkedMeasures: {},
+  blockLevel: 'grande',
+  blockLineWidth: 1,
+  blockNames: false,
   step: 'R',
   layers: { envelope: true, structure: true, measures: true, points: true, indices: false },
   lineOpacity: 0.9,

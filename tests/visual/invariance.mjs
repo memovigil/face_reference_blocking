@@ -1,7 +1,9 @@
 // Prueba de invariancia (§5.4): las métricas de la misma persona en ángulos
 // distintos deben coincidir dentro de ±5 %. Usa tests/fixtures/user/grupos.json
-// (fotos del usuario, no versionadas). También calcula la mediana y la dispersión
-// de cada métrica en todas las fotos, para contrastar el canon.
+// (fotos del usuario, no versionadas). Con ALL=1 calcula la mediana y la
+// dispersión de cada métrica en la población, para calibrar el canon: una sola
+// entrada por persona (los grupos se reducen a su mediana) y sin las fotos de
+// tests/fixtures/user/excluir-canon.json (el canon de esta versión es femenino).
 // Uso: node tests/visual/invariance.mjs [salida.json]
 import { chromium } from 'playwright';
 import { readdirSync, readFileSync, writeFileSync } from 'node:fs';
@@ -75,29 +77,49 @@ const KEYS = ['middleOverLower', 'mouthNoseChin', 'eyeSpacing', 'noseWidth', 'mo
 const ABS = { canthalTilt: 1, mouthCorners: 100, chinProjection: 100 };
 const median = (a) => { const s = [...a].sort((x, y) => x - y); const n = s.length; return n % 2 ? s[(n - 1) / 2] : (s[n / 2 - 1] + s[n / 2]) / 2; };
 
-// Modo población: todas las fotos de tests/fixtures/user/*, para contrastar el canon.
+// Modo población: todas las fotos de tests/fixtures/user/*, para calibrar el canon.
 if (process.env.ALL) {
+  let excluded = [];
+  try {
+    excluded = JSON.parse(readFileSync(join(base, 'excluir-canon.json'), 'utf8')).excluir;
+  } catch {
+    // Sin lista: entran todas.
+  }
+  const isExcluded = (file) => excluded.some((e) => file.startsWith(e));
   const all = [];
   for (const dir of readdirSync(base).filter((d) => !d.includes('.'))) {
     for (const f of readdirSync(join(base, dir)).filter((x) => /\.(jpe?g|png)$/i.test(x))) {
+      if (isExcluded(`${dir}/${f}`)) continue;
       const r = await measure(join(base, dir, f));
       if (r) all.push({ file: `${dir}/${f}`, ...r });
       process.stdout.write('.');
     }
   }
   console.log();
+  // Una entrada por persona: las fotos de un mismo grupo se reducen a la mediana de cada métrica.
+  const groupOf = (file) => Object.entries(groups).find(([, items]) => items.some((it) => file.startsWith(it)))?.[0];
+  const people = new Map();
+  for (const r of all) {
+    const key = groupOf(r.file) ?? r.file;
+    people.set(key, [...(people.get(key) ?? []), r]);
+  }
+  const personValue = (rows, k) => {
+    const vals = rows.map((r) => r.pipeline[k]).filter((v) => v && v.reliable).map((v) => v.value);
+    return vals.length ? median(vals) : null;
+  };
   const canon = await page.evaluate(() => Object.fromEntries(Object.entries(window.__mt.METRICS).map(([k, v]) => [k, v.canon])));
-  console.log(`métrica           canon actual  mediana   sd robusta  n (confiables, pipeline completo)`);
+  console.log(`${all.length} fotos, ${people.size} personas, ${excluded.length} excluidas`);
+  console.log(`métrica           canon actual  mediana   sd robusta  n (personas con valor confiable)`);
   const stats = {};
   for (const k of Object.keys(canon)) {
-    const vals = all.map((r) => r.pipeline[k]).filter((v) => v && v.reliable).map((v) => v.value);
+    const vals = [...people.values()].map((rows) => personValue(rows, k)).filter((v) => v !== null);
     if (!vals.length) continue;
     const med = median(vals);
     const mad = median(vals.map((v) => Math.abs(v - med)));
     stats[k] = { canon: canon[k], median: med, sd: 1.4826 * mad, n: vals.length };
     console.log(`  ${k.padEnd(16)} ${canon[k].toFixed(3).padStart(8)}  ${med.toFixed(3).padStart(8)}  ${(1.4826 * mad).toFixed(3).padStart(8)}  ${vals.length}`);
   }
-  if (out) writeFileSync(out, JSON.stringify({ fecha: new Date().toISOString(), stats, all }, null, 1));
+  if (out) writeFileSync(out, JSON.stringify({ fecha: new Date().toISOString(), fotos: all.length, personas: people.size, excluidas: excluded.length, stats, all }, null, 1));
   await browser.close();
   process.exit(0);
 }

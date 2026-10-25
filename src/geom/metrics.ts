@@ -4,24 +4,25 @@
 // DE DÓNDE SALE CADA CANON
 // El canon es un PROMEDIO, no un ideal; solo sirve para comparar.
 //  · Métricas de la malla (ojos, nariz, boca, mandíbula, tercio medio/inferior,
-//    profundidad): mediana medida POR ESTE MISMO DETECTOR en fotos reales: las
-//    referencias del usuario (fase 2, 155 fotos, 106 personas; cada persona
-//    cuenta una vez; mayoría mujeres jóvenes, incluye 16 dibujos realistas).
-//    Script: `ALL=1 node tests/visual/invariance.mjs`.
+//    profundidad): mediana medida POR ESTE MISMO DETECTOR en fotos reales de
+//    ROSTROS FEMENINOS (esta versión se centra en ellos): las referencias del
+//    usuario sin las de hombres (fase 3: 136 fotos, 92 mujeres; cada persona
+//    cuenta una vez; mayoría jóvenes, incluye dibujos realistas).
+//    Script: `ALL=1 node tests/visual/invariance.mjs` (la lista de exclusión
+//    vive en tests/fixtures/user/excluir-canon.json, no versionada).
 //    Por qué no la antropometría directa ni el modelo canónico: los landmarks no
 //    son los puntos antropométricos, y el modelo canónico de MediaPipe es una
 //    plantilla geométrica que no coincide con lo que mide el detector en caras
 //    reales. Valores del canónico (mediana de fotos entre corchetes):
 //    nariz/unidad 0.567 [0.647], separación de ojos 1.43 [1.21], inclinación
-//    de los ojos 1.7° [4.6°], boca entre nariz y mentón 0.298 [0.347], tercio
-//    medio/inferior 0.94 [1.08]. Donde la antropometría es comparable, la
+//    de los ojos 1.7° [5.0°], boca entre nariz y mentón 0.298 [0.348], tercio
+//    medio/inferior 0.94 [1.09]. Donde la antropometría es comparable, la
 //    mediana de fotos coincide con ella: la boca cae a ~1/3 entre la base de la
 //    nariz y el mentón (Farkas, «Anthropometry of the Head and Face», 1994) y
 //    la inclinación cantal promedio es positiva, de unos 4–5° (literatura de
 //    cirugía oculoplástica).
-//    Sesgo: con pocos hombres en la muestra, en caras masculinas la nariz y la
-//    mandíbula tienden a salir más anchas que el canon y la inclinación de los
-//    ojos más baja.
+//    En caras masculinas el canon no aplica: la nariz y la mandíbula tienden a
+//    salir más anchas y la inclinación de los ojos más baja.
 //  · Cabello y cráneo (silueta por segmentación): también la mediana medida en
 //    las fotos, con la misma lectura de la silueta. Con cabello, los ojos quedan
 //    en 0.46 del alto total (el 0.5 de Loomis es sin cabello), y los tercios
@@ -33,8 +34,8 @@
 //    altura de la ceja y lóbulo a la de la base de la nariz. Solo cuenta si el
 //    usuario confirma los puntos.
 //  · Desviación típica (sd): ordena qué tan distintivo es cada rasgo. Es la
-//    dispersión robusta (1.48·MAD) entre personas en las fotos (106 para la
-//    malla; 82 para cabello y cráneo, donde la silueta se pudo leer; 56 para el
+//    dispersión robusta (1.48·MAD) entre personas en las fotos (92 para la
+//    malla; 74 para cabello y cráneo, donde la silueta se pudo leer; 45 para el
 //    ancho de la cabeza, que solo se mide casi de frente). Orejas: aproximada.
 //
 // RUIDO DE MEDICIÓN (prueba de invariancia, misma persona en distintos ángulos):
@@ -190,22 +191,22 @@ export function faceMeasures(p: readonly Vec3[], unit: number, side: 'R' | 'L' |
 
 export const METRICS: Record<MetricId, MetricDef> = {
   thirdUpper: { id: 'thirdUpper', group: 'thirds', unit: 'ratio', canon: 0.292, sd: 0.022, source: 'fotos' },
-  thirdMiddle: { id: 'thirdMiddle', group: 'thirds', unit: 'ratio', canon: 0.367, sd: 0.017, source: 'fotos' },
-  thirdLower: { id: 'thirdLower', group: 'thirds', unit: 'ratio', canon: 0.341, sd: 0.022, source: 'fotos' },
-  middleOverLower: { id: 'middleOverLower', group: 'thirds', unit: 'ratio', canon: 1.08, sd: 0.092, source: 'fotos' },
-  eyesInHeight: { id: 'eyesInHeight', group: 'heights', unit: 'ratio', canon: 0.459, sd: 0.026, source: 'fotos' },
-  mouthNoseChin: { id: 'mouthNoseChin', group: 'heights', unit: 'ratio', canon: 0.347, sd: 0.029, source: 'fotos' },
+  thirdMiddle: { id: 'thirdMiddle', group: 'thirds', unit: 'ratio', canon: 0.368, sd: 0.016, source: 'fotos' },
+  thirdLower: { id: 'thirdLower', group: 'thirds', unit: 'ratio', canon: 0.338, sd: 0.023, source: 'fotos' },
+  middleOverLower: { id: 'middleOverLower', group: 'thirds', unit: 'ratio', canon: 1.093, sd: 0.075, source: 'fotos' },
+  eyesInHeight: { id: 'eyesInHeight', group: 'heights', unit: 'ratio', canon: 0.459, sd: 0.021, source: 'fotos' },
+  mouthNoseChin: { id: 'mouthNoseChin', group: 'heights', unit: 'ratio', canon: 0.348, sd: 0.027, source: 'fotos' },
   earTop: { id: 'earTop', group: 'heights', unit: 'unit', canon: 0, sd: 0.12, source: 'loomis' },
   earLobe: { id: 'earLobe', group: 'heights', unit: 'unit', canon: 0, sd: 0.12, source: 'loomis' },
-  headWidthHeight: { id: 'headWidthHeight', group: 'widths', unit: 'ratio', canon: 0.686, sd: 0.03, source: 'fotos' },
-  eyeSpacing: { id: 'eyeSpacing', group: 'widths', unit: 'ratio', canon: 1.208, sd: 0.098, source: 'fotos' },
-  noseWidth: { id: 'noseWidth', group: 'widths', unit: 'unit', canon: 0.647, sd: 0.033, source: 'fotos' },
-  mouthWidth: { id: 'mouthWidth', group: 'widths', unit: 'unit', canon: 0.788, sd: 0.047, source: 'fotos' },
-  jawCheek: { id: 'jawCheek', group: 'widths', unit: 'ratio', canon: 0.797, sd: 0.036, source: 'fotos' },
-  canthalTilt: { id: 'canthalTilt', group: 'angles', unit: 'deg', canon: 4.6, sd: 1.9, source: 'fotos' },
-  mouthCorners: { id: 'mouthCorners', group: 'angles', unit: 'unit', canon: -0.018, sd: 0.022, source: 'fotos' },
-  noseProjection: { id: 'noseProjection', group: 'angles', unit: 'unit', canon: 0.263, sd: 0.016, source: 'fotos' },
-  chinProjection: { id: 'chinProjection', group: 'angles', unit: 'unit', canon: -0.064, sd: 0.085, source: 'fotos' },
+  headWidthHeight: { id: 'headWidthHeight', group: 'widths', unit: 'ratio', canon: 0.683, sd: 0.031, source: 'fotos' },
+  eyeSpacing: { id: 'eyeSpacing', group: 'widths', unit: 'ratio', canon: 1.21, sd: 0.099, source: 'fotos' },
+  noseWidth: { id: 'noseWidth', group: 'widths', unit: 'unit', canon: 0.64, sd: 0.026, source: 'fotos' },
+  mouthWidth: { id: 'mouthWidth', group: 'widths', unit: 'unit', canon: 0.787, sd: 0.044, source: 'fotos' },
+  jawCheek: { id: 'jawCheek', group: 'widths', unit: 'ratio', canon: 0.795, sd: 0.033, source: 'fotos' },
+  canthalTilt: { id: 'canthalTilt', group: 'angles', unit: 'deg', canon: 5.0, sd: 2.0, source: 'fotos' },
+  mouthCorners: { id: 'mouthCorners', group: 'angles', unit: 'unit', canon: -0.016, sd: 0.023, source: 'fotos' },
+  noseProjection: { id: 'noseProjection', group: 'angles', unit: 'unit', canon: 0.263, sd: 0.015, source: 'fotos' },
+  chinProjection: { id: 'chinProjection', group: 'angles', unit: 'unit', canon: -0.063, sd: 0.075, source: 'fotos' },
 };
 
 /** Lado cercano a la cámara (el que se ve completo) según el giro. */

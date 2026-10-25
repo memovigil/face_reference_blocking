@@ -1,6 +1,7 @@
 // Prepara los archivos que la app necesita para funcionar sin conexión.
 //   - WASM de @mediapipe/tasks-vision  -> public/wasm/   (se copia de node_modules)
 //   - Modelo face_landmarker.task      -> public/models/ (versionado en git; se baja si falta)
+//   - Modelo selfie_multiclass_256x256 -> public/models/ (16 MB, no se versiona; se baja aquí)
 // Con --fixtures también baja las referencias oficiales de la malla y las imágenes
 // de prueba de MediaPipe (Apache 2.0), que ya están versionadas.
 // Corre solo en `npm install` (postinstall). Si un archivo ya existe, no se vuelve a bajar.
@@ -17,6 +18,10 @@ const runtime = [
   {
     url: 'https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task',
     to: 'public/models/face_landmarker.task',
+  },
+  {
+    url: 'https://storage.googleapis.com/mediapipe-models/image_segmenter/selfie_multiclass_256x256/float32/1/selfie_multiclass_256x256.tflite',
+    to: 'public/models/selfie_multiclass_256x256.tflite',
   },
 ];
 

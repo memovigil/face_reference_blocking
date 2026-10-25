@@ -1,0 +1,157 @@
+{
+ "fecha": "2026-10-25T20:52:19.651Z",
+ "que_es": "Prueba de invariancia del marco de frente: 14 grupos de la misma persona (61 fotos de las referencias del usuario, en distintas poses). Para cada métrica, desviación de cada foto respecto de la mediana de su grupo. Solo resúmenes; las fotos no se versionan.",
+ "metodo_elegido": "detector3d",
+ "campos": {
+  "n": "fotos que entran en la métrica",
+  "mediaDesv": "desviación media respecto del grupo",
+  "p90": "percentil 90 de la desviación",
+  "dentro5": "% de fotos dentro de 5 (unidades de la métrica)"
+ },
+ "summary": {
+  "rayPlane": {
+   "middleOverLower": {
+    "n": 61,
+    "mediaDesv": 3.54,
+    "p90": 9.9,
+    "dentro5": 80,
+    "unidad": "%"
+   },
+   "mouthNoseChin": {
+    "n": 61,
+    "mediaDesv": 3.55,
+    "p90": 6.71,
+    "dentro5": 84,
+    "unidad": "%"
+   },
+   "eyeSpacing": {
+    "n": 59,
+    "mediaDesv": 4.29,
+    "p90": 9.42,
+    "dentro5": 73,
+    "unidad": "%"
+   },
+   "noseWidth": {
+    "n": 61,
+    "mediaDesv": 2.99,
+    "p90": 7.31,
+    "dentro5": 75,
+    "unidad": "%"
+   },
+   "mouthWidth": {
+    "n": 54,
+    "mediaDesv": 3.48,
+    "p90": 7.9,
+    "dentro5": 74,
+    "unidad": "%"
+   },
+   "jawCheek": {
+    "n": 61,
+    "mediaDesv": 2.67,
+    "p90": 6.34,
+    "dentro5": 82,
+    "unidad": "%"
+   },
+   "canthalTilt": {
+    "n": 59,
+    "mediaDesv": 1.02,
+    "p90": 1.93,
+    "dentro5": 98,
+    "unidad": "°"
+   },
+   "mouthCorners": {
+    "n": 54,
+    "mediaDesv": 691.25,
+    "p90": 2478.46,
+    "dentro5": 7,
+    "unidad": "%"
+   },
+   "noseProjection": {
+    "n": 22,
+    "mediaDesv": 4.69,
+    "p90": 9.79,
+    "dentro5": 59,
+    "unidad": "%"
+   },
+   "chinProjection": {
+    "n": 22,
+    "mediaDesv": 81.66,
+    "p90": 167.66,
+    "dentro5": 14,
+    "unidad": "%"
+   }
+  },
+  "detector3d": {
+   "middleOverLower": {
+    "n": 61,
+    "mediaDesv": 3.03,
+    "p90": 8.5,
+    "dentro5": 80,
+    "unidad": "%"
+   },
+   "mouthNoseChin": {
+    "n": 61,
+    "mediaDesv": 3.19,
+    "p90": 7.62,
+    "dentro5": 77,
+    "unidad": "%"
+   },
+   "eyeSpacing": {
+    "n": 59,
+    "mediaDesv": 3.81,
+    "p90": 9.67,
+    "dentro5": 73,
+    "unidad": "%"
+   },
+   "noseWidth": {
+    "n": 61,
+    "mediaDesv": 2.38,
+    "p90": 5.97,
+    "dentro5": 85,
+    "unidad": "%"
+   },
+   "mouthWidth": {
+    "n": 54,
+    "mediaDesv": 3.12,
+    "p90": 7.3,
+    "dentro5": 76,
+    "unidad": "%"
+   },
+   "jawCheek": {
+    "n": 61,
+    "mediaDesv": 2.79,
+    "p90": 6.68,
+    "dentro5": 80,
+    "unidad": "%"
+   },
+   "canthalTilt": {
+    "n": 59,
+    "mediaDesv": 0.95,
+    "p90": 1.73,
+    "dentro5": 98,
+    "unidad": "°"
+   },
+   "mouthCorners": {
+    "n": 54,
+    "mediaDesv": 318.09,
+    "p90": 807.58,
+    "dentro5": 7,
+    "unidad": "%"
+   },
+   "noseProjection": {
+    "n": 22,
+    "mediaDesv": 4.69,
+    "p90": 9.79,
+    "dentro5": 59,
+    "unidad": "%"
+   },
+   "chinProjection": {
+    "n": 22,
+    "mediaDesv": 81.66,
+    "p90": 167.66,
+    "dentro5": 14,
+    "unidad": "%"
+   }
+  }
+ }
+}

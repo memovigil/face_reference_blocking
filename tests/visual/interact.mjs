@@ -186,6 +186,54 @@ const toClient = (page, p) => page.evaluate((p) => {
   s = await state(page);
   check(Math.abs(s.yaw - yaw0 - 3) < 1e-6, `ajuste fino de giro +3° (${(s.yaw - yaw0).toFixed(2)}°)`);
 
+  // --- Fase 2 -------------------------------------------------------------
+  await page.evaluate(() => window.__encaje.store.set({ poseAdjust: { yaw: 0, pitch: 0, roll: 0 } }));
+  await page.waitForFunction(() => ['done', 'unavailable'].includes(window.__encaje.store.get().segStatus), null, { timeout: 30000 });
+
+  // Expresión detectada (sonrisa) con «Ignorar»: el ancho de boca vuelve a contar.
+  const mouthReliable = () => page.evaluate(() => window.__encaje.derive(window.__encaje.store.get()).metrics.find((m) => m.def.id === 'mouthWidth').reliable);
+  check((await mouthReliable()) === false, 'con sonrisa, el ancho de boca no cuenta');
+  await page.locator('.tag.expr', { hasText: 'Sonrisa' }).getByRole('button', { name: 'Ignorar' }).click();
+  check((await mouthReliable()) === true, '«Ignorar» la sonrisa vuelve a contar el ancho de boca');
+
+  // Pasos: cada uno enciende sus capas.
+  await page.getByRole('button', { name: /Envolvente con rectas/ }).click();
+  let ly = await page.evaluate(() => window.__encaje.store.get().layers);
+  check(ly.envelope && !ly.structure, 'paso A enciende «Envolvente»');
+  await page.getByRole('button', { name: '9', exact: true }).click();
+  const sides = await page.evaluate(() => window.__encaje.derive(window.__encaje.store.get()).envelope.polygon.length);
+  check(sides === 9, `envolvente con 9 rectas (${sides})`);
+  const paths = await page.evaluate(() => document.querySelectorAll('.layer-envelope .env-poly').length);
+  check(paths === 1, 'la envolvente se dibuja');
+  await page.screenshot({ path: `${out}/paso-A.png` });
+
+  await page.getByRole('button', { name: /Esfera de Loomis/ }).click();
+  ly = await page.evaluate(() => window.__encaje.store.get().layers);
+  check(ly.structure && ly.measures && !ly.envelope, 'paso B enciende Estructura y Medidas');
+  await page.waitForFunction(() => document.querySelectorAll('.lm-sphere').length > 0, null, { timeout: 5000 }).catch(() => {});
+  const lm = await page.evaluate(() => ({ sphere: document.querySelectorAll('.lm-sphere').length, rings: document.querySelectorAll('.lm-ring').length, canon: document.querySelectorAll('.lm-canon').length }));
+  check(lm.sphere === 1 && lm.rings >= 3 && lm.canon >= 1, `Loomis: esfera, anillos y canon (${JSON.stringify(lm)})`);
+  await page.screenshot({ path: `${out}/paso-B.png` });
+
+  await page.getByRole('button', { name: /Medidas y triangulación/ }).click();
+  const box = page.locator('.measure-list input[type=checkbox]').first();
+  await box.check();
+  const checked = await page.evaluate(() => Object.values(window.__encaje.store.get().checkedMeasures).filter(Boolean).length);
+  check(checked === 1 && (await page.locator('.measure-list input[type=checkbox]').first().isChecked()), '«ya lo revisé» queda marcado tras redibujar');
+  const ms = await page.evaluate(() => ({ tri: document.querySelectorAll('.ms-triangle').length, plumb: document.querySelectorAll('.ms-plumb').length }));
+  check(ms.tri === 1 && ms.plumb >= 4, `paso C: triángulo y plomadas (${JSON.stringify(ms)})`);
+  await page.screenshot({ path: `${out}/paso-C.png` });
+
+  // Diagnóstico visible.
+  check(await page.locator('.diag-card h2').isVisible(), 'el diagnóstico está en el panel');
+
+  // Cargar otra foto: el lienzo debe mostrar la nueva imagen (error encontrado en la fase 2).
+  const firstId = await page.evaluate(() => window.__encaje.store.get().image.id);
+  await page.setInputFiles('input[type=file]', process.env.SECOND_PHOTO ?? 'tests/fixtures/mediapipe/portrait.jpg');
+  await page.waitForFunction((b) => { const s = window.__encaje.store.get(); return s.image.id !== b && s.status === 'ready'; }, firstId, { timeout: 60000 });
+  const same = await page.evaluate(() => window.__encaje.viewer.imageSource === window.__encaje.store.get().image.canvas);
+  check(same, 'al cargar otra foto, el lienzo muestra la nueva imagen');
+
   check(errors.length === 0, `sin errores de página${errors.length ? `: ${errors.join(' | ')}` : ''}`);
   await page.close();
 }

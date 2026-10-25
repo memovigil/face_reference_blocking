@@ -9,12 +9,14 @@ import './styles.css';
 
 import { renderRotatedFace } from './debug/synthRotate';
 import { detectFace, getLandmarker } from './detect/faceLandmarker';
+import { segmentImage } from './detect/segment';
 import { dragLandmarks, KEY_BY_ID } from './detect/keypoints';
-import { LayerRenderer } from './draw/layers';
+import { LayerRenderer, STEP_LAYERS } from './draw/layers';
 import { ZERO_POSE } from './geom/pose';
 import { v2, type Vec2, type Vec3 } from './geom/vec';
 import { es } from './i18n/es';
-import { loadImageFile, loadImageUrl, type WorkImage } from './image/load';
+import { loadImageFile, loadImageUrl, workImageFromCanvas, type WorkImage } from './image/load';
+import { renderSample } from './sample/render';
 import { derive } from './state/derived';
 import { createStore, initialState, loadPrefs, savePrefs, type AppState, type LayerId } from './state/store';
 import { h } from './ui/dom';
@@ -47,13 +49,16 @@ const toolbarHost = h('div', { 'class': 'toolbar', 'role': 'toolbar', 'aria-labe
 const stageHost = h('div', { class: 'stage-host' });
 const emptyUpload = h('button', { type: 'button', class: 'btn primary' }, es.upload);
 emptyUpload.addEventListener('click', () => fileInput.click());
+const sampleBtn = h('button', { type: 'button', class: 'btn' }, es.sample);
+sampleBtn.addEventListener('click', () => void openSample());
 const emptyState = h(
   'div',
   { class: 'empty-state' },
   h('h2', {}, es.emptyTitle),
   h('p', {}, es.emptyBody),
-  emptyUpload,
+  h('div', { class: 'empty-actions' }, emptyUpload, sampleBtn),
   h('p', { class: 'hint' }, es.uploadHint),
+  h('p', { class: 'hint' }, es.sampleHint),
 );
 const busy = h('div', { 'class': 'busy', 'hidden': true, 'role': 'status' }, h('span', { class: 'spinner', 'aria-hidden': 'true' }), h('span', { class: 'busy-text' }));
 const dropHint = h('div', { class: 'drop-hint', hidden: true }, es.dropHere);
@@ -106,7 +111,7 @@ store.subscribe((s, prev) => {
   if (s.tool !== prev.tool) viewer.setHandTool(s.tool === 'hand');
   if (s.theme !== prev.theme) applyTheme(s.theme);
   emptyState.hidden = !!s.image;
-  const working = s.status === 'loading-model' || s.status === 'detecting';
+  const working = s.status === 'rendering-sample' || s.status === 'loading-model' || s.status === 'detecting';
   busy.hidden = !working;
   busy.querySelector('.busy-text')!.textContent = es.status[s.status];
   scheduleLayers();
@@ -119,6 +124,9 @@ store.subscribe((s, prev) => {
   ) {
     savePrefs(s);
   }
+  // Cada paso enciende sus capas al entrar; el usuario puede cambiarlas después.
+  // Va al final: no debe impedir el resto de las actualizaciones de este cambio.
+  if (s.step !== prev.step && STEP_LAYERS[s.step]) store.set({ layers: { ...s.layers, ...STEP_LAYERS[s.step] } });
 });
 
 {
@@ -148,6 +156,10 @@ async function openImage(get: () => Promise<WorkImage>): Promise<void> {
     landmarks: null,
     extrasPlaced: {},
     poseAdjust: ZERO_POSE,
+    segmentation: null,
+    segStatus: 'idle',
+    ignoreExpressions: {},
+    checkedMeasures: {},
     selectedKey: null,
     step: 'R',
     status: 'loading-model',
@@ -170,8 +182,22 @@ async function openImage(get: () => Promise<WorkImage>): Promise<void> {
     store.set({ status: 'no-face' });
     return;
   }
-  store.set({ status: 'ready', detection: det, landmarks: det.landmarks });
+  store.set({ status: 'ready', detection: det, landmarks: det.landmarks, segStatus: 'running' });
   frameHead();
+  // La segmentación (silueta con cabello) llega después, sin bloquear la revisión.
+  await new Promise((r) => setTimeout(r, 0));
+  const seg = await segmentImage(img.canvas);
+  if (seq !== loadSeq) return;
+  store.set({ segmentation: seg, segStatus: seg ? 'done' : 'unavailable' });
+}
+
+/** Muestra de ejemplo: cabeza 3D generada en la app (sin foto de una persona real). */
+async function openSample(): Promise<void> {
+  await openImage(async () => {
+    store.set({ status: 'rendering-sample' });
+    await new Promise((r) => requestAnimationFrame(() => setTimeout(r, 0)));
+    return workImageFromCanvas(renderSample().canvas, es.sampleName);
+  });
 }
 
 /** Encuadra la cabeza (malla + puntos estimados) si ocupa poco de la foto. */
@@ -276,6 +302,7 @@ declare global {
       viewer: Viewer;
       derive: typeof derive;
       openUrl(url: string): Promise<void>;
+      openSample(): Promise<void>;
       synthRotate(yaw: number, pitch?: number): Promise<string>;
     };
   }
@@ -285,6 +312,7 @@ window.__encaje = {
   viewer,
   derive,
   openUrl: (url) => openImage(() => loadImageUrl(url)),
+  openSample,
   async synthRotate(yaw, pitch = 0) {
     const s = store.get();
     if (!s.image || !s.detection) throw new Error('sin detección');

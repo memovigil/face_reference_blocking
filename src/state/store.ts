@@ -4,16 +4,19 @@
 
 import type { Detection } from '../detect/faceLandmarker';
 import type { ExtraId } from '../detect/keypoints';
+import type { Segmentation } from '../detect/segment';
+import type { ExpressionId } from '../geom/expression';
 import { ZERO_POSE, type PoseAngles } from '../geom/pose';
 import type { Vec2, Vec3 } from '../geom/vec';
 import type { WorkImage } from '../image/load';
 
 export type StepId = 'R' | 'A' | 'B' | 'C' | 'D' | 'E' | 'F' | 'G' | 'H' | 'I' | 'J';
 export type LayerId = 'envelope' | 'structure' | 'measures' | 'points' | 'indices';
-export type Status = 'empty' | 'loading-model' | 'detecting' | 'ready' | 'no-face' | 'error';
+export type Status = 'empty' | 'rendering-sample' | 'loading-model' | 'detecting' | 'ready' | 'no-face' | 'error';
 export type ViewMode = 'overlay' | 'side';
 export type Tool = 'select' | 'hand';
 export type Theme = 'auto' | 'light' | 'dark';
+export type SegStatus = 'idle' | 'running' | 'done' | 'unavailable';
 
 export interface AppState {
   status: Status;
@@ -25,6 +28,15 @@ export interface AppState {
   /** Puntos fuera de la malla que el usuario ya colocó (los demás se estiman). */
   extrasPlaced: Partial<Record<ExtraId, Vec2>>;
   poseAdjust: PoseAngles;
+  /** Segmentación de cabello/cara (para silueta, envolvente y espacios negativos). */
+  segmentation: Segmentation | null;
+  segStatus: SegStatus;
+  /** Expresiones detectadas que el usuario decidió ignorar al medir. */
+  ignoreExpressions: Partial<Record<ExpressionId, boolean>>;
+  /** Lados de la envolvente (7–9). */
+  envelopeSides: number;
+  /** Medidas del paso C marcadas como «ya lo revisé». */
+  checkedMeasures: Record<string, boolean>;
   step: StepId;
   layers: Record<LayerId, boolean>;
   lineOpacity: number;
@@ -43,6 +55,11 @@ export const initialState: AppState = {
   landmarks: null,
   extrasPlaced: {},
   poseAdjust: ZERO_POSE,
+  segmentation: null,
+  segStatus: 'idle',
+  ignoreExpressions: {},
+  envelopeSides: 8,
+  checkedMeasures: {},
   step: 'R',
   layers: { envelope: true, structure: true, measures: true, points: true, indices: false },
   lineOpacity: 0.9,

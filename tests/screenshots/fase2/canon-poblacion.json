@@ -1,0 +1,96 @@
+{
+ "fecha": "2026-10-25T21:18:45.174Z",
+ "que_es": "Canon calibrado: mediana y desviación robusta (1.4826·MAD) de cada métrica medida con el mismo detector en las referencias del usuario (una foto por persona). «canon» es el valor previo de la literatura, para comparar. Solo resúmenes.",
+ "stats": {
+  "thirdUpper": {
+   "canon": 0.3333333333333333,
+   "median": 0.28917848979027105,
+   "sd": 0.0257084612303965,
+   "n": 126
+  },
+  "thirdMiddle": {
+   "canon": 0.3333333333333333,
+   "median": 0.3680070563378419,
+   "sd": 0.019321065642571897,
+   "n": 126
+  },
+  "thirdLower": {
+   "canon": 0.3333333333333333,
+   "median": 0.34690150405622844,
+   "sd": 0.01879440352644334,
+   "n": 126
+  },
+  "middleOverLower": {
+   "canon": 1.08,
+   "median": 1.07421039619325,
+   "sd": 0.08864300501610652,
+   "n": 154
+  },
+  "eyesInHeight": {
+   "canon": 0.5,
+   "median": 0.45822715090323307,
+   "sd": 0.027104148326654916,
+   "n": 116
+  },
+  "mouthNoseChin": {
+   "canon": 0.347,
+   "median": 0.34279900253852,
+   "sd": 0.028072516060234348,
+   "n": 154
+  },
+  "headWidthHeight": {
+   "canon": 0.7,
+   "median": 0.6861872881387914,
+   "sd": 0.03031487321649586,
+   "n": 66
+  },
+  "eyeSpacing": {
+   "canon": 1.208,
+   "median": 1.2164474833834187,
+   "sd": 0.10210583257486501,
+   "n": 154
+  },
+  "noseWidth": {
+   "canon": 0.647,
+   "median": 0.6402889334638041,
+   "sd": 0.03241406730627522,
+   "n": 155
+  },
+  "mouthWidth": {
+   "canon": 0.788,
+   "median": 0.7863327190166184,
+   "sd": 0.04468342155388656,
+   "n": 131
+  },
+  "jawCheek": {
+   "canon": 0.797,
+   "median": 0.7960885209542153,
+   "sd": 0.03542460324706097,
+   "n": 155
+  },
+  "canthalTilt": {
+   "canon": 4.6,
+   "median": 4.993661366796923,
+   "sd": 2.1642262664244387,
+   "n": 154
+  },
+  "mouthCorners": {
+   "canon": -0.018,
+   "median": -0.011936060203879422,
+   "sd": 0.02425460525434677,
+   "n": 131
+  },
+  "noseProjection": {
+   "canon": 0.263,
+   "median": 0.2628671971015243,
+   "sd": 0.017197071672284535,
+   "n": 62
+  },
+  "chinProjection": {
+   "canon": -0.064,
+   "median": -0.06440564380639006,
+   "sd": 0.08473912912723743,
+   "n": 61
+  }
+ }
+}

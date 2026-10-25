@@ -14,45 +14,14 @@ import {
   unprojectToCanonical,
   type PoseAngles,
 } from '../../src/geom/pose';
-import { apply3, col3, v3, type Mat3, type Vec3 } from '../../src/geom/vec';
+import { col3, v3 } from '../../src/geom/vec';
+import { mediapipeMatrix, syntheticLandmarks } from './helpers';
 
 const close = (a: PoseAngles, b: PoseAngles, tol = 1e-6) => {
   expect(a.yaw).toBeCloseTo(b.yaw, -Math.log10(tol));
   expect(a.pitch).toBeCloseTo(b.pitch, -Math.log10(tol));
   expect(a.roll).toBeCloseTo(b.roll, -Math.log10(tol));
 };
-
-/** Matriz 4×4 column-major como la entrega MediaPipe. */
-function mediapipeMatrix(r: Mat3, t: Vec3, scale = 1): number[] {
-  const m = new Array(16).fill(0);
-  for (let i = 0; i < 3; i++) for (let j = 0; j < 3; j++) m[j * 4 + i] = r[i * 3 + j] * scale;
-  m[12] = t.x;
-  m[13] = t.y;
-  m[14] = t.z;
-  m[15] = 1;
-  return m;
-}
-
-/** Landmarks sintéticos: el canónico girado y proyectado (ortográfica) a px. */
-function syntheticLandmarks(angles: PoseAngles, scale = 20, cx = 400, cy = 500): Vec3[] {
-  const r = rotationFromAngles(angles);
-  const out: Vec3[] = [];
-  for (let i = 0; i < 478; i++) {
-    const p = canonicalPoint(Math.min(i, 467));
-    const k = apply3(r, p);
-    out.push(v3(cx + k.x * scale, cy - k.y * scale, -k.z * scale));
-  }
-  // Pupilas: entre las esquinas de cada ojo.
-  const pupil = (a: number, b: number) => {
-    const pa = canonicalPoint(a);
-    const pb = canonicalPoint(b);
-    const k = apply3(r, v3((pa.x + pb.x) / 2, (pa.y + pb.y) / 2, (pa.z + pb.z) / 2 + 0.3));
-    return v3(cx + k.x * scale, cy - k.y * scale, -k.z * scale);
-  };
-  out[468] = pupil(33, 133);
-  out[473] = pupil(263, 362);
-  return out;
-}
 
 describe('convención de ángulos', () => {
   it('ida y vuelta ángulos → rotación → ángulos', () => {

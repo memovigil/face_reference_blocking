@@ -2,12 +2,24 @@
 
 import type { Derived } from '../../state/derived';
 import type { AppState, LayerId } from '../../state/store';
+import { envelopeLayer } from './envelope';
 import { indicesLayer } from './indices';
 import { keypointsLayer } from './keypoints';
+import { canonLayer, loomisLayer } from './loomis';
+import { measuresLayer } from './measures';
 import { meshLayer } from './mesh';
 import type { LayerDef } from './types';
 
-const LAYERS: readonly LayerDef[] = [meshLayer, indicesLayer, keypointsLayer];
+const LAYERS: readonly LayerDef[] = [meshLayer, envelopeLayer, loomisLayer, canonLayer, measuresLayer, indicesLayer, keypointsLayer];
+
+/** Capas que enciende cada paso al entrar (el usuario puede cambiarlas después). */
+export const STEP_LAYERS: Partial<Record<AppState['step'], Partial<Record<LayerId, boolean>>>> = {
+  R: { structure: true, points: true, envelope: false, measures: false },
+  A: { envelope: true, points: true, structure: false, measures: false },
+  B: { structure: true, measures: true, points: true, envelope: false },
+  C: { measures: true, structure: true, points: false, envelope: false },
+  I: { envelope: true, structure: true, measures: true, points: false },
+};
 const ORDER: readonly LayerId[] = ['envelope', 'structure', 'measures', 'indices', 'points'];
 
 export class LayerRenderer {
@@ -25,6 +37,7 @@ export class LayerRenderer {
 
   render(state: AppState, d: Derived | null): void {
     this.root.style.setProperty('--line-opacity', String(state.lineOpacity));
+    this.root.dataset.step = state.step;
     for (const g of this.groups.values()) g.replaceChildren();
     if (!d || !state.landmarks) return;
     for (const layer of LAYERS) {

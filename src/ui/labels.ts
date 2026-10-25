@@ -26,3 +26,11 @@ export function keyLabel(kp: KeyPoint, all: readonly KeyPoint[]): string {
   const side = photoSide(kp, all);
   return side ? `${name} (${es.sidePhoto[side]})` : name;
 }
+
+/** Etiqueta corta de un punto estimado: de dónde sale y si tiene algún aviso. */
+export function estimateTag(kp: KeyPoint): string {
+  if (kp.caveat === 'cropped') return `${es.review.estimated} · ${es.review.cropped}`;
+  if (kp.caveat === 'covered') return `${es.review.estimated} · ${es.review.covered}`;
+  if (kp.source === 'silhouette') return `${es.review.estimated} · ${es.review.fromSilhouette}`;
+  return es.review.estimated;
+}

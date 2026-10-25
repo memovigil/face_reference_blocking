@@ -5,12 +5,13 @@
 
 import { canonicalPoint } from '../geom/canonical';
 import { projectCanonical, type Anchor, type SimilarityFit } from '../geom/pose';
-import { apply3, col3, dist2, v2, v3, type Mat3, type Vec2, type Vec3 } from '../geom/vec';
+import { headAxis, type HeadSilhouette } from '../geom/silhouette';
+import { apply3, col3, dist2, v2, v3, type Vec2, type Vec3 } from '../geom/vec';
 import { LM, SUBJECT_LEFT as L, SUBJECT_RIGHT as R } from './landmarkMap';
 
 export type KeyGroup = 'midline' | 'eyes' | 'brows' | 'nose' | 'mouth' | 'contour' | 'skull';
 
-export type ExtraId = 'crown' | 'skullR' | 'skullL' | 'skullBack' | 'earTopR' | 'earTopL' | 'earLobeR' | 'earLobeL';
+export type ExtraId = 'crown' | 'hairline' | 'skullR' | 'skullL' | 'skullBack' | 'earTopR' | 'earTopL' | 'earLobeR' | 'earLobeL';
 
 export interface KeyDef {
   id: string;
@@ -25,6 +26,7 @@ export interface KeyDef {
 
 export const KEY_DEFS: readonly KeyDef[] = [
   { id: 'crown', group: 'skull', extra: 'crown' },
+  { id: 'hairline', group: 'midline', extra: 'hairline' },
   { id: 'foreheadTop', group: 'midline', landmark: LM.foreheadTop },
   { id: 'nasion', group: 'midline', landmark: LM.nasion },
   { id: 'noseTip', group: 'midline', landmark: LM.noseTip },
@@ -64,12 +66,20 @@ export interface KeyPoint {
   p: Vec2;
   estimated: boolean;
   visible: boolean;
+  /** De dónde sale un punto estimado: silueta (segmentación) o proporciones promedio. */
+  source?: EstimateSource;
+  /** Aviso sobre un punto estimado: la cabeza sale del cuadro o el cabello lo cubre. */
+  caveat?: EstimateCaveat;
 }
+
+export type EstimateSource = 'silhouette' | 'canon';
+export type EstimateCaveat = 'cropped' | 'covered';
 
 // ---------------------------------------------------------------------------
 // Estimación de puntos fuera de la malla.
 //
-// El cráneo se aproxima con un elipsoide en el marco canónico (cm), con
+// Con segmentación, cima, ancho del cráneo, nuca y nacimiento del cabello salen
+// de la silueta real (geom/silhouette.ts). Sin ella, el cráneo se aproxima con un elipsoide en el marco canónico (cm), con
 // medidas antropométricas promedio de adulto: ancho de cabeza (eurion‑eurion)
 // ≈ 15.5 cm, largo (glabela‑opistocráneo) ≈ 19.5 cm y alto mentón‑vértex
 // ≈ 22.5 cm (Farkas, «Anthropometry of the Head and Face», 1994). Solo da la
@@ -79,6 +89,15 @@ export interface KeyPoint {
 const SKULL_CENTER = v3(0, 3.6, -4.2);
 const SKULL_AXES = v3(7.8, 9.6, 9.8);
 const HAIR = 1.06;
+
+/**
+ * Nacimiento del cabello sin segmentación: un tercio (ceja → base de la nariz)
+ * por encima de la ceja, como en el canon de tercios iguales. La frente se
+ * inclina hacia atrás: profundidad canónica ≈ 3.3 cm (la frente alta, 10, está
+ * a 4.5 cm y baja ~0.3 cm por cada cm que sube).
+ */
+export const HAIRLINE_DEPTH = 3.3;
+const HAIRLINE_CANON = v3(0, 2 * canonicalPoint(LM.glabella).y - canonicalPoint(LM.subnasale).y, HAIRLINE_DEPTH);
 
 /** Oreja: punta a la altura de la ceja, lóbulo a la altura de la base de la nariz (Loomis). */
 export const EAR_TOP = v3(7.4, canonicalPoint(R.browPeak).y - 0.4, -5.4);
@@ -106,13 +125,6 @@ function skullSurface(): Vec3[] {
   return pts;
 }
 
-/** Dirección (2D, unitaria) en la imagen de un eje del marco de la cabeza. */
-function imageAxis(rotation: Mat3, axis: Vec3): Vec2 {
-  const k = apply3(rotation, axis);
-  const l = Math.hypot(k.x, k.y) || 1;
-  return v2(k.x / l, -k.y / l);
-}
-
 /** Peso de cada punto de oreja confirmado, relativo a un landmark de la malla. */
 const EAR_ANCHOR_WEIGHT = 10;
 
@@ -133,9 +145,11 @@ export function earAnchors(placed: Partial<Record<ExtraId, Vec2>>): Anchor[] {
 export interface ExtraEstimate {
   p: Vec2;
   visible: boolean;
+  source: EstimateSource;
+  caveat?: EstimateCaveat;
 }
 
-export function estimateExtras(frame: SimilarityFit): Record<ExtraId, ExtraEstimate> {
+export function estimateExtras(frame: SimilarityFit, sil: HeadSilhouette | null = null): Record<ExtraId, ExtraEstimate> {
   const proj = skullSurface().map((p) => projectCanonical(frame, p));
   const extreme = (dir: Vec2): Vec2 => {
     let best = proj[0];
@@ -149,17 +163,17 @@ export function estimateExtras(frame: SimilarityFit): Record<ExtraId, ExtraEstim
     }
     return v2(best.x, best.y);
   };
-  const up = imageAxis(frame.rotation, v3(0, 1, 0));
+  const up = headAxis(frame.rotation, v3(0, 1, 0));
   // Perpendicular a "arriba" en la imagen, hacia el lado derecho del sujeto.
   let side = v2(-up.y, up.x);
-  const rightAxis = imageAxis(frame.rotation, v3(-1, 0, 0));
+  const rightAxis = headAxis(frame.rotation, v3(-1, 0, 0));
   if (side.x * rightAxis.x + side.y * rightAxis.y < 0) side = v2(-side.x, -side.y);
 
   const facing = col3(frame.rotation, 2); // hacia dónde mira la cara (marco K)
   const turned = Math.abs(Math.atan2(facing.x, facing.z)) > (20 * Math.PI) / 180;
   // Con la cabeza girada, el ancho del cráneo del lado de atrás es el contorno
   // trasero: se muestra ese punto en lugar del ancho de ese lado.
-  const backDir = imageAxis(frame.rotation, v3(0, 0, -1));
+  const backDir = headAxis(frame.rotation, v3(0, 0, -1));
   const backSide: 'R' | 'L' = side.x * backDir.x + side.y * backDir.y > 0 ? 'R' : 'L';
 
   const earVisible = (s: 'R' | 'L') => {
@@ -171,15 +185,22 @@ export function estimateExtras(frame: SimilarityFit): Record<ExtraId, ExtraEstim
     return v2(q.x, q.y);
   };
 
+  const hairCanon = projectCanonical(frame, HAIRLINE_CANON);
+  const canon: EstimateSource = 'canon';
+  const fromSil: EstimateSource = sil ? 'silhouette' : 'canon';
+  const cut = (c: boolean | undefined): EstimateCaveat | undefined => (c ? 'cropped' : undefined);
   return {
-    crown: { p: extreme(up), visible: true },
-    skullR: { p: extreme(side), visible: !(turned && backSide === 'R') },
-    skullL: { p: extreme(v2(-side.x, -side.y)), visible: !(turned && backSide === 'L') },
-    skullBack: { p: extreme(backDir), visible: turned },
-    earTopR: { p: ear(EAR_TOP, 'R'), visible: earVisible('R') },
-    earLobeR: { p: ear(EAR_LOBE, 'R'), visible: earVisible('R') },
-    earTopL: { p: ear(EAR_TOP, 'L'), visible: earVisible('L') },
-    earLobeL: { p: ear(EAR_LOBE, 'L'), visible: earVisible('L') },
+    crown: { p: sil ? sil.crown : extreme(up), visible: true, source: fromSil, caveat: cut(sil?.cropped.crown) },
+    hairline: sil?.hairline
+      ? { p: sil.hairline, visible: true, source: 'silhouette' }
+      : { p: v2(hairCanon.x, hairCanon.y), visible: true, source: canon, caveat: sil?.hairlineCovered ? 'covered' : undefined },
+    skullR: { p: sil ? sil.skullR : extreme(side), visible: !(turned && backSide === 'R'), source: fromSil, caveat: cut(sil?.cropped.skullR) },
+    skullL: { p: sil ? sil.skullL : extreme(v2(-side.x, -side.y)), visible: !(turned && backSide === 'L'), source: fromSil, caveat: cut(sil?.cropped.skullL) },
+    skullBack: { p: sil ? sil.back : extreme(backDir), visible: turned, source: fromSil, caveat: cut(sil?.cropped.back) },
+    earTopR: { p: ear(EAR_TOP, 'R'), visible: earVisible('R'), source: canon },
+    earLobeR: { p: ear(EAR_LOBE, 'R'), visible: earVisible('R'), source: canon },
+    earTopL: { p: ear(EAR_TOP, 'L'), visible: earVisible('L'), source: canon },
+    earLobeL: { p: ear(EAR_LOBE, 'L'), visible: earVisible('L'), source: canon },
   };
 }
 
@@ -195,7 +216,8 @@ export function buildKeyPoints(
     }
     const id = def.extra!;
     const user = placed[id];
-    return { def, p: user ?? extras[id].p, estimated: !user, visible: extras[id].visible || !!user };
+    const e = extras[id];
+    return { def, p: user ?? e.p, estimated: !user, visible: e.visible || !!user, source: user ? undefined : e.source, caveat: user ? undefined : e.caveat };
   });
 }
 

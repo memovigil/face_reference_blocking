@@ -1,6 +1,8 @@
 // TODO el texto de la interfaz. Español neutro de México, con tuteo.
 
 import type { KeyGroup } from '../detect/keypoints';
+import type { ExpressionId } from '../geom/expression';
+import type { MetricGroup, MetricId, MetricValue } from '../geom/metrics';
 import type { LayerId, StepId } from '../state/store';
 
 export const es = {
@@ -13,9 +15,13 @@ export const es = {
   emptyBody:
     'Sube un retrato: de frente, de ¾ o con la cabeza inclinada. La herramienta detecta la cara, la pose y los rasgos, y construye encima la estructura paso a paso.',
   dropHere: 'Suelta la foto para cargarla',
+  sample: 'Probar con la muestra',
+  sampleName: 'muestra 3D',
+  sampleHint: 'La muestra es una cabeza 3D generada aquí mismo, con luz clave desde arriba a la derecha. No es la foto de una persona.',
 
   status: {
     'empty': 'Sin foto',
+    'rendering-sample': 'Generando la muestra 3D…',
     'loading-model': 'Cargando el modelo de detección…',
     'detecting': 'Detectando la cara…',
     'ready': 'Cara detectada',
@@ -61,13 +67,25 @@ export const es = {
     reset: 'Volver a lo detectado',
   },
 
+  seg: {
+    running: 'buscando el cabello…',
+    done: 'cabello y cara separados del fondo',
+    unavailable: 'sin segmentación: se estima con proporciones',
+    label: 'Silueta',
+  },
+
   expressions: {
     jawOpen: 'Boca abierta',
     smile: 'Sonrisa',
-    blinkLeft: 'Ojo cerrado (izq. de la foto)',
-    blinkRight: 'Ojo cerrado (der. de la foto)',
-    blinkBoth: 'Ojos cerrados',
-  },
+    eyesClosed: 'Ojos cerrados',
+    pucker: 'Labios fruncidos',
+    lipsO: 'boca en «O»: no se cierra el mentón',
+    jawClosed: (deg: number) => `mentón cerrado estimado (${Math.round(deg)}°)`,
+    ignore: 'Ignorar',
+    ignored: 'ignorada',
+    use: 'Tomar en cuenta',
+    help: 'Las expresiones cambian algunas medidas. Si la detección se equivoca, ignórala.',
+  } satisfies Record<ExpressionId, string> & Record<string, unknown>,
 
   toolbar: {
     zoomOut: 'Alejar',
@@ -100,6 +118,7 @@ export const es = {
     commonError: 'Error común',
     legend: 'Leyenda',
     comingIn: (n: number) => `Llega en la fase ${n}`,
+    needsFace: 'Primero sube una foto con una cara detectada.',
     prev: 'Paso anterior',
     next: 'Paso siguiente',
   },
@@ -115,6 +134,9 @@ export const es = {
       skull: 'Cráneo y orejas',
     } satisfies Record<KeyGroup, string>,
     estimated: 'estimado',
+    fromSilhouette: 'de la silueta',
+    cropped: 'fuera del cuadro',
+    covered: 'cubierto por el cabello',
     estimatedHelp: 'Los puntos con borde punteado no están en la malla: se estimaron con proporciones promedio. Arrástralos a la silueta real, con cabello.',
     resetDetection: 'Restablecer detección',
     dragHint: 'Arrastra un punto para corregirlo. Haz clic en un nombre para acercarte a él.',
@@ -123,6 +145,7 @@ export const es = {
 
   keys: {
     crown: 'Cima del cráneo (con cabello)',
+    hairline: 'Nacimiento del cabello',
     foreheadTop: 'Frente alta',
     nasion: 'Raíz de la nariz',
     noseTip: 'Punta de la nariz',
@@ -151,6 +174,111 @@ export const es = {
     selected: 'Punto seleccionado',
     mesh: 'Malla detectada',
     index: 'Número de landmark',
+    envelope: 'Envolvente (rectas tangentes a la silueta)',
+    plumb: 'Plomada por la cima (vertical)',
+    negative: 'Espacio negativo (fondo dentro de la envolvente)',
+    structure: 'Estructura visible',
+    hidden: 'Estructura oculta (detrás)',
+    canon: 'Tercios del canon (iguales)',
+    jawOpen: 'Mandíbula real, abierta',
+    measures: 'Medidas y plomadas',
+    levels: 'Niveles',
+  },
+
+  envelope: {
+    sides: 'Rectas',
+    fromSilhouette: 'Sobre la silueta con cabello (segmentación).',
+    fromPoints: 'Sobre los puntos de la cabeza: sin segmentación, la silueta del cabello es aproximada.',
+    negative: (n: number) => (n ? `${n} espacio${n > 1 ? 's' : ''} negativo${n > 1 ? 's' : ''} marcado${n > 1 ? 's' : ''}` : 'Sin espacios negativos grandes dentro de la envolvente'),
+    angle: (d: number) => `${Math.round(d)}°`,
+  },
+
+  loomis: {
+    sphere: (r: number, rms: number) => `Esfera ajustada a la silueta del cráneo: radio ${r.toFixed(1)} tercios · error ${rms.toFixed(1)} cm`,
+    rings: 'Los anillos siguen la superficie real de la cara: cabello, ceja, base de la nariz y boca.',
+    canonNote: 'Los tercios iguales (rojo punteado) son una convención de dibujo. En fotos reales el tercio superior medido suele ser menor: el diagnóstico compara contra lo que miden caras reales.',
+    facing: 'mira hacia',
+    canon: 'canon',
+  },
+
+  measures: {
+    title: 'Medidas para tu hoja',
+    help: 'Valores en la foto, en distancias entre pupilas. Márcalas cuando las pases a tu dibujo.',
+    checked: 'ya lo revisé',
+    eyes: 'ojos',
+    nose: 'nariz',
+    mouth: 'boca',
+    jaw: 'mandíbula',
+    brow: 'ceja',
+    lobe: 'lóbulo',
+    hairline: 'cabello',
+    unitShort: 'DP',
+    items: {
+      triangle: (k: number) => `La boca cae a ${k.toFixed(2)} distancias entre pupilas por debajo de la línea de los ojos.`,
+      noseWidth: (img: number, front: number) => `Ancho de la nariz: ${img.toFixed(2)} en la foto (${front.toFixed(2)} vista de frente).`,
+      mouthWidth: (img: number, front: number) => `Ancho de la boca: ${img.toFixed(2)} en la foto (${front.toFixed(2)} vista de frente).`,
+      plumbCanthus: (where: string) => `La plomada del lagrimal cae ${where} del ala de la nariz.`,
+      plumbPupil: (where: string) => `La plomada de la pupila cae ${where} de la comisura.`,
+      eyeLine: (d: number, side: string) => `Línea de los ojos: ${d.toFixed(0)}°${side}.`,
+      noseAxis: (d: number, side: string) => `Eje de la nariz: ${d.toFixed(0)}° contra la vertical${side}.`,
+      mouthLine: (d: number, side: string) => `Línea de la boca: ${d.toFixed(0)}°${side}.`,
+      jawLine: (d: number) => `Mandíbula (ángulo → mentón): ${d.toFixed(0)}° contra la horizontal.`,
+      lobe: (where: string) => `El lóbulo queda ${where} de la base de la nariz.`,
+    },
+    where: { on: 'justo encima', inside: 'por dentro', outside: 'por fuera', level: 'a la altura', above: 'por encima', below: 'por debajo' },
+    tilt: { flat: '', downLeft: ', baja hacia la izquierda de la foto', downRight: ', baja hacia la derecha de la foto' },
+  },
+
+  diagnosis: {
+    title: 'Lo que hace única esta cara',
+    respect: 'Respétalo: si lo corriges hacia el promedio, se pierde el parecido.',
+    nothing: 'En lo que se puede medir, esta cara está muy cerca del promedio: el parecido va a estar en los detalles y en las masas de valor.',
+    all: 'Todas las proporciones',
+    canonNote: 'El canon es un promedio, no un ideal. Una diferencia de menos de una desviación típica está dentro del margen de medición.',
+    sources: { fotos: 'promedio medido en fotos de referencia', loomis: 'canon de Loomis', neoclasico: 'canon de tercios iguales' } as Record<string, string>,
+    notes: {
+      estimated: 'estimado: confirma el punto en «Revisar puntos»',
+      smile: 'con sonrisa: la boca se ve más ancha',
+      pucker: 'con labios fruncidos',
+      mouthOpen: 'con la boca abierta no se mide',
+      turned: 'con la cabeza girada no se mide bien',
+      depthFrontal: 'de frente, la profundidad es una estimación',
+      jawClosed: 'con el mentón cerrado estimado',
+      eyesClosed: 'con los ojos cerrados',
+    } satisfies Record<NonNullable<MetricValue['note']>, string>,
+    groups: { thirds: 'Tercios', heights: 'Alturas', widths: 'Anchos', angles: 'Ángulos y profundidad' } satisfies Record<MetricGroup, string>,
+    canonLabel: 'canon',
+  },
+
+  metrics: {
+    thirdUpper: { label: 'Tercio superior (cabello → ceja)', more: 'frente más alta', less: 'frente más baja' },
+    thirdMiddle: { label: 'Tercio medio (ceja → base de la nariz)', more: 'tercio medio más largo', less: 'tercio medio más corto' },
+    thirdLower: { label: 'Tercio inferior (nariz → mentón)', more: 'tercio inferior más largo', less: 'tercio inferior más corto' },
+    middleOverLower: { label: 'Tercio medio contra inferior', more: 'nariz larga respecto de la parte baja de la cara', less: 'parte baja de la cara larga respecto de la nariz' },
+    eyesInHeight: { label: 'Altura de los ojos en la cabeza', more: 'ojos más arriba en la cabeza', less: 'ojos más abajo en la cabeza' },
+    mouthNoseChin: { label: 'Boca entre nariz y mentón', more: 'boca más baja, cerca del mentón', less: 'boca más alta, cerca de la nariz' },
+    earTop: { label: 'Punta de la oreja contra la ceja', more: 'orejas más arriba', less: 'orejas más abajo' },
+    earLobe: { label: 'Lóbulo contra la base de la nariz', more: 'lóbulo más arriba', less: 'lóbulo más abajo' },
+    headWidthHeight: { label: 'Ancho de la cabeza contra su alto', more: 'cabeza más ancha', less: 'cabeza más alargada' },
+    eyeSpacing: { label: 'Separación de los ojos (contra el ancho de un ojo)', more: 'ojos más separados', less: 'ojos más juntos' },
+    noseWidth: { label: 'Ancho de la nariz (alas)', more: 'nariz más ancha', less: 'nariz más angosta' },
+    mouthWidth: { label: 'Ancho de la boca (comisuras)', more: 'boca más ancha', less: 'boca más angosta' },
+    jawCheek: { label: 'Mandíbula contra pómulos', more: 'mandíbula ancha, cara más cuadrada', less: 'mandíbula angosta, cara en V' },
+    canthalTilt: { label: 'Inclinación de los ojos', more: 'ojos más inclinados hacia arriba afuera', less: 'ojos más horizontales o caídos afuera' },
+    mouthCorners: { label: 'Comisuras', more: 'comisuras hacia arriba', less: 'comisuras hacia abajo' },
+    noseProjection: { label: 'Proyección de la nariz', more: 'nariz más saliente', less: 'nariz menos saliente' },
+    chinProjection: { label: 'Mentón contra la frente', more: 'mentón adelantado', less: 'mentón retraído' },
+  } satisfies Record<MetricId, { label: string; more: string; less: string }>,
+
+  compare: {
+    title: 'Qué revisar primero',
+    order: [
+      'Silueta y tercios: compara la envolvente y los tercios de tu dibujo con los de la foto.',
+      'Triángulo ojos–boca: mide la distancia entre pupilas y qué tan abajo cae la boca.',
+      'Rasgos: ancho de nariz y boca, inclinación de los ojos, mandíbula.',
+    ],
+    distinctive: 'Lo más distintivo de esta cara:',
+    sideBySide: 'Ver lado a lado',
   },
 
   stepDefs: {

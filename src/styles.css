@@ -463,6 +463,14 @@ input[type='range'] {
   margin: 0 0 8px;
 }
 
+.empty-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
 .busy,
 .drop-hint {
   position: absolute;
@@ -623,6 +631,158 @@ svg.overlay .ss {
 .kp:hover .kp-label,
 .kp-sel .kp-label {
   display: block;
+}
+
+/* Paso A · envolvente */
+.env-poly {
+  fill: none;
+  stroke: var(--struct);
+  stroke-width: 2px;
+  stroke-linejoin: round;
+}
+
+.env-plumb {
+  fill: none;
+  stroke: var(--measure);
+  stroke-width: 1.2px;
+  stroke-dasharray: 6 4;
+}
+
+.env-negative {
+  fill: var(--measure);
+  fill-opacity: 0.16;
+  stroke: var(--measure);
+  stroke-width: 1px;
+  stroke-dasharray: 3 3;
+}
+
+.env-label text,
+.lm-facing-label text,
+.lm-canon-label text,
+.ms-label text {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  stroke: var(--halo);
+  stroke-width: 3px;
+  paint-order: stroke;
+}
+
+.env-label text {
+  fill: var(--struct);
+}
+
+/* Paso B · Loomis */
+.lm {
+  fill: none;
+  stroke: var(--struct);
+  stroke-width: 1.3px;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.lm-sphere {
+  stroke-width: 1.8px;
+}
+
+.lm-ring.lm-solid,
+.lm-center.lm-solid {
+  stroke-width: 1.5px;
+}
+
+.lm-hidden {
+  stroke-dasharray: 3 5;
+  stroke-width: 1px;
+  opacity: 0.3;
+}
+
+.lm-canon {
+  stroke: var(--measure);
+  stroke-dasharray: 5 4;
+  stroke-width: 1.2px;
+}
+
+.lm-jawOpen {
+  stroke: var(--measure);
+  stroke-dasharray: 4 3;
+}
+
+.lm-ear {
+  stroke-width: 1.5px;
+}
+
+.lm-facing {
+  stroke: var(--measure);
+  stroke-width: 1.5px;
+}
+
+.lm-arrow {
+  fill: var(--measure);
+  stroke: none;
+}
+
+.lm-facing-label text,
+.lm-canon-label text {
+  fill: var(--measure);
+}
+
+/* Paso C · medidas */
+.ms-plumb {
+  fill: none;
+  stroke: var(--measure);
+  stroke-width: 1px;
+  stroke-dasharray: 2 4;
+  opacity: 0.9;
+}
+
+.ms-level {
+  fill: none;
+  stroke: var(--struct);
+  stroke-width: 1px;
+  stroke-dasharray: 6 3;
+}
+
+.ms-triangle {
+  fill: none;
+  stroke: var(--measure);
+  stroke-width: 1.6px;
+}
+
+.ms-width,
+.ms-tick {
+  fill: none;
+  stroke: var(--measure);
+  stroke-width: 1.4px;
+}
+
+.ms-angle-line {
+  fill: none;
+  stroke: var(--measure);
+  stroke-width: 1px;
+  opacity: 0.8;
+}
+
+.ms-label text {
+  fill: var(--measure);
+}
+
+/* En el paso C, Loomis queda de fondo. */
+.layers[data-step='C'] .l-loomis {
+  opacity: 0.35;
+}
+
+/* Puntos pequeños fuera de «Revisar puntos». */
+.kp-mini .kp-ring {
+  r: 3.5px;
+  stroke-width: 1.2px;
+}
+
+.kp-mini .kp-dot {
+  r: 1.4px;
+}
+
+.kp-mini .kp-hit {
+  r: 9px;
 }
 
 .crosshair path {
@@ -932,4 +1092,221 @@ svg.overlay .ss {
 .slider-row output {
   text-align: right;
   font-size: 0.85rem;
+}
+
+/* ------------------------------------------------------------- panel (fase 2) */
+
+.control-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 8px 0;
+}
+
+.sw-env {
+  border-radius: 2px;
+  border: 2px solid var(--struct);
+}
+
+.sw-plumb {
+  border-radius: 0;
+  height: 2px;
+  border-top: 2px dashed var(--measure);
+}
+
+.sw-neg {
+  border-radius: 3px;
+  background: color-mix(in srgb, var(--measure) 18%, transparent);
+  border: 1px dashed var(--measure);
+}
+
+.sw-struct {
+  border-radius: 0;
+  height: 2px;
+  background: var(--struct);
+}
+
+.sw-hidden {
+  border-radius: 0;
+  height: 2px;
+  border-top: 2px dashed var(--struct);
+  opacity: 0.6;
+}
+
+.sw-canon,
+.sw-open {
+  border-radius: 0;
+  height: 2px;
+  border-top: 2px dashed var(--measure);
+}
+
+.sw-measure {
+  border-radius: 0;
+  height: 2px;
+  background: var(--measure);
+}
+
+.sw-level {
+  border-radius: 0;
+  height: 2px;
+  border-top: 2px dashed var(--struct);
+}
+
+.expr-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.tag.expr {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 2px;
+}
+
+.tag.expr .btn.small {
+  padding: 1px 8px;
+  font-size: 0.78rem;
+}
+
+.tag.expr.ignored {
+  opacity: 0.7;
+}
+
+.measure-list,
+.compare-list {
+  margin: 6px 0;
+  padding-left: 0;
+  list-style: none;
+  display: grid;
+  gap: 6px;
+  font-size: 0.9rem;
+}
+
+ol.compare-list {
+  list-style: decimal;
+  padding-left: 20px;
+}
+
+ul.compare-list {
+  list-style: disc;
+  padding-left: 20px;
+}
+
+.measure-list label {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  cursor: pointer;
+}
+
+.measure-list input {
+  margin-top: 3px;
+  accent-color: var(--blue);
+}
+
+.measure-list li.done span {
+  color: var(--muted);
+  text-decoration: line-through;
+  text-decoration-color: color-mix(in srgb, var(--muted) 60%, transparent);
+}
+
+.diag-card h2 {
+  font-size: 1.1rem;
+  margin-bottom: 6px;
+}
+
+.distinctive {
+  padding-left: 20px;
+  margin: 6px 0;
+  display: grid;
+  gap: 8px;
+}
+
+.distinctive li {
+  font-size: 0.92rem;
+}
+
+.respect {
+  border-left: 3px solid var(--struct);
+  padding-left: 10px;
+  font-size: 0.9rem;
+}
+
+.zbar {
+  position: relative;
+  display: block;
+  height: 8px;
+  margin: 4px 0 2px;
+  border-radius: 4px;
+  background: linear-gradient(90deg, color-mix(in srgb, var(--measure) 35%, transparent), var(--line) 30%, var(--line) 70%, color-mix(in srgb, var(--measure) 35%, transparent));
+}
+
+.zbar-canon {
+  position: absolute;
+  left: 50%;
+  top: -3px;
+  bottom: -3px;
+  width: 2px;
+  background: var(--ink);
+  transform: translateX(-1px);
+}
+
+.zbar-mark {
+  position: absolute;
+  top: 50%;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--struct);
+  border: 2px solid var(--surface);
+  transform: translate(-50%, -50%);
+}
+
+.zbar.unreliable .zbar-mark {
+  background: transparent;
+  border: 2px dashed var(--muted);
+}
+
+.all-metrics summary {
+  cursor: pointer;
+  font-weight: 600;
+  margin-top: 8px;
+}
+
+.metric-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 10px;
+}
+
+.metric-list li {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0 8px;
+  font-size: 0.86rem;
+}
+
+.metric-list .zbar,
+.metric-list .m-note,
+.metric-list .m-source {
+  grid-column: 1 / -1;
+}
+
+.metric-list .m-note {
+  color: var(--warn);
+  font-size: 0.8rem;
+}
+
+.metric-list .m-source {
+  color: var(--muted);
+  font-size: 0.76rem;
+}
+
+.metric-list li.unreliable .m-label,
+.metric-list li.unreliable .m-value {
+  color: var(--muted);
 }

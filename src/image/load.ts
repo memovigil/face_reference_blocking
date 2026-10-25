@@ -52,3 +52,9 @@ export async function loadImageUrl(url: string, name?: string): Promise<WorkImag
   if (!res.ok) throw new Error(`fetch ${res.status}`);
   return loadImageFile(await res.blob(), name ?? url.split('/').pop() ?? 'foto');
 }
+
+/** Imagen de trabajo a partir de un lienzo ya dibujado (la muestra de ejemplo). */
+export async function workImageFromCanvas(src: HTMLCanvasElement, name: string): Promise<WorkImage> {
+  const blob = await new Promise<Blob>((resolve, reject) => src.toBlob((b) => (b ? resolve(b) : reject(new Error('toBlob'))), 'image/png'));
+  return loadImageFile(blob, name);
+}

@@ -151,6 +151,11 @@ export class Viewer {
     this.updateCursor();
   }
 
+  /** Imagen que muestra el visor (para las pruebas). */
+  get imageSource(): HTMLCanvasElement | null {
+    return this.image;
+  }
+
   get view(): ViewInfo {
     return { zoom: this.zoomRel, scale: this.scale };
   }

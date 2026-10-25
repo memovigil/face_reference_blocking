@@ -6,3 +6,4 @@ tests/fixtures/user/*
 *.log
 .DS_Store
 public/wasm/
+public/models/selfie_multiclass_256x256.tflite

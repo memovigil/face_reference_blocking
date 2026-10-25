@@ -38,19 +38,30 @@
 //    (tests/visual/pose-synth.mjs: la cara frontal detectada se renderiza
 //    girada un ángulo exacto y se vuelve a detectar). Giro/cabeceo medidos:
 //    aplicado   3D con z     ortográfico   pendiente z detectada / real
-//    ±15/0      ±11/−1       ±13.6/−1      0.95
-//    ±30/0      ±22/1        ±26/−0.4      0.84
-//    ±45/0      ±32/2        ±38/1         0.72
-//    0/±20      0/±17        0/±15         1.0
-//    −30/15     −24/13       −27/9         0.93
+//    ±15/0      ±11/−1       ±13.8/−1.5    0.95
+//    ±30/0      ±21/1        ±26.2/−1.6    0.84
+//    ±45/0      ±32/2        ±39.0/−0.5    0.72
+//    0/±20      0/±17        0/−18, +16.6  1.0
+//    −30/15     −24/13       −28/8.6       0.93
 //    El 3D falla el criterio de ±10° a 45°; el ortográfico lo cumple en todos
-//    los casos (máx. 7.8° en giro, 6.4° en cabeceo) y, por definición, es el
+//    los casos (máx. 6.6° en giro, 6.4° en cabeceo) y, por definición, es el
 //    que mejor alinea el modelo con lo que se ve en la foto. Reescalar la z del
 //    detector con un factor libre converge al resultado 3D, y mezclarla con
 //    peso fijo solo interpola: se descartaron.
+// 3) Fotos reales del usuario (68 de 69 detectadas): el signo del giro coincide
+//    con la nariz en todas. En ¾ fuertes (04, 08, 862dc303: giro 52–56°) se
+//    marcó la oreja a mano y se agregó al ajuste: el giro cambia menos de 1.5°,
+//    o sea que la oreja es coherente con la pose de la malla. Con el canónico,
+//    a 55° la esquina externa del ojo lejano asoma por detrás del puente de la
+//    nariz y a 70° quedaría oculta; en esas fotos asoma, así que el giro real
+//    está por debajo de ~65°: dentro de ±10° de lo medido.
+//    Pesar los puntos por visibilidad (normal canónica) achica el giro: se
+//    descartó. Sin el contorno de la cara (POSE_LANDMARKS) mejora un poco.
+// Las orejas que el usuario confirma entran al ajuste como anclas (`Anchor`):
+// dan brazo de palanca cerca del perfil, donde la malla es menos confiable.
 
 import { LM } from '../detect/landmarkMap';
-import { canonicalPoint, RIGID_LANDMARKS } from './canonical';
+import { canonicalPoint, POSE_LANDMARKS } from './canonical';
 import {
   add3,
   apply3,
@@ -151,8 +162,16 @@ export interface SimilarityFit {
 }
 
 /** Semejanza que lleva puntos canónicos (cm) a landmarks en px (marco I), usando la z del detector. */
-export function fitSimilarity(landmarksPx: readonly Vec3[], indices: readonly number[] = RIGID_LANDMARKS): SimilarityFit {
+export function fitSimilarity(landmarksPx: readonly Vec3[], indices: readonly number[] = POSE_LANDMARKS): SimilarityFit {
   return kabsch(indices.map(canonicalPoint), indices.map((i) => imageToCamera(landmarksPx[i])));
+}
+
+/** Correspondencia extra para el ajuste: un punto canónico (cm) y dónde está en la foto (px). */
+export interface Anchor {
+  canonical: Vec3;
+  image: { x: number; y: number };
+  /** Peso relativo a un landmark de la malla. */
+  weight: number;
 }
 
 /**
@@ -160,41 +179,51 @@ export function fitSimilarity(landmarksPx: readonly Vec3[], indices: readonly nu
  * profundidad del modelo canónico (PnP de perspectiva débil). Iteración: se
  * completa la z de cada landmark con la del modelo ajustado y se vuelve a
  * resolver Kabsch. Arranca del ajuste 3D, que ya está cerca.
+ * `anchors` agrega puntos fuera de la malla que el usuario confirmó (orejas).
  */
 export function fitSimilarity2D(
   landmarksPx: readonly Vec3[],
-  indices: readonly number[] = RIGID_LANDMARKS,
-  iterations = 60,
+  indices: readonly number[] = POSE_LANDMARKS,
+  anchors: readonly Anchor[] = [],
+  iterations = 80,
 ): SimilarityFit {
-  const a = indices.map(canonicalPoint);
+  const a = [...indices.map(canonicalPoint), ...anchors.map((x) => x.canonical)];
   const b = indices.map((i) => imageToCamera(landmarksPx[i]));
-  let fit = kabsch(a, b);
+  const w = anchors.length ? [...indices.map(() => 1), ...anchors.map((x) => x.weight)] : undefined;
+  let fit = kabsch(a.slice(0, b.length), b);
+  // La z de las anclas arranca en la del modelo ya ajustado.
+  for (const x of anchors) {
+    const m = add3(scale3(apply3(fit.rotation, x.canonical), fit.scale), fit.translation);
+    b.push(v3(x.image.x, -x.image.y, m.z));
+  }
   for (let it = 0; it < iterations; it++) {
     const filled = b.map((q, i) => v3(q.x, q.y, add3(scale3(apply3(fit.rotation, a[i]), fit.scale), fit.translation).z));
-    const next = kabsch(a, filled);
+    const next = kabsch(a, filled, w);
     const change = rotationDistance(next.rotation, fit.rotation);
     fit = next;
     if (change < 1e-4 && it > 3) break;
   }
   let err = 0;
-  for (let i = 0; i < a.length; i++) {
+  for (let i = 0; i < indices.length; i++) {
     const m = add3(scale3(apply3(fit.rotation, a[i]), fit.scale), fit.translation);
     err += (m.x - b[i].x) ** 2 + (m.y - b[i].y) ** 2;
   }
-  return { ...fit, rms: Math.sqrt(err / a.length) };
+  return { ...fit, rms: Math.sqrt(err / indices.length) };
 }
 
-/** Horn (cuaterniones): semejanza que lleva a → b (ambos en marco K). */
-function kabsch(a: Vec3[], b: Vec3[]): SimilarityFit {
-  const ca = centroid3(a);
-  const cb = centroid3(b);
+/** Horn (cuaterniones): semejanza que lleva a → b (ambos en marco K), con pesos opcionales. */
+function kabsch(a: Vec3[], b: Vec3[], w?: readonly number[]): SimilarityFit {
+  const ca = weightedCentroid(a, w);
+  const cb = weightedCentroid(b, w);
   const S = [0, 0, 0, 0, 0, 0, 0, 0, 0];
   for (let k = 0; k < a.length; k++) {
+    const wk = w ? w[k] : 1;
+    if (wk === 0) continue;
     const p = sub3(a[k], ca);
     const q = sub3(b[k], cb);
     const pa = [p.x, p.y, p.z];
     const qb = [q.x, q.y, q.z];
-    for (let i = 0; i < 3; i++) for (let j = 0; j < 3; j++) S[i * 3 + j] += pa[i] * qb[j];
+    for (let i = 0; i < 3; i++) for (let j = 0; j < 3; j++) S[i * 3 + j] += wk * pa[i] * qb[j];
   }
   const [xx, xy, xz, yx, yy, yz, zx, zy, zz] = S;
   const N = [
@@ -205,7 +234,22 @@ function kabsch(a: Vec3[], b: Vec3[]): SimilarityFit {
   ];
   const { vectors } = symmetricEigen(N, 4);
   const rotation = quatToMat3(vectors[0], vectors[4], vectors[8], vectors[12]);
-  return completeFit(a, b, rotation);
+  return completeFit(a, b, rotation, w);
+}
+
+function weightedCentroid(p: readonly Vec3[], w?: readonly number[]): Vec3 {
+  if (!w) return centroid3(p);
+  let x = 0;
+  let y = 0;
+  let z = 0;
+  let s = 0;
+  for (let i = 0; i < p.length; i++) {
+    x += w[i] * p[i].x;
+    y += w[i] * p[i].y;
+    z += w[i] * p[i].z;
+    s += w[i];
+  }
+  return s > 0 ? v3(x / s, y / s, z / s) : centroid3(p);
 }
 
 /**
@@ -215,7 +259,7 @@ function kabsch(a: Vec3[], b: Vec3[]): SimilarityFit {
 export function fitScaleTranslation(
   landmarksPx: readonly Vec3[],
   rotation: Mat3,
-  indices: readonly number[] = RIGID_LANDMARKS,
+  indices: readonly number[] = POSE_LANDMARKS,
 ): SimilarityFit {
   const a = indices.map(canonicalPoint);
   const b = indices.map((i) => imageToCamera(landmarksPx[i]));
@@ -237,24 +281,28 @@ export function fitScaleTranslation(
   return { rotation, scale, translation, rms: Math.sqrt(err / a.length) };
 }
 
-function completeFit(a: Vec3[], b: Vec3[], rotation: Mat3): SimilarityFit {
-  const ca = centroid3(a);
-  const cb = centroid3(b);
+function completeFit(a: Vec3[], b: Vec3[], rotation: Mat3, w?: readonly number[]): SimilarityFit {
+  const ca = weightedCentroid(a, w);
+  const cb = weightedCentroid(b, w);
   let num = 0;
   let den = 0;
   for (let k = 0; k < a.length; k++) {
+    const wk = w ? w[k] : 1;
     const ra = apply3(rotation, sub3(a[k], ca));
-    num += dot3(sub3(b[k], cb), ra);
-    den += dot3(ra, ra);
+    num += wk * dot3(sub3(b[k], cb), ra);
+    den += wk * dot3(ra, ra);
   }
   const scale = num / den;
   const translation = sub3(cb, scale3(apply3(rotation, ca), scale));
   let err = 0;
+  let ws = 0;
   for (let k = 0; k < a.length; k++) {
+    const wk = w ? w[k] : 1;
     const r = sub3(b[k], add3(scale3(apply3(rotation, a[k]), scale), translation));
-    err += dot3(r, r);
+    err += wk * dot3(r, r);
+    ws += wk;
   }
-  return { rotation, scale, translation, rms: Math.sqrt(err / a.length) };
+  return { rotation, scale, translation, rms: Math.sqrt(err / (ws || 1)) };
 }
 
 /** Proyecta un punto canónico (cm) a la imagen (px) con un ajuste dado. */
@@ -338,10 +386,12 @@ export interface PoseInputs {
   detectedLandmarks: readonly Vec3[];
   matrix: ArrayLike<number> | null;
   adjust: PoseAngles;
+  /** Puntos fuera de la malla confirmados por el usuario (orejas). */
+  anchors?: readonly Anchor[];
 }
 
-export function estimatePose({ landmarks, detectedLandmarks, matrix, adjust }: PoseInputs): PoseEstimate {
-  const fit = fitSimilarity2D(landmarks);
+export function estimatePose({ landmarks, detectedLandmarks, matrix, adjust, anchors = [] }: PoseInputs): PoseEstimate {
+  const fit = fitSimilarity2D(landmarks, POSE_LANDMARKS, anchors);
   const fitAngles = anglesFromRotation(fit.rotation);
   const mesh3DAngles = anglesFromRotation(fitSimilarity(landmarks).rotation);
   let matrixAngles: PoseAngles | null = null;

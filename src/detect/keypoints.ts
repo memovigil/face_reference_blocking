@@ -4,7 +4,7 @@
 // «estimado» hasta que el usuario los coloca.
 
 import { canonicalPoint } from '../geom/canonical';
-import { projectCanonical, type SimilarityFit } from '../geom/pose';
+import { projectCanonical, type Anchor, type SimilarityFit } from '../geom/pose';
 import { apply3, col3, dist2, v2, v3, type Mat3, type Vec2, type Vec3 } from '../geom/vec';
 import { LM, SUBJECT_LEFT as L, SUBJECT_RIGHT as R } from './landmarkMap';
 
@@ -81,8 +81,8 @@ const SKULL_AXES = v3(7.8, 9.6, 9.8);
 const HAIR = 1.06;
 
 /** Oreja: punta a la altura de la ceja, lóbulo a la altura de la base de la nariz (Loomis). */
-const EAR_TOP = v3(7.4, canonicalPoint(R.browPeak).y - 0.4, -5.4);
-const EAR_LOBE = v3(7.2, canonicalPoint(LM.subnasale).y, -3.6);
+export const EAR_TOP = v3(7.4, canonicalPoint(R.browPeak).y - 0.4, -5.4);
+export const EAR_LOBE = v3(7.2, canonicalPoint(LM.subnasale).y, -3.6);
 
 let skullSamples: Vec3[] | null = null;
 function skullSurface(): Vec3[] {
@@ -111,6 +111,23 @@ function imageAxis(rotation: Mat3, axis: Vec3): Vec2 {
   const k = apply3(rotation, axis);
   const l = Math.hypot(k.x, k.y) || 1;
   return v2(k.x / l, -k.y / l);
+}
+
+/** Peso de cada punto de oreja confirmado, relativo a un landmark de la malla. */
+const EAR_ANCHOR_WEIGHT = 10;
+
+/** Orejas que el usuario ya colocó, como anclas para el ajuste de la pose. */
+export function earAnchors(placed: Partial<Record<ExtraId, Vec2>>): Anchor[] {
+  const out: Anchor[] = [];
+  const add = (id: ExtraId, p: Vec3, side: 'R' | 'L') => {
+    const image = placed[id];
+    if (image) out.push({ canonical: v3(side === 'R' ? -p.x : p.x, p.y, p.z), image, weight: EAR_ANCHOR_WEIGHT });
+  };
+  add('earTopR', EAR_TOP, 'R');
+  add('earLobeR', EAR_LOBE, 'R');
+  add('earTopL', EAR_TOP, 'L');
+  add('earLobeL', EAR_LOBE, 'L');
+  return out;
 }
 
 export interface ExtraEstimate {

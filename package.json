@@ -12,7 +12,8 @@
     "test": "vitest run",
     "test:visual": "node tests/visual/run.mjs",
     "fixtures": "node scripts/fetch-assets.mjs --fixtures",
-    "canonical": "node scripts/build-canonical.mjs"
+    "canonical": "node scripts/build-canonical.mjs",
+    "test:refs": "node tests/visual/batch.mjs tests/fixtures/user/referencias tests/screenshots/latest/referencias"
   },
   "dependencies": {
     "@fontsource/bricolage-grotesque": "5.3.0",

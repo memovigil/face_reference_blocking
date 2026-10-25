@@ -133,6 +133,17 @@ const toClient = (page, p) => page.evaluate((p) => {
   check(!s.kp.crown.est, 'la cima queda confirmada tras arrastrarla');
   await page.screenshot({ path: `${out}/revisar-corregido.png` });
 
+  // Oreja confirmada: entra al ajuste de la pose.
+  const earId = s.kp.earTopR.vis ? 'earTopR' : 'earTopL';
+  const yawBefore = s.yaw;
+  const ear = await toClient(page, s.kp[earId]);
+  await page.mouse.move(ear.x, ear.y);
+  await page.mouse.down();
+  await page.mouse.move(ear.x + (s.kp[earId].x < s.kp.noseTip.x ? -25 : 25), ear.y, { steps: 4 });
+  await page.mouse.up();
+  s = await state(page);
+  check(!s.kp[earId].est && Math.abs(s.yaw - yawBefore) > 0.2, `la oreja confirmada recalcula la pose (giro ${yawBefore.toFixed(1)}° → ${s.yaw.toFixed(1)}°)`);
+
   // Restablecer detección.
   await page.getByRole('button', { name: 'Restablecer detección' }).click();
   s = await state(page);

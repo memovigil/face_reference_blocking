@@ -1,25 +1,20 @@
 # Fotos de prueba del usuario
 
 Fotos limpias, sin líneas encima. No se suben a git (son personales).
-Ponles un número y una descripción corta, siguiendo la lista del plan de pruebas:
 
-| Archivo sugerido | Caso |
-|---|---|
-| `01-frontal-luz-lateral.jpg` | Frontal con luz lateral |
-| `02-tres-cuartos-izq.jpg` | ¾ mirando a la izquierda de la foto |
-| `03-tres-cuartos-der.jpg` | ¾ mirando a la derecha de la foto |
-| `04-tres-cuartos-fuerte.jpg` | ¾ fuerte (~60°) |
-| `05-perfil.jpg` | Perfil puro |
-| `06-inclinada.jpg` | Cabeza inclinada (~15°) |
-| `07-mira-arriba.jpg` | Mirando hacia arriba |
-| `08-mira-abajo.jpg` | Mirando hacia abajo |
-| `09-sonrisa.jpg` | Sonrisa con dientes |
-| `10-boca-abierta.jpg` | Boca abierta |
-| `11-ojos-cerrados.jpg` | Ojos cerrados |
-| `12-cabello-voluminoso.jpg` | Cabello voluminoso |
-| `13-barba.jpg` | Barba |
-| `14-lentes.jpg` | Lentes |
-| `15-baja-resolucion.jpg` | ~400 px |
-| `16-dibujo-lapiz.jpg` | Dibujo a lápiz realista |
+**No hace falta renombrarlas.** Ponlas en una subcarpeta (por ejemplo `referencias/`)
+y la detección las clasifica sola en los casos del plan de pruebas (§12.1):
 
-Si dos fotos son de la misma persona (por ejemplo `01` y `02`), sirven para probar que las proporciones no cambian con el giro.
+```bash
+npm run test:refs      # o npm run test:visual, que corre todo
+```
+
+Deja en `tests/screenshots/latest/referencias/` una captura por foto y
+`resumen.json` con la pose, la verificación del signo, las expresiones y los casos:
+frontal, tres-cuartos-izq, tres-cuartos-der, tres-cuartos-fuerte, inclinada,
+mira-arriba, mira-abajo, sonrisa, boca-abierta, ojos-cerrados, labios-fruncidos,
+baja-resolucion y sin-cara (perfiles puros: modo manual, fase 6).
+
+Casos que conviene agregar si los tienes: barba, lentes y un dibujo a lápiz realista.
+Varias fotos de la misma persona en ángulos distintos sirven para probar que las
+proporciones no cambian con el giro (fase 2).

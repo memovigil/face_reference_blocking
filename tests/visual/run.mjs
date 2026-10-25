@@ -1,8 +1,10 @@
 // Corre las pruebas visuales de la fase actual y guarda capturas en
 // tests/screenshots/latest/ (ignorada por git) para revisarlas a mano.
-//   1. Cada foto de tests/fixtures/** → captura del paso «Revisar puntos» + datos.
-//   2. Pose con verdad conocida (pose-synth.mjs) sobre la foto frontal.
-//   3. Interacciones del visor (interact.mjs).
+//   1. Cada foto de tests/fixtures/mediapipe → captura de «Revisar puntos» + datos.
+//   2. Cada carpeta de tests/fixtures/user/ (fotos del usuario, no versionadas)
+//      → detección, pose y clasificación por casos (batch.mjs).
+//   3. Pose con verdad conocida (pose-synth.mjs) sobre la foto frontal.
+//   4. Interacciones del visor (interact.mjs).
 // Levanta el servidor de Vite si no está corriendo.
 // Uso: npm run test:visual
 import { spawn } from 'node:child_process';
@@ -52,11 +54,20 @@ function fixtures(dir) {
 }
 
 const summary = [];
-for (const f of fixtures(join(root, 'tests/fixtures'))) {
+for (const f of fixtures(join(root, 'tests/fixtures/mediapipe'))) {
   const name = basename(f, extname(f));
   console.log(`\n== ${name}`);
   const r = await run('probe.mjs', [f, join(out, `revisar-${name}`)]);
   summary.push({ fixture: f.replace(root + '/', ''), code: r.code, result: r.text.trim().split('\n').pop() });
+}
+
+const userDir = join(root, 'tests/fixtures/user');
+const userSets = readdirSync(userDir).filter((d) => statSync(join(userDir, d)).isDirectory());
+const batches = [];
+for (const d of userSets) {
+  console.log(`\n== fotos del usuario: ${d}`);
+  const r = await run('batch.mjs', [join(userDir, d), join(out, d)]);
+  batches.push({ dir: d, code: r.code });
 }
 
 console.log('\n== pose con verdad conocida');
@@ -64,8 +75,8 @@ const synth = await run('pose-synth.mjs', [join(root, 'tests/fixtures/mediapipe/
 console.log('\n== interacciones');
 const inter = await run('interact.mjs', [join(root, 'tests/fixtures/mediapipe/face_stylizer_raw_face_demo.png'), join(out, 'interaccion')]);
 
-writeFileSync(join(out, 'resumen.json'), JSON.stringify({ fecha: new Date().toISOString(), summary, synth: synth.code, interact: inter.code }, null, 1));
+writeFileSync(join(out, 'resumen.json'), JSON.stringify({ fecha: new Date().toISOString(), summary, batches, synth: synth.code, interact: inter.code }, null, 1));
 server?.kill();
-const failed = summary.some((s) => s.code) || synth.code || inter.code;
+const failed = summary.some((s) => s.code) || batches.some((b) => b.code) || synth.code || inter.code;
 console.log(failed ? '\nHAY FALLAS — revisa la salida' : `\nListo. Capturas en ${out.replace(root + '/', '')}`);
 process.exit(failed ? 1 : 0);

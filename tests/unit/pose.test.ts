@@ -153,6 +153,21 @@ describe('ajuste ortográfico', () => {
   });
 });
 
+describe('anclas (orejas confirmadas)', () => {
+  it('un ancla en su posición exacta no cambia el ajuste; una corrida sí lo jala', () => {
+    const a = { yaw: -50, pitch: 4, roll: 0 };
+    const lm = syntheticLandmarks(a, 14);
+    const free = fitSimilarity2D(lm);
+    const ear = v3(7.4, 4.7, -5.4);
+    const exact = projectCanonical(free, ear);
+    const same = fitSimilarity2D(lm, undefined, [{ canonical: ear, image: exact, weight: 20 }]);
+    expect(rotationDistance(same.rotation, free.rotation)).toBeLessThan(1e-3);
+    // Oreja 15 px más atrás en la foto: el giro aumenta.
+    const pulled = fitSimilarity2D(lm, undefined, [{ canonical: ear, image: { x: exact.x + 15, y: exact.y }, weight: 20 }]);
+    expect(anglesFromRotation(pulled.rotation).yaw).toBeLessThan(a.yaw);
+  });
+});
+
 describe('comprobación geométrica del signo', () => {
   it('¾ hacia la izquierda de la foto: giro negativo y nariz a la izquierda', () => {
     const lm = syntheticLandmarks({ yaw: -35, pitch: 0, roll: 0 });

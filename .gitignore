@@ -1,0 +1,8 @@
+node_modules/
+dist/
+tests/screenshots/latest/
+tests/fixtures/user/*
+!tests/fixtures/user/README.md
+*.log
+.DS_Store
+public/wasm/

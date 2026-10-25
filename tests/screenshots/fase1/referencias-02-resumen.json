@@ -1,0 +1,3510 @@
+{
+ "fecha": "2026-10-25T20:42:06.191Z",
+ "nota": "Segundo lote de fotos del usuario (no versionadas). Pose y casos por archivo, para comparar entre versiones.",
+ "casos": {
+  "frontal": [
+   "00d1fd35afc0eee4d8263a8f937ae76d.jpg",
+   "011572c98a29908f87da9616bfa07c67.jpg",
+   "06973bc6ae26066b58711c6e9e4dbd3f.jpg",
+   "0b845d3be6560103af9dc8da2900af65.jpg",
+   "312480880aab7f41f146ee2453572b8c.jpg",
+   "3a4564890f1f90e360750c2c9e0879ec.jpg",
+   "41a24f331fbc5f18fafa9769dc11fd09.jpg",
+   "63fde375fd884c35906882af2950dd1c.jpg",
+   "6bd8e57bda4c60da7833bed2f7bf7320.jpg",
+   "7d507fd00a27f6cea679a284e77a0515.jpg",
+   "7d9c9d57c972f33d5c2558c04a762332.jpg",
+   "7ddb5914be61cadf85cb9cf61d7febb8.jpg",
+   "7f90f82ba5032b98068f33184a05cb97.jpg",
+   "8245d3b090455384e4962a093eecca13.jpg",
+   "83cdeeb11ae05be7aaa28904960f33df.jpg",
+   "a18bbf86f7778eab89ca038fb5ab0fe2.jpg",
+   "a1978f33bdf9e655991a8a359ba17656.jpg",
+   "b8a8c9738f6b6ab914783554abe133bd.jpg",
+   "b92da82800ff45191ee4ba7899fbf52f.jpg",
+   "b986053c583ccdbd482c4f68cc660491.jpg",
+   "c582c7168bd218d0476f42de783e60f2.jpg",
+   "c7056fdcb53df1bae7f221934ff79fae.jpg",
+   "c70acd1392070c0d7435045e175ba2f2.jpg",
+   "cd62e296e0877388f67a07ddd66b560d.jpg",
+   "ced3423905cd4afe225f6d84c0ae07d6.jpg",
+   "d474a68dbf1c78f975c91d13249f8e8a.jpg",
+   "d7b288684d7c2fb957b1dc8b872b3da0.jpg",
+   "daaf79a8115bbfc4761227cc3523ae5b.jpg",
+   "f3ce1ea4417d546a06d16e4c55594387.jpg",
+   "fc9d1c9b88e07ec33ae3ab4b37385eea.jpg"
+  ],
+  "inclinada": [
+   "00d1fd35afc0eee4d8263a8f937ae76d.jpg",
+   "0b845d3be6560103af9dc8da2900af65.jpg",
+   "1c67f1f132aebfe5f675782c61829047.jpg",
+   "1f3f9292b770c27da4e635734028c5bd.jpg",
+   "22c51bc8bc2fd69784e5a5eaf0633bc8.jpg",
+   "34c7db98cd335b1839ae4e2dcc181d89.jpg",
+   "3a4564890f1f90e360750c2c9e0879ec.jpg",
+   "3cb862b9ec25a760bfdc4ae85d40faba.jpg",
+   "4710d7481421dfe357aa3cf6664e0268.jpg",
+   "5f5c621d9c9fddde0444b764cd5b2076.jpg",
+   "63fde375fd884c35906882af2950dd1c.jpg",
+   "69ba565f6b8400c585a760f8e9a020fc.jpg",
+   "7d507fd00a27f6cea679a284e77a0515.jpg",
+   "7d9c9d57c972f33d5c2558c04a762332.jpg",
+   "7f90f82ba5032b98068f33184a05cb97.jpg",
+   "814120c800302b91fb5c77abcf9d6b4d.jpg",
+   "8245d3b090455384e4962a093eecca13.jpg",
+   "84d4f3d00145d0760d87b7ddb758dc39.jpg",
+   "9e9d53cb4c43faf66710edb10e5da1b0.jpg",
+   "a27e908a50231210a7580b490322d9f8.jpg",
+   "a6976c72d2bd082c48d65272e780929e.jpg",
+   "b986053c583ccdbd482c4f68cc660491.jpg",
+   "bb4e9396cc15363941ec128ebc652d13.jpg",
+   "dbcd5bd1f996aa0b29a9d313f48872ab.jpg",
+   "e7103c30f6ab5809865d6bf053e50123.jpg"
+  ],
+  "mira-abajo": [
+   "00d1fd35afc0eee4d8263a8f937ae76d.jpg",
+   "26d00f37cb532615f92fb155d9e36aff.jpg",
+   "3cb862b9ec25a760bfdc4ae85d40faba.jpg",
+   "69ba565f6b8400c585a760f8e9a020fc.jpg",
+   "7ddb5914be61cadf85cb9cf61d7febb8.jpg",
+   "7f90f82ba5032b98068f33184a05cb97.jpg",
+   "8245d3b090455384e4962a093eecca13.jpg",
+   "83cdeeb11ae05be7aaa28904960f33df.jpg",
+   "84d4f3d00145d0760d87b7ddb758dc39.jpg",
+   "a0af2627556cec65c5ba4c10c02c1ab8.jpg",
+   "a678102615634be56168ae93b1310275.jpg",
+   "a6976c72d2bd082c48d65272e780929e.jpg",
+   "a8126b874f5d455ee4f72f1b547432cf.jpg",
+   "d7b288684d7c2fb957b1dc8b872b3da0.jpg",
+   "dea86cd8ae9383545411eaf1eb7ecdd4.jpg",
+   "e72cf03e18840dd52bed1d0134b13a99.jpg",
+   "ee653c63c0c44dc2ea8c0e7e6ab42e6a.jpg",
+   "f3ce1ea4417d546a06d16e4c55594387.jpg"
+  ],
+  "tres-cuartos-der": [
+   "07cc849288204430234849953dad035a.jpg",
+   "12c12358c7197b69d4153d9158eef048.jpg",
+   "14b88aece8c31f2cde5cc80aa8525b75.jpg",
+   "1bb3334a37bc22d11ef5c19651dc25a1.jpg",
+   "20947bb44efa19823d8f83a9eeb2be5e.jpg",
+   "26d00f37cb532615f92fb155d9e36aff.jpg",
+   "2d237a81d737c8c747b00f9802e5bdbd.jpg",
+   "3cb862b9ec25a760bfdc4ae85d40faba.jpg",
+   "47d8214fe816878e6f488cd9b43bdc19.jpg",
+   "56b085e4fdcec6cbb85d34306c62c399.jpg",
+   "7d8c746816a8cef0eb04199922b7bd4d.jpg",
+   "a1e078f5c4bd235b740d265f1930dd41.jpg",
+   "ba30df6119374d8b6464ffab508eb5b5.jpg",
+   "cfc9c21d030864ffdba91e2e01d3922a.jpg",
+   "dbcd5bd1f996aa0b29a9d313f48872ab.jpg",
+   "e72cf03e18840dd52bed1d0134b13a99.jpg",
+   "ebb033f3f0d2aca9d5df8f19454e67d5.jpg",
+   "f91855465eb271c49e7c5cee5998a6b2.jpg"
+  ],
+  "tres-cuartos-izq": [
+   "0b6e851d4c18636d9f0a93a1d85dd011.jpg",
+   "129ef5944b53f2a9da3b20525ceb347d.jpg",
+   "15e056fbe4e29bc2022edb777645d800.jpg",
+   "1c67f1f132aebfe5f675782c61829047.jpg",
+   "1f3f9292b770c27da4e635734028c5bd.jpg",
+   "22c51bc8bc2fd69784e5a5eaf0633bc8.jpg",
+   "3a3ad75b46c795472ae08f0cceb2ea63.jpg",
+   "3b232c23dfe13e0362b82295bee350fa.jpg",
+   "3df2aa73a860c4fd2ea12485460af425.jpg",
+   "42f30d42f2f4ef70ba55c444ef8e697f.jpg",
+   "4710d7481421dfe357aa3cf6664e0268.jpg",
+   "5a0ac095ea708d159fea401983b5880a.jpg",
+   "5f5c621d9c9fddde0444b764cd5b2076.jpg",
+   "6849af90cf75039153f943f3f89083e5.jpg",
+   "69ba565f6b8400c585a760f8e9a020fc.jpg",
+   "814120c800302b91fb5c77abcf9d6b4d.jpg",
+   "84d4f3d00145d0760d87b7ddb758dc39.jpg",
+   "9d4a7ca3cb1aae880892f1bc26502726.jpg",
+   "a0af2627556cec65c5ba4c10c02c1ab8.jpg",
+   "a27e908a50231210a7580b490322d9f8.jpg",
+   "a678102615634be56168ae93b1310275.jpg",
+   "a6976c72d2bd082c48d65272e780929e.jpg",
+   "a8126b874f5d455ee4f72f1b547432cf.jpg",
+   "b1a43b0304c79f5e37dab82e329d8d6a.jpg",
+   "bb4e9396cc15363941ec128ebc652d13.jpg",
+   "bcdf8ec915be9692edf2ef634e8759d7.jpg",
+   "de0c5db7b6379f6c62b5e4b8a19c915b.jpg",
+   "dea86cd8ae9383545411eaf1eb7ecdd4.jpg",
+   "def012b66d713ac1c1daa53e0265b50e.jpg",
+   "e7103c30f6ab5809865d6bf053e50123.jpg",
+   "ee653c63c0c44dc2ea8c0e7e6ab42e6a.jpg",
+   "fde63b3e421c3e7eac9e72f84d402685.jpg"
+  ],
+  "sonrisa": [
+   "20947bb44efa19823d8f83a9eeb2be5e.jpg",
+   "312480880aab7f41f146ee2453572b8c.jpg",
+   "3a3ad75b46c795472ae08f0cceb2ea63.jpg",
+   "57dff75ce3a84f76dbbbf48dd3de853e.jpg",
+   "7f90f82ba5032b98068f33184a05cb97.jpg",
+   "9e9d53cb4c43faf66710edb10e5da1b0.jpg",
+   "d7b288684d7c2fb957b1dc8b872b3da0.jpg",
+   "ebb033f3f0d2aca9d5df8f19454e67d5.jpg",
+   "ee653c63c0c44dc2ea8c0e7e6ab42e6a.jpg"
+  ],
+  "boca-abierta": [
+   "2d237a81d737c8c747b00f9802e5bdbd.jpg",
+   "4710d7481421dfe357aa3cf6664e0268.jpg"
+  ],
+  "tres-cuartos-fuerte": [
+   "34c7db98cd335b1839ae4e2dcc181d89.jpg",
+   "57dff75ce3a84f76dbbbf48dd3de853e.jpg",
+   "59c22b00e376245a7699e84fb205f515.jpg",
+   "60722e97e497832fe101bfce68546402.jpg",
+   "9e9d53cb4c43faf66710edb10e5da1b0.jpg",
+   "c826560dac94a188216e2c4374973635.jpg",
+   "d60ffa653e6d58a3a689aa38b27eb816.jpg"
+  ],
+  "sin-cara": [
+   "4aeb49775875ea5b8fec9e180a4d35f5.jpg",
+   "canvas.png"
+  ],
+  "labios-fruncidos": [
+   "7d507fd00a27f6cea679a284e77a0515.jpg",
+   "a1e078f5c4bd235b740d265f1930dd41.jpg",
+   "c7056fdcb53df1bae7f221934ff79fae.jpg",
+   "fde63b3e421c3e7eac9e72f84d402685.jpg"
+  ],
+  "mira-arriba": [
+   "7d9c9d57c972f33d5c2558c04a762332.jpg"
+  ],
+  "baja-resolucion": [
+   "ebb033f3f0d2aca9d5df8f19454e67d5.jpg"
+  ]
+ },
+ "fotos": [
+  {
+   "file": "00d1fd35afc0eee4d8263a8f937ae76d.jpg",
+   "status": "ready",
+   "size": {
+    "w": 633,
+    "h": 1017
+   },
+   "angles": {
+    "yaw": 9,
+    "pitch": 16.1,
+    "roll": 25.8
+   },
+   "mesh3D": {
+    "yaw": 3.9,
+    "pitch": 15.3,
+    "roll": 25.7
+   },
+   "matrix": {
+    "yaw": 2.3,
+    "pitch": 18.4,
+    "roll": 25.4
+   },
+   "noseYaw": 17.4,
+   "signOk": true,
+   "ipd": 135,
+   "blend": {
+    "jawOpen": 0,
+    "mouthSmileLeft": 0.4,
+    "mouthSmileRight": 0.33,
+    "eyeBlinkLeft": 0.11,
+    "eyeBlinkRight": 0.04,
+    "mouthPucker": 0.02
+   },
+   "cases": [
+    "frontal",
+    "inclinada",
+    "mira-abajo"
+   ]
+  },
+  {
+   "file": "011572c98a29908f87da9616bfa07c67.jpg",
+   "status": "ready",
+   "size": {
+    "w": 1040,
+    "h": 1560
+   },
+   "angles": {
+    "yaw": 1,
+    "pitch": -4,
+    "roll": 0.7
+   },
+   "mesh3D": {
+    "yaw": 1.2,
+    "pitch": -5.1,
+    "roll": 0.7
+   },
+   "matrix": {
+    "yaw": 0.9,
+    "pitch": -3.9,
+    "roll": 0.7
+   },
+   "noseYaw": 1.8,
+   "signOk": true,
+   "ipd": 238,
+   "blend": {
+    "jawOpen": 0,
+    "mouthSmileLeft": 0,
+    "mouthSmileRight": 0,
+    "eyeBlinkLeft": 0.07,
+    "eyeBlinkRight": 0.01,
+    "mouthPucker": 0.2
+   },
+   "cases": [
+    "frontal"
+   ]
+  },
+  {
+   "file": "06973bc6ae26066b58711c6e9e4dbd3f.jpg",
+   "status": "ready",
+   "size": {
+    "w": 1152,
+    "h": 2048
+   },
+   "angles": {
+    "yaw": -6.6,
+    "pitch": 7.5,
+    "roll": 0.2
+   },
+   "mesh3D": {
+    "yaw": -4.9,
+    "pitch": 6.7,
+    "roll": 0.4
+   },
+   "matrix": {
+    "yaw": -3.9,
+    "pitch": 9.2,
+    "roll": 1
+   },
+   "noseYaw": -6.1,
+   "signOk": true,
+   "ipd": 285,
+   "blend": {
+    "jawOpen": 0.01,
+    "mouthSmileLeft": 0,
+    "mouthSmileRight": 0,
+    "eyeBlinkLeft": 0.09,
+    "eyeBlinkRight": 0.03,
+    "mouthPucker": 0.6
+   },
+   "cases": [
+    "frontal"
+   ]
+  },
+  {
+   "file": "07cc849288204430234849953dad035a.jpg",
+   "status": "ready",
+   "size": {
+    "w": 768,
+    "h": 960
+   },
+   "angles": {
+    "yaw": 35,
+    "pitch": 1.7,
+    "roll": 0.5
+   },
+   "mesh3D": {
+    "yaw": 32.1,
+    "pitch": 3.3,
+    "roll": -0.3
+   },
+   "matrix": {
+    "yaw": 29.2,
+    "pitch": 7.6,
+    "roll": -1
+   },
+   "noseYaw": 41.2,
+   "signOk": true,
+   "ipd": 118,
+   "blend": {
+    "jawOpen": 0,
+    "mouthSmileLeft": 0,
+    "mouthSmileRight": 0,
+    "eyeBlinkLeft": 0.01,
+    "eyeBlinkRight": 0.01,
+    "mouthPucker": 0.01
+   },
+   "cases": [
+    "tres-cuartos-der"
+   ]
+  },
+  {
+   "file": "0b6e851d4c18636d9f0a93a1d85dd011.jpg",
+   "status": "ready",
+   "size": {
+    "w": 839,
+    "h": 1259
+   },
+   "angles": {
+    "yaw": -11.9,
+    "pitch": -2.8,
+    "roll": -7.3
+   },
+   "mesh3D": {
+    "yaw": -11.2,
+    "pitch": -3.3,
+    "roll": -7.3
+   },
+   "matrix": {
+    "yaw": -10.2,
+    "pitch": 3,
+    "roll": -5.9
+   },
+   "noseYaw": -14.9,
+   "signOk": true,
+   "ipd": 118,
+   "blend": {
+    "jawOpen": 0,
+    "mouthSmileLeft": 0,
+    "mouthSmileRight": 0,
+    "eyeBlinkLeft": 0.13,
+    "eyeBlinkRight": 0.06,
+    "mouthPucker": 0.05
+   },
+   "cases": [
+    "tres-cuartos-izq"
+   ]
+  },
+  {
+   "file": "0b845d3be6560103af9dc8da2900af65.jpg",
+   "status": "ready",
+   "size": {
+    "w": 720,
+    "h": 1080
+   },
+   "angles": {
+    "yaw": -4.1,
+    "pitch": -7.5,
+    "roll": 11
+   },
+   "mesh3D": {
+    "yaw": -4.3,
+    "pitch": -6.9,
+    "roll": 11
+   },
+   "matrix": {
+    "yaw": -3.9,
+    "pitch": -3,
+    "roll": 11.7
+   },
+   "noseYaw": -7,
+   "signOk": true,
+   "ipd": 194,
+   "blend": {
+    "jawOpen": 0.01,
+    "mouthSmileLeft": 0,
+    "mouthSmileRight": 0,
+    "eyeBlinkLeft": 0.05,
+    "eyeBlinkRight": 0.02,
+    "mouthPucker": 0.44
+   },
+   "cases": [
+    "frontal",
+    "inclinada"
+   ]
+  },
+  {
+   "file": "129ef5944b53f2a9da3b20525ceb347d.jpg",
+   "status": "ready",
+   "size": {
+    "w": 1170,
+    "h": 1132
+   },
+   "angles": {
+    "yaw": -11.9,
+    "pitch": -9.2,
+    "roll": -6.1
+   },
+   "mesh3D": {
+    "yaw": -11.4,
+    "pitch": -7.9,
+    "roll": -5.9
+   },
+   "matrix": {
+    "yaw": -9.7,
+    "pitch": -4.3,
+    "roll": -5.4
+   },
+   "noseYaw": -12.7,
+   "signOk": true,
+   "ipd": 227,
+   "blend": {
+    "jawOpen": 0,
+    "mouthSmileLeft": 0.03,
+    "mouthSmileRight": 0.05,
+    "eyeBlinkLeft": 0.18,
+    "eyeBlinkRight": 0.1,
+    "mouthPucker": 0.11
+   },
+   "cases": [
+    "tres-cuartos-izq"
+   ]
+  },
+  {
+   "file": "12c12358c7197b69d4153d9158eef048.jpg",
+   "status": "ready",
+   "size": {
+    "w": 684,
+    "h": 853
+   },
+   "angles": {
+    "yaw": 29,
+    "pitch": 8.9,
+    "roll": -2.1
+   },
+   "mesh3D": {
+    "yaw": 27.6,
+    "pitch": 10,
+    "roll": -2.5
+   },
+   "matrix": {
+    "yaw": 22.9,
+    "pitch": 10.4,
+    "roll": -2.4
+   },
+   "noseYaw": 23.1,
+   "signOk": true,
+   "ipd": 157,
+   "blend": {
+    "jawOpen": 0,
+    "mouthSmileLeft": 0.01,
+    "mouthSmileRight": 0.01,
+    "eyeBlinkLeft": 0.07,
+    "eyeBlinkRight": 0.09,
+    "mouthPucker": 0.06
+   },
+   "cases": [
+    "tres-cuartos-der"
+   ]
+  },
+  {
+   "file": "14b88aece8c31f2cde5cc80aa8525b75.jpg",
+   "status": "ready",
+   "size": {
+    "w": 500,
+    "h": 750
+   },
+   "angles": {
+    "yaw": 29.6,
+    "pitch": 3.5,
+    "roll": -4.5
+   },
+   "mesh3D": {
+    "yaw": 28.5,
+    "pitch": 5.5,
+    "roll": -5.2
+   },
+   "matrix": {
+    "yaw": 32.4,
+    "pitch": 14.7,
+    "roll": -10.2
+   },
+   "noseYaw": 24.9,
+   "signOk": true,
+   "ipd": 55,
+   "blend": {
+    "jawOpen": 0,
+    "mouthSmileLeft": 0,
+    "mouthSmileRight": 0,
+    "eyeBlinkLeft": 0.04,
+    "eyeBlinkRight": 0.18,
+    "mouthPucker": 0.01
+   },
+   "cases": [
+    "tres-cuartos-der"
+   ]
+  },
+  {
+   "file": "15e056fbe4e29bc2022edb777645d800.jpg",
+   "status": "ready",
+   "size": {
+    "w": 736,
+    "h": 986
+   },
+   "angles": {
+    "yaw": -31.7,
+    "pitch": -3.8,
+    "roll": 9.1
+   },
+   "mesh3D": {
+    "yaw": -28,
+    "pitch": -2.1,
+    "roll": 10.1
+   },
+   "matrix": {
+    "yaw": -24.8,
+    "pitch": 1.2,
+    "roll": 10.3
+   },
+   "noseYaw": -34.7,
+   "signOk": true,
+   "ipd": 151,
+   "blend": {
+    "jawOpen": 0,
+    "mouthSmileLeft": 0,
+    "mouthSmileRight": 0,
+    "eyeBlinkLeft": 0.15,
+    "eyeBlinkRight": 0.13,
+    "mouthPucker": 0.69
+   },
+   "cases": [
+    "tres-cuartos-izq"
+   ]
+  },
+  {
+   "file": "1bb3334a37bc22d11ef5c19651dc25a1.jpg",
+   "status": "ready",
+   "size": {
+    "w": 736,
+    "h": 1297
+   },
+   "angles": {
+    "yaw": 26.9,
+    "pitch": 6.7,
+    "roll": -9.6
+   },
+   "mesh3D": {
+    "yaw": 21.9,
+    "pitch": 6.3,
+    "roll": -10.2
+   },
+   "matrix": {
+    "yaw": 22,
+    "pitch": 10.8,
+    "roll": -10.6
+   },
+   "noseYaw": 27.9,
+   "signOk": true,
+   "ipd": 147,
+   "blend": {
+    "jawOpen": 0,
+    "mouthSmileLeft": 0,
+    "mouthSmileRight": 0,
+    "eyeBlinkLeft": 0.08,
+    "eyeBlinkRight": 0.11,
+    "mouthPucker": 0.53
+   },
+   "cases": [
+    "tres-cuartos-der"
+   ]
+  },
+  {
+   "file": "1c67f1f132aebfe5f675782c61829047.jpg",
+   "status": "ready",
+   "size": {
+    "w": 640,
+    "h": 640
+   },
+   "angles": {
+    "yaw": -17.3,
+    "pitch": 8.5,
+    "roll": 14.7
+   },
+   "mesh3D": {
+    "yaw": -14.8,
+    "pitch": 5.7,
+    "roll": 14.5
+   },
+   "matrix": {
+    "yaw": -13.6,
+    "pitch": 6.9,
+    "roll": 15.6
+   },
+   "noseYaw": -12,
+   "signOk": true,
+   "ipd": 116,
+   "blend": {
+    "jawOpen": 0,
+    "mouthSmileLeft": 0,
+    "mouthSmileRight": 0,
+    "eyeBlinkLeft": 0.09,
+    "eyeBlinkRight": 0.04,
+    "mouthPucker": 0.13
+   },
+   "cases": [
+    "tres-cuartos-izq",
+    "inclinada"
+   ]
+  },
+  {
+   "file": "1f3f9292b770c27da4e635734028c5bd.jpg",
+   "status": "ready",
+   "size": {
+    "w": 736,
+    "h": 1307
+   },
+   "angles": {
+    "yaw": -16.5,
+    "pitch": 3.2,
+    "roll": -21.8
+   },
+   "mesh3D": {
+    "yaw": -13.9,
+    "pitch": 0.9,
+    "roll": -21.8
+   },
+   "matrix": {
+    "yaw": -12.8,
+    "pitch": 5.4,
+    "roll": -21.4
+   },
+   "noseYaw": -20.7,
+   "signOk": true,
+   "ipd": 148,
+   "blend": {
+    "jawOpen": 0,
+    "mouthSmileLeft": 0.01,
+    "mouthSmileRight": 0,
+    "eyeBlinkLeft": 0.43,
+    "eyeBlinkRight": 0.17,
+    "mouthPucker": 0.03
+   },
+   "cases": [
+    "tres-cuartos-izq",
+    "inclinada"
+   ]
+  },
+  {
+   "file": "20947bb44efa19823d8f83a9eeb2be5e.jpg",
+   "status": "ready",
+   "size": {
+    "w": 735,
+    "h": 941
+   },
+   "angles": {
+    "yaw": 18.1,
+    "pitch": 2.6,
+    "roll": 3.4
+   },
+   "mesh3D": {
+    "yaw": 17.3,
+    "pitch": 3.9,
+    "roll": 3.2
+   },
+   "matrix": {
+    "yaw": 16.5,
+    "pitch": 10.1,
+    "roll": 2.7
+   },
+   "noseYaw": 14.8,
+   "signOk": true,
+   "ipd": 131,
+   "blend": {
+    "jawOpen": 0,
+    "mouthSmileLeft": 0.96,
+    "mouthSmileRight": 0.98,
+    "eyeBlinkLeft": 0.04,
+    "eyeBlinkRight": 0.07,
+    "mouthPucker": 0
+   },
+   "cases": [
+    "tres-cuartos-der",
+    "sonrisa"
+   ]
+  },
+  {
+   "file": "22c51bc8bc2fd69784e5a5eaf0633bc8.jpg",
+   "status": "ready",
+   "size": {
+    "w": 590,
+    "h": 710
+   },
+   "angles": {
+    "yaw": -40.7,
+    "pitch": -3.4,
+    "roll": 15.8
+   },
+   "mesh3D": {
+    "yaw": -38.1,
+    "pitch": -0.4,
+    "roll": 17.6
+   },
+   "matrix": {
+    "yaw": -30.9,
+    "pitch": 0.9,
+    "roll": 17.6
+   },
+   "noseYaw": -42.2,
+   "signOk": true,
+   "ipd": 117,
+   "blend": {
+    "jawOpen": 0,
+    "mouthSmileLeft": 0.03,
+    "mouthSmileRight": 0.01,
+    "eyeBlinkLeft": 0.04,
+    "eyeBlinkRight": 0.03,
+    "mouthPucker": 0.03
+   },
+   "cases": [
+    "tres-cuartos-izq",
+    "inclinada"
+   ]
+  },
+  {
+   "file": "26d00f37cb532615f92fb155d9e36aff.jpg",
+   "status": "ready",
+   "size": {
+    "w": 500,
+    "h": 675
+   },
+   "angles": {
+    "yaw": 18.4,
+    "pitch": 21.6,
+    "roll": -0.3
+   },
+   "mesh3D": {
+    "yaw": 16.2,
+    "pitch": 24.7,
+    "roll": -0.8
+   },
+   "matrix": {
+    "yaw": 18.7,
+    "pitch": 34.9,
+    "roll": -3.8
+   },
+   "noseYaw": 11.9,
+   "signOk": true,
+   "ipd": 63,
+   "blend": {
+    "jawOpen": 0.01,
+    "mouthSmileLeft": 0,
+    "mouthSmileRight": 0,
+    "eyeBlinkLeft": 0.02,
+    "eyeBlinkRight": 0.06,
+    "mouthPucker": 0.12
+   },
+   "cases": [
+    "tres-cuartos-der",
+    "mira-abajo"
+   ]
+  },
+  {
+   "file": "2d237a81d737c8c747b00f9802e5bdbd.jpg",
+   "status": "ready",
+   "size": {
+    "w": 1200,
+    "h": 1807
+   },
+   "angles": {
+    "yaw": 12.7,
+    "pitch": -2.2,
+    "roll": 2.1
+   },
+   "mesh3D": {
+    "yaw": 9.9,
+    "pitch": -5.4,
+    "roll": 2
+   },
+   "matrix": {
+    "yaw": 8.9,
+    "pitch": -2.4,
+    "roll": 2.2
+   },
+   "noseYaw": 17.5,
+   "signOk": true,
+   "ipd": 266,
+   "blend": {
+    "jawOpen": 0.46,
+    "mouthSmileLeft": 0.06,
+    "mouthSmileRight": 0.09,
+    "eyeBlinkLeft": 0.16,
+    "eyeBlinkRight": 0.07,
+    "mouthPucker": 0
+   },
+   "cases": [
+    "tres-cuartos-der",
+    "boca-abierta"
+   ]
+  },
+  {
+   "file": "312480880aab7f41f146ee2453572b8c.jpg",
+   "status": "ready",
+   "size": {
+    "w": 720,
+    "h": 1440
+   },
+   "angles": {
+    "yaw": -1,
+    "pitch": -6.5,
+    "roll": -0.6
+   },
+   "mesh3D": {
+    "yaw": -1.6,
+    "pitch": -8.6,
+    "roll": -0.7
+   },
+   "matrix": {
+    "yaw": -1.7,
+    "pitch": -4.4,
+    "roll": -0.4
+   },
+   "noseYaw": -2.4,
+   "signOk": true,
+   "ipd": 90,
+   "blend": {
+    "jawOpen": 0,
+    "mouthSmileLeft": 0.79,
+    "mouthSmileRight": 0.8,
+    "eyeBlinkLeft": 0.4,
+    "eyeBlinkRight": 0.24,
+    "mouthPucker": 0.04
+   },
+   "cases": [
+    "frontal",
+    "sonrisa"
+   ]
+  },
+  {
+   "file": "34c7db98cd335b1839ae4e2dcc181d89.jpg",
+   "status": "ready",
+   "size": {
+    "w": 736,
+    "h": 980
+   },
+   "angles": {
+    "yaw": -50.7,
+    "pitch": -9.1,
+    "roll": 11.4
+   },
+   "mesh3D": {
+    "yaw": -49.5,
+    "pitch": -6.7,
+    "roll": 13.2
+   },
+   "matrix": {
+    "yaw": -44.5,
+    "pitch": -2.7,
+    "roll": 15.1
+   },
+   "noseYaw": -52,
+   "signOk": true,
+   "ipd": 84,
+   "blend": {
+    "jawOpen": 0,
+    "mouthSmileLeft": 0.01,
+    "mouthSmileRight": 0,
+    "eyeBlinkLeft": 0.25,
+    "eyeBlinkRight": 0.23,
+    "mouthPucker": 0.07
+   },
+   "cases": [
+    "tres-cuartos-fuerte",
+    "inclinada"
+   ]
+  },
+  {
+   "file": "3a3ad75b46c795472ae08f0cceb2ea63.jpg",
+   "status": "ready",
+   "size": {
+    "w": 1080,
+    "h": 1620
+   },
+   "angles": {
+    "yaw": -11,
+    "pitch": -10.3,
+    "roll": -2.9
+   },
+   "mesh3D": {
+    "yaw": -10.5,
+    "pitch": -11.3,
+    "roll": -2.9
+   },
+   "matrix": {
+    "yaw": -8.5,
+    "pitch": -7.9,
+    "roll": -2.3
+   },
+   "noseYaw": -13.5,
+   "signOk": true,
+   "ipd": 288,
+   "blend": {
+    "jawOpen": 0.07,
+    "mouthSmileLeft": 0.82,
+    "mouthSmileRight": 0.77,
+    "eyeBlinkLeft": 0.24,
+    "eyeBlinkRight": 0.19,
+    "mouthPucker": 0.03
+   },
+   "cases": [
+    "tres-cuartos-izq",
+    "sonrisa"
+   ]
+  },
+  {
+   "file": "3a4564890f1f90e360750c2c9e0879ec.jpg",
+   "status": "ready",
+   "size": {
+    "w": 653,
+    "h": 784
+   },
+   "angles": {
+    "yaw": -4.5,
+    "pitch": -1.7,
+    "roll": -17.8
+   },
+   "mesh3D": {
+    "yaw": -3.6,
+    "pitch": -1,
+    "roll": -17.7
+   },
+   "matrix": {
+    "yaw": -2.6,
+    "pitch": 1,
+    "roll": -17.5
+   },
+   "noseYaw": -3.9,
+   "signOk": true,
+   "ipd": 130,
+   "blend": {
+    "jawOpen": 0,
+    "mouthSmileLeft": 0,
+    "mouthSmileRight": 0,
+    "eyeBlinkLeft": 0.11,
+    "eyeBlinkRight": 0.1,
+    "mouthPucker": 0.44
+   },
+   "cases": [
+    "frontal",
+    "inclinada"
+   ]
+  },
+  {
+   "file": "3b232c23dfe13e0362b82295bee350fa.jpg",
+   "status": "ready",
+   "size": {
+    "w": 736,
+    "h": 920
+   },
+   "angles": {
+    "yaw": -18,
+    "pitch": -4.2,
+    "roll": -0.8
+   },
+   "mesh3D": {
+    "yaw": -17.5,
+    "pitch": -4.1,
+    "roll": -0.7
+   },
+   "matrix": {
+    "yaw": -14.9,
+    "pitch": -2.4,
+    "roll": -0.3
+   },
+   "noseYaw": -22.6,
+   "signOk": true,
+   "ipd": 157,
+   "blend": {
+    "jawOpen": 0,
+    "mouthSmileLeft": 0,
+    "mouthSmileRight": 0,
+    "eyeBlinkLeft": 0.08,
+    "eyeBlinkRight": 0.03,
+    "mouthPucker": 0.5
+   },
+   "cases": [
+    "tres-cuartos-izq"
+   ]
+  },
+  {
+   "file": "3cb862b9ec25a760bfdc4ae85d40faba.jpg",
+   "status": "ready",
+   "size": {
+    "w": 740,
+    "h": 1174
+   },
+   "angles": {
+    "yaw": 25.1,
+    "pitch": 14.1,
+    "roll": 18.6
+   },
+   "mesh3D": {
+    "yaw": 17.2,
+    "pitch": 14.7,
+    "roll": 18.4
+   },
+   "matrix": {
+    "yaw": 16,
+    "pitch": 18.2,
+    "roll": 19
+   },
+   "noseYaw": 34.2,
+   "signOk": true,
+   "ipd": 138,
+   "blend": {
+    "jawOpen": 0,
+    "mouthSmileLeft": 0,
+    "mouthSmileRight": 0.01,
+    "eyeBlinkLeft": 0.02,
+    "eyeBlinkRight": 0.02,
+    "mouthPucker": 0
+   },
+   "cases": [
+    "tres-cuartos-der",
+    "inclinada",
+    "mira-abajo"
+   ]
+  },
+  {
+   "file": "3df2aa73a860c4fd2ea12485460af425.jpg",
+   "status": "ready",
+   "size": {
+    "w": 736,
+    "h": 1024
+   },
+   "angles": {
+    "yaw": -10.3,
+    "pitch": -6.3,
+    "roll": -5.5
+   },
+   "mesh3D": {
+    "yaw": -9.6,
+    "pitch": -5.6,
+    "roll": -5.4
+   },
+   "matrix": {
+    "yaw": -8.1,
+    "pitch": -3.8,
+    "roll": -5.1
+   },
+   "noseYaw": -14.5,
+   "signOk": true,
+   "ipd": 158,
+   "blend": {
+    "jawOpen": 0,
+    "mouthSmileLeft": 0,
+    "mouthSmileRight": 0,
+    "eyeBlinkLeft": 0.1,
+    "eyeBlinkRight": 0.06,
+    "mouthPucker": 0.01
+   },
+   "cases": [
+    "tres-cuartos-izq"
+   ]
+  },
+  {
+   "file": "41a24f331fbc5f18fafa9769dc11fd09.jpg",
+   "status": "ready",
+   "size": {
+    "w": 512,
+    "h": 640
+   },
+   "angles": {
+    "yaw": -0.8,
+    "pitch": -5.9,
+    "roll": -2.7
+   },
+   "mesh3D": {
+    "yaw": -1.6,
+    "pitch": -2.5,
+    "roll": -2.8
+   },
+   "matrix": {
+    "yaw": -1.3,
+    "pitch": -2.2,
+    "roll": -2.6
+   },
+   "noseYaw": -0.7,
+   "signOk": true,
+   "ipd": 110,
+   "blend": {
+    "jawOpen": 0,
+    "mouthSmileLeft": 0,
+    "mouthSmileRight": 0,
+    "eyeBlinkLeft": 0.18,
+    "eyeBlinkRight": 0.13,
+    "mouthPucker": 0.44
+   },
+   "cases": [
+    "frontal"
+   ]
+  },
+  {
+   "file": "42f30d42f2f4ef70ba55c444ef8e697f.jpg",
+   "status": "ready",
+   "size": {
+    "w": 1080,
+    "h": 1105
+   },
+   "angles": {
+    "yaw": -40.4,
+    "pitch": 1.1,
+    "roll": -0.4
+   },
+   "mesh3D": {
+    "yaw": -39.8,
+    "pitch": 1.9,
+    "roll": 0
+   },
+   "matrix": {
+    "yaw": -36.6,
+    "pitch": 3.4,
+    "roll": -0.4
+   },
+   "noseYaw": -39.5,
+   "signOk": true,
+   "ipd": 176,
+   "blend": {
+    "jawOpen": 0,
+    "mouthSmileLeft": 0,
+    "mouthSmileRight": 0,
+    "eyeBlinkLeft": 0.12,
+    "eyeBlinkRight": 0.11,
+    "mouthPucker": 0.48
+   },
+   "cases": [
+    "tres-cuartos-izq"
+   ]
+  },
+  {
+   "file": "4710d7481421dfe357aa3cf6664e0268.jpg",
+   "status": "ready",
+   "size": {
+    "w": 735,
+    "h": 985
+   },
+   "angles": {
+    "yaw": -30.8,
+    "pitch": -6.1,
+    "roll": -14
+   },
+   "mesh3D": {
+    "yaw": -27.9,
+    "pitch": -5.9,
+    "roll": -13.7
+   },
+   "matrix": {
+    "yaw": -24.2,
+    "pitch": -3.6,
+    "roll": -11.3
+   },
+   "noseYaw": -35.7,
+   "signOk": true,
+   "ipd": 188,
+   "blend": {
+    "jawOpen": 0.32,
+    "mouthSmileLeft": 0,
+    "mouthSmileRight": 0,
+    "eyeBlinkLeft": 0.19,
+    "eyeBlinkRight": 0.12,
+    "mouthPucker": 0.07
+   },
+   "cases": [
+    "tres-cuartos-izq",
+    "inclinada",
+    "boca-abierta"
+   ]
+  },
+  {
+   "file": "47d8214fe816878e6f488cd9b43bdc19.jpg",
+   "status": "ready",
+   "size": {
+    "w": 1080,
+    "h": 1350
+   },
+   "angles": {
+    "yaw": 13.5,
+    "pitch": 7.7,
+    "roll": 0.5
+   },
+   "mesh3D": {
+    "yaw": 13,
+    "pitch": 9.9,
+    "roll": 0.2
+   },
+   "matrix": {
+    "yaw": 12.2,
+    "pitch": 12.5,
+    "roll": 0.1
+   },
+   "noseYaw": 14.4,
+   "signOk": true,
+   "ipd": 220,
+   "blend": {
+    "jawOpen": 0.04,
+    "mouthSmileLeft": 0,
+    "mouthSmileRight": 0.01,
+    "eyeBlinkLeft": 0.03,
+    "eyeBlinkRight": 0.04,
+    "mouthPucker": 0.02
+   },
+   "cases": [
+    "tres-cuartos-der"
+   ]
+  },
+  {
+   "file": "4aeb49775875ea5b8fec9e180a4d35f5.jpg",
+   "status": "no-face",
+   "size": {
+    "w": 736,
+    "h": 736
+   },
+   "angles": null,
+   "mesh3D": null,
+   "matrix": null,
+   "noseYaw": null,
+   "signOk": null,
+   "ipd": null,
+   "blend": {
+    "jawOpen": 0,
+    "mouthSmileLeft": 0,
+    "mouthSmileRight": 0,
+    "eyeBlinkLeft": 0,
+    "eyeBlinkRight": 0,
+    "mouthPucker": 0
+   },
+   "cases": [
+    "sin-cara"
+   ]
+  },
+  {
+   "file": "56b085e4fdcec6cbb85d34306c62c399.jpg",
+   "status": "ready",
+   "size": {
+    "w": 600,
+    "h": 900
+   },
+   "angles": {
+    "yaw": 22.2,
+    "pitch": 1.4,
+    "roll": -0.4
+   },
+   "mesh3D": {
+    "yaw": 19.6,
+    "pitch": 0.7,
+    "roll": -0.6
+   },
+   "matrix": {
+    "yaw": 20.3,
+    "pitch": 5.9,
+    "roll": -3.1
+   },
+   "noseYaw": 22.1,
+   "signOk": true,
+   "ipd": 82,
+   "blend": {
+    "jawOpen": 0,
+    "mouthSmileLeft": 0.02,
+    "mouthSmileRight": 0.01,
+    "eyeBlinkLeft": 0.02,
+    "eyeBlinkRight": 0.01,
+    "mouthPucker": 0.01
+   },
+   "cases": [
+    "tres-cuartos-der"
+   ]
+  },
+  {
+   "file": "57dff75ce3a84f76dbbbf48dd3de853e.jpg",
+   "status": "ready",
+   "size": {
+    "w": 705,
+    "h": 1024
+   },
+   "angles": {
+    "yaw": 60,
+    "pitch": 5.1,
+    "roll": 4.3
+   },
+   "mesh3D": {
+    "yaw": 59.4,
+    "pitch": 5,
+    "roll": 4.3
+   },
+   "matrix": {
+    "yaw": 53.5,
+    "pitch": 8.5,
+    "roll": 3.6
+   },
+   "noseYaw": 61.7,
+   "signOk": true,
+   "ipd": 68,
+   "blend": {
+    "jawOpen": 0,
+    "mouthSmileLeft": 0.74,
+    "mouthSmileRight": 0.94,
+    "eyeBlinkLeft": 0.01,
+    "eyeBlinkRight": 0.12,
+    "mouthPucker": 0
+   },
+   "cases": [
+    "tres-cuartos-fuerte",
+    "sonrisa"
+   ]
+  },
+  {
+   "file": "59c22b00e376245a7699e84fb205f515.jpg",
+   "status": "ready",
+   "size": {
+    "w": 1080,
+    "h": 1920
+   },
+   "angles": {
+    "yaw": -49.9,
+    "pitch": -11.2,
+    "roll": 2.7
+   },
+   "mesh3D": {
+    "yaw": -46.1,
+    "pitch": -10,
+    "roll": 4
+   },
+   "matrix": {
+    "yaw": -42.9,
+    "pitch": -7.1,
+    "roll": 6.4
+   },
+   "noseYaw": -55,
+   "signOk": true,
+   "ipd": 80,
+   "blend": {
+    "jawOpen": 0,
+    "mouthSmileLeft": 0.06,
+    "mouthSmileRight": 0.05,
+    "eyeBlinkLeft": 0.04,
+    "eyeBlinkRight": 0.06,
+    "mouthPucker": 0.03
+   },
+   "cases": [
+    "tres-cuartos-fuerte"
+   ]
+  },
+  {
+   "file": "5a0ac095ea708d159fea401983b5880a.jpg",
+   "status": "ready",
+   "size": {
+    "w": 736,
+    "h": 736
+   },
+   "angles": {
+    "yaw": -36.5,
+    "pitch": 3.5,
+    "roll": 0.9
+   },
+   "mesh3D": {
+    "yaw": -36.8,
+    "pitch": 3.4,
+    "roll": 0.8
+   },
+   "matrix": {
+    "yaw": -35,
+    "pitch": 9.1,
+    "roll": 4.6
+   },
+   "noseYaw": -39.5,
+   "signOk": true,
+   "ipd": 70,
+   "blend": {
+    "jawOpen": 0,
+    "mouthSmileLeft": 0,
+    "mouthSmileRight": 0,
+    "eyeBlinkLeft": 0.04,
+    "eyeBlinkRight": 0.02,
+    "mouthPucker": 0.12
+   },
+   "cases": [
+    "tres-cuartos-izq"
+   ]
+  },
+  {
+   "file": "5f5c621d9c9fddde0444b764cd5b2076.jpg",
+   "status": "ready",
+   "size": {
+    "w": 1080,
+    "h": 1350
+   },
+   "angles": {
+    "yaw": -17.8,
+    "pitch": -8,
+    "roll": -11.1
+   },
+   "mesh3D": {
+    "yaw": -15.2,
+    "pitch": -8.9,
+    "roll": -11
+   },
+   "matrix": {
+    "yaw": -14,
+    "pitch": -8.7,
+    "roll": -11.1
+   },
+   "noseYaw": -21,
+   "signOk": true,
+   "ipd": 153,
+   "blend": {
+    "jawOpen": 0,
+    "mouthSmileLeft": 0,
+    "mouthSmileRight": 0,
+    "eyeBlinkLeft": 0.21,
+    "eyeBlinkRight": 0.11,
+    "mouthPucker": 0.09
+   },
+   "cases": [
+    "tres-cuartos-izq",
+    "inclinada"
+   ]
+  },
+  {
+   "file": "60722e97e497832fe101bfce68546402.jpg",
+   "status": "ready",
+   "size": {
+    "w": 1200,
+    "h": 750
+   },
+   "angles": {
+    "yaw": -48.5,
+    "pitch": -1,
+    "roll": -3.1
+   },
+   "mesh3D": {
+    "yaw": -44.6,
+    "pitch": -1.5,
+    "roll": -3
+   },
+   "matrix": {
+    "yaw": -55.8,
+    "pitch": 4.2,
+    "roll": 1.4
+   },
+   "noseYaw": -47.7,
+   "signOk": true,
+   "ipd": 67,
+   "blend": {
+    "jawOpen": 0,
+    "mouthSmileLeft": 0,
+    "mouthSmileRight": 0,
+    "eyeBlinkLeft": 0.03,
+    "eyeBlinkRight": 0.01,
+    "mouthPucker": 0.03
+   },
+   "cases": [
+    "tres-cuartos-fuerte"
+   ]
+  },
+  {
+   "file": "63fde375fd884c35906882af2950dd1c.jpg",
+   "status": "ready",
+   "size": {
+    "w": 640,
+    "h": 1136
+   },
+   "angles": {
+    "yaw": -6.1,
+    "pitch": 8.7,
+    "roll": -17.3
+   },
+   "mesh3D": {
+    "yaw": -5.6,
+    "pitch": 10,
+    "roll": -17.3
+   },
+   "matrix": {
+    "yaw": -4.8,
+    "pitch": 14.4,
+    "roll": -16.8
+   },
+   "noseYaw": -10.1,
+   "signOk": true,
+   "ipd": 159,
+   "blend": {
+    "jawOpen": 0,
+    "mouthSmileLeft": 0,
+    "mouthSmileRight": 0,
+    "eyeBlinkLeft": 0.06,
+    "eyeBlinkRight": 0.04,
+    "mouthPucker": 0.28
+   },
+   "cases": [
+    "frontal",
+    "inclinada"
+   ]
+  },
+  {
+   "file": "6849af90cf75039153f943f3f89083e5.jpg",
+   "status": "ready",
+   "size": {
+    "w": 1080,
+    "h": 1350
+   },
+   "angles": {
+    "yaw": -41.9,
+    "pitch": 1.6,
+    "roll": -3.5
+   },
+   "mesh3D": {
+    "yaw": -28.7,
+    "pitch": 1.2,
+    "roll": -2.3
+   },
+   "matrix": {
+    "yaw": -26.9,
+    "pitch": 2.8,
+    "roll": -4.1
+   },
+   "noseYaw": -49.1,
+   "signOk": true,
+   "ipd": 145,
+   "blend": {
+    "jawOpen": 0,
+    "mouthSmileLeft": 0.01,
+    "mouthSmileRight": 0,
+    "eyeBlinkLeft": 0.03,
+    "eyeBlinkRight": 0.01,
+    "mouthPucker": 0.12
+   },
+   "cases": [
+    "tres-cuartos-izq"
+   ]
+  },
+  {
+   "file": "69ba565f6b8400c585a760f8e9a020fc.jpg",
+   "status": "ready",
+   "size": {
+    "w": 1080,
+    "h": 1350
+   },
+   "angles": {
+    "yaw": -27.7,
+    "pitch": 17.3,
+    "roll": -18.7
+   },
+   "mesh3D": {
+    "yaw": -20.9,
+    "pitch": 12.8,
+    "roll": -19.3
+   },
+   "matrix": {
+    "yaw": -20.6,
+    "pitch": 15.2,
+    "roll": -19.4
+   },
+   "noseYaw": -36.8,
+   "signOk": true,
+   "ipd": 109,
+   "blend": {
+    "jawOpen": 0,
+    "mouthSmileLeft": 0.12,
+    "mouthSmileRight": 0.02,
+    "eyeBlinkLeft": 0.06,
+    "eyeBlinkRight": 0.01,
+    "mouthPucker": 0.02
+   },
+   "cases": [
+    "tres-cuartos-izq",
+    "inclinada",
+    "mira-abajo"
+   ]
+  },
+  {
+   "file": "6bd8e57bda4c60da7833bed2f7bf7320.jpg",
+   "status": "ready",
+   "size": {
+    "w": 1080,
+    "h": 1341
+   },
+   "angles": {
+    "yaw": -2.9,
+    "pitch": 10.7,
+    "roll": -6.8
+   },
+   "mesh3D": {
+    "yaw": -2.3,
+    "pitch": 11.5,
+    "roll": -6.7
+   },
+   "matrix": {
+    "yaw": -1.9,
+    "pitch": 10.8,
+    "roll": -6.5
+   },
+   "noseYaw": -5.2,
+   "signOk": true,
+   "ipd": 242,
+   "blend": {
+    "jawOpen": 0,
+    "mouthSmileLeft": 0.02,
+    "mouthSmileRight": 0.03,
+    "eyeBlinkLeft": 0.13,
+    "eyeBlinkRight": 0.13,
+    "mouthPucker": 0.01
+   },
+   "cases": [
+    "frontal"
+   ]
+  },
+  {
+   "file": "7d507fd00a27f6cea679a284e77a0515.jpg",
+   "status": "ready",
+   "size": {
+    "w": 736,
+    "h": 1308
+   },
+   "angles": {
+    "yaw": 7.5,
+    "pitch": 11.7,
+    "roll": -18.8
+   },
+   "mesh3D": {
+    "yaw": 6.3,
+    "pitch": 15.1,
+    "roll": -19.3
+   },
+   "matrix": {
+    "yaw": 6.6,
+    "pitch": 19.4,
+    "roll": -20
+   },
+   "noseYaw": 6.1,
+   "signOk": true,
+   "ipd": 149,
+   "blend": {
+    "jawOpen": 0,
+    "mouthSmileLeft": 0,
+    "mouthSmileRight": 0,
+    "eyeBlinkLeft": 0.04,
+    "eyeBlinkRight": 0.1,
+    "mouthPucker": 0.91
+   },
+   "cases": [
+    "frontal",
+    "inclinada",
+    "labios-fruncidos"
+   ]
+  },
+  {
+   "file": "7d8c746816a8cef0eb04199922b7bd4d.jpg",
+   "status": "ready",
+   "size": {
+    "w": 1200,
+    "h": 1798
+   },
+   "angles": {
+    "yaw": 29.7,
+    "pitch": 9.3,
+    "roll": 3.3
+   },
+   "mesh3D": {
+    "yaw": 28,
+    "pitch": 11.9,
+    "roll": 2.5
+   },
+   "matrix": {
+    "yaw": 27.3,
+    "pitch": 17.8,
+    "roll": -0.1
+   },
+   "noseYaw": 32.1,
+   "signOk": true,
+   "ipd": 157,
+   "blend": {
+    "jawOpen": 0,
+    "mouthSmileLeft": 0,
+    "mouthSmileRight": 0,
+    "eyeBlinkLeft": 0.04,
+    "eyeBlinkRight": 0.05,
+    "mouthPucker": 0.01
+   },
+   "cases": [
+    "tres-cuartos-der"
+   ]
+  },
+  {
+   "file": "7d9c9d57c972f33d5c2558c04a762332.jpg",
+   "status": "ready",
+   "size": {
+    "w": 736,
+    "h": 1308
+   },
+   "angles": {
+    "yaw": -4.8,
+    "pitch": -17.3,
+    "roll": -11
+   },
+   "mesh3D": {
+    "yaw": -5.4,
+    "pitch": -16.8,
+    "roll": -11
+   },
+   "matrix": {
+    "yaw": -4.4,
+    "pitch": -10.5,
+    "roll": -10.2
+   },
+   "noseYaw": -3.9,
+   "signOk": true,
+   "ipd": 143,
+   "blend": {
+    "jawOpen": 0,
+    "mouthSmileLeft": 0,
+    "mouthSmileRight": 0,
+    "eyeBlinkLeft": 0.25,
+    "eyeBlinkRight": 0.33,
+    "mouthPucker": 0.6
+   },
+   "cases": [
+    "frontal",
+    "inclinada",
+    "mira-arriba"
+   ]
+  },
+  {
+   "file": "7ddb5914be61cadf85cb9cf61d7febb8.jpg",
+   "status": "ready",
+   "size": {
+    "w": 525,
+    "h": 700
+   },
+   "angles": {
+    "yaw": 4.2,
+    "pitch": 15.8,
+    "roll": -2.1
+   },
+   "mesh3D": {
+    "yaw": 2.8,
+    "pitch": 17.5,
+    "roll": -2.2
+   },
+   "matrix": {
+    "yaw": 2.1,
+    "pitch": 16.4,
+    "roll": -2.3
+   },
+   "noseYaw": 2.6,
+   "signOk": true,
+   "ipd": 116,
+   "blend": {
+    "jawOpen": 0.02,
+    "mouthSmileLeft": 0.06,
+    "mouthSmileRight": 0.05,
+    "eyeBlinkLeft": 0.11,
+    "eyeBlinkRight": 0.12,
+    "mouthPucker": 0
+   },
+   "cases": [
+    "frontal",
+    "mira-abajo"
+   ]
+  },
+  {
+   "file": "7f90f82ba5032b98068f33184a05cb97.jpg",
+   "status": "ready",
+   "size": {
+    "w": 720,
+    "h": 900
+   },
+   "angles": {
+    "yaw": -5.2,
+    "pitch": 20.9,
+    "roll": -11.4
+   },
+   "mesh3D": {
+    "yaw": -7.9,
+    "pitch": 19.5,
+    "roll": -11.5
+   },
+   "matrix": {
+    "yaw": -8.7,
+    "pitch": 22.6,
+    "roll": -10.4
+   },
+   "noseYaw": -10,
+   "signOk": true,
+   "ipd": 85,
+   "blend": {
+    "jawOpen": 0,
+    "mouthSmileLeft": 0.46,
+    "mouthSmileRight": 0.55,
+    "eyeBlinkLeft": 0.08,
+    "eyeBlinkRight": 0.09,
+    "mouthPucker": 0.03
+   },
+   "cases": [
+    "frontal",
+    "inclinada",
+    "mira-abajo",
+    "sonrisa"
+   ]
+  },
+  {
+   "file": "814120c800302b91fb5c77abcf9d6b4d.jpg",
+   "status": "ready",
+   "size": {
+    "w": 719,
+    "h": 1079
+   },
+   "angles": {
+    "yaw": -13.1,
+    "pitch": 5.3,
+    "roll": -16.2
+   },
+   "mesh3D": {
+    "yaw": -12.7,
+    "pitch": 3.8,
+    "roll": -16.3
+   },
+   "matrix": {
+    "yaw": -10.9,
+    "pitch": 6.2,
+    "roll": -15.7
+   },
+   "noseYaw": -17.2,
+   "signOk": true,
+   "ipd": 131,
+   "blend": {
+    "jawOpen": 0,
+    "mouthSmileLeft": 0,
+    "mouthSmileRight": 0,
+    "eyeBlinkLeft": 0.07,
+    "eyeBlinkRight": 0.03,
+    "mouthPucker": 0.58
+   },
+   "cases": [
+    "tres-cuartos-izq",
+    "inclinada"
+   ]
+  },
+  {
+   "file": "8245d3b090455384e4962a093eecca13.jpg",
+   "status": "ready",
+   "size": {
+    "w": 1080,
+    "h": 1349
+   },
+   "angles": {
+    "yaw": -2.7,
+    "pitch": 16.7,
+    "roll": -20.8
+   },
+   "mesh3D": {
+    "yaw": -2,
+    "pitch": 14.7,
+    "roll": -20.6
+   },
+   "matrix": {
+    "yaw": -1.1,
+    "pitch": 18.7,
+    "roll": -20.6
+   },
+   "noseYaw": -9.7,
+   "signOk": true,
+   "ipd": 156,
+   "blend": {
+    "jawOpen": 0,
+    "mouthSmileLeft": 0.01,
+    "mouthSmileRight": 0.01,
+    "eyeBlinkLeft": 0.11,
+    "eyeBlinkRight": 0.12,
+    "mouthPucker": 0.01
+   },
+   "cases": [
+    "frontal",
+    "inclinada",
+    "mira-abajo"
+   ]
+  },
+  {
+   "file": "83cdeeb11ae05be7aaa28904960f33df.jpg",
+   "status": "ready",
+   "size": {
+    "w": 1200,
+    "h": 1500
+   },
+   "angles": {
+    "yaw": -2.9,
+    "pitch": 13.4,
+    "roll": 1.2
+   },
+   "mesh3D": {
+    "yaw": -1.3,
+    "pitch": 11.5,
+    "roll": 1.3
+   },
+   "matrix": {
+    "yaw": -2.1,
+    "pitch": 14.5,
+    "roll": 0.8
+   },
+   "noseYaw": -1.2,
+   "signOk": true,
+   "ipd": 217,
+   "blend": {
+    "jawOpen": 0,
+    "mouthSmileLeft": 0.06,
+    "mouthSmileRight": 0.02,
+    "eyeBlinkLeft": 0.09,
+    "eyeBlinkRight": 0.04,
+    "mouthPucker": 0.02
+   },
+   "cases": [
+    "frontal",
+    "mira-abajo"
+   ]
+  },
+  {
+   "file": "84d4f3d00145d0760d87b7ddb758dc39.jpg",
+   "status": "ready",
+   "size": {
+    "w": 640,
+    "h": 596
+   },
+   "angles": {
+    "yaw": -11.1,
+    "pitch": 23.2,
+    "roll": -13.9
+   },
+   "mesh3D": {
+    "yaw": -7.2,
+    "pitch": 23,
+    "roll": -13.9
+   },
+   "matrix": {
+    "yaw": -6.7,
+    "pitch": 25.5,
+    "roll": -14.9
+   },
+   "noseYaw": -15,
+   "signOk": true,
+   "ipd": 129,
+   "blend": {
+    "jawOpen": 0,
+    "mouthSmileLeft": 0,
+    "mouthSmileRight": 0,
+    "eyeBlinkLeft": 0.03,
+    "eyeBlinkRight": 0.03,
+    "mouthPucker": 0.17
+   },
+   "cases": [
+    "tres-cuartos-izq",
+    "inclinada",
+    "mira-abajo"
+   ]
+  },
+  {
+   "file": "9d4a7ca3cb1aae880892f1bc26502726.jpg",
+   "status": "ready",
+   "size": {
+    "w": 1080,
+    "h": 1620
+   },
+   "angles": {
+    "yaw": -20.5,
+    "pitch": 7.6,
+    "roll": -3.5
+   },
+   "mesh3D": {
+    "yaw": -12.8,
+    "pitch": 7.9,
+    "roll": -2.7
+   },
+   "matrix": {
+    "yaw": -13.3,
+    "pitch": 9.4,
+    "roll": -3.7
+   },
+   "noseYaw": -5.7,
+   "signOk": true,
+   "ipd": 150,
+   "blend": {
+    "jawOpen": 0,
+    "mouthSmileLeft": 0.01,
+    "mouthSmileRight": 0,
+    "eyeBlinkLeft": 0.55,
+    "eyeBlinkRight": 0.44,
+    "mouthPucker": 0.12
+   },
+   "cases": [
+    "tres-cuartos-izq"
+   ]
+  },
+  {
+   "file": "9e9d53cb4c43faf66710edb10e5da1b0.jpg",
+   "status": "ready",
+   "size": {
+    "w": 736,
+    "h": 736
+   },
+   "angles": {
+    "yaw": 45.9,
+    "pitch": 0.7,
+    "roll": 15
+   },
+   "mesh3D": {
+    "yaw": 45,
+    "pitch": -0.7,
+    "roll": 15.6
+   },
+   "matrix": {
+    "yaw": 38.1,
+    "pitch": 1.1,
+    "roll": 13.6
+   },
+   "noseYaw": 51.2,
+   "signOk": true,
+   "ipd": 72,
+   "blend": {
+    "jawOpen": 0,
+    "mouthSmileLeft": 0.79,
+    "mouthSmileRight": 0.92,
+    "eyeBlinkLeft": 0.26,
+    "eyeBlinkRight": 0.11,
+    "mouthPucker": 0
+   },
+   "cases": [
+    "tres-cuartos-fuerte",
+    "inclinada",
+    "sonrisa"
+   ]
+  },
+  {
+   "file": "a0af2627556cec65c5ba4c10c02c1ab8.jpg",
+   "status": "ready",
+   "size": {
+    "w": 736,
+    "h": 1308
+   },
+   "angles": {
+    "yaw": -40.6,
+    "pitch": 14.8,
+    "roll": -3
+   },
+   "mesh3D": {
+    "yaw": -33.9,
+    "pitch": 16.1,
+    "roll": -2.2
+   },
+   "matrix": {
+    "yaw": -32.2,
+    "pitch": 16.4,
+    "roll": -1.4
+   },
+   "noseYaw": -37,
+   "signOk": true,
+   "ipd": 92,
+   "blend": {
+    "jawOpen": 0.01,
+    "mouthSmileLeft": 0,
+    "mouthSmileRight": 0,
+    "eyeBlinkLeft": 0.11,
+    "eyeBlinkRight": 0.12,
+    "mouthPucker": 0.25
+   },
+   "cases": [
+    "tres-cuartos-izq",
+    "mira-abajo"
+   ]
+  },
+  {
+   "file": "a18bbf86f7778eab89ca038fb5ab0fe2.jpg",
+   "status": "ready",
+   "size": {
+    "w": 1080,
+    "h": 1110
+   },
+   "angles": {
+    "yaw": -4.5,
+    "pitch": 0.5,
+    "roll": -1.1
+   },
+   "mesh3D": {
+    "yaw": -2.4,
+    "pitch": 2.3,
+    "roll": -0.8
+   },
+   "matrix": {
+    "yaw": -3.1,
+    "pitch": 0,
+    "roll": -1.6
+   },
+   "noseYaw": -3,
+   "signOk": true,
+   "ipd": 244,
+   "blend": {
+    "jawOpen": 0.03,
+    "mouthSmileLeft": 0,
+    "mouthSmileRight": 0,
+    "eyeBlinkLeft": 0.09,
+    "eyeBlinkRight": 0.02,
+    "mouthPucker": 0.07
+   },
+   "cases": [
+    "frontal"
+   ]
+  },
+  {
+   "file": "a1978f33bdf9e655991a8a359ba17656.jpg",
+   "status": "ready",
+   "size": {
+    "w": 736,
+    "h": 1318
+   },
+   "angles": {
+    "yaw": 2.9,
+    "pitch": -2.3,
+    "roll": -6.4
+   },
+   "mesh3D": {
+    "yaw": 2.8,
+    "pitch": 0.8,
+    "roll": -6.5
+   },
+   "matrix": {
+    "yaw": 2.4,
+    "pitch": 6,
+    "roll": -6.9
+   },
+   "noseYaw": 4.4,
+   "signOk": true,
+   "ipd": 144,
+   "blend": {
+    "jawOpen": 0,
+    "mouthSmileLeft": 0.06,
+    "mouthSmileRight": 0.09,
+    "eyeBlinkLeft": 0.21,
+    "eyeBlinkRight": 0.26,
+    "mouthPucker": 0.11
+   },
+   "cases": [
+    "frontal"
+   ]
+  },
+  {
+   "file": "a1e078f5c4bd235b740d265f1930dd41.jpg",
+   "status": "ready",
+   "size": {
+    "w": 1200,
+    "h": 1500
+   },
+   "angles": {
+    "yaw": 17.8,
+    "pitch": 4.6,
+    "roll": -3
+   },
+   "mesh3D": {
+    "yaw": 15.5,
+    "pitch": 4.8,
+    "roll": -3.3
+   },
+   "matrix": {
+    "yaw": 15.4,
+    "pitch": 9,
+    "roll": -4.7
+   },
+   "noseYaw": 21.5,
+   "signOk": true,
+   "ipd": 209,
+   "blend": {
+    "jawOpen": 0,
+    "mouthSmileLeft": 0,
+    "mouthSmileRight": 0,
+    "eyeBlinkLeft": 0.01,
+    "eyeBlinkRight": 0.01,
+    "mouthPucker": 0.81
+   },
+   "cases": [
+    "tres-cuartos-der",
+    "labios-fruncidos"
+   ]
+  },
+  {
+   "file": "a27e908a50231210a7580b490322d9f8.jpg",
+   "status": "ready",
+   "size": {
+    "w": 1200,
+    "h": 1800
+   },
+   "angles": {
+    "yaw": -33.6,
+    "pitch": 3.9,
+    "roll": 11.3
+   },
+   "mesh3D": {
+    "yaw": -25.8,
+    "pitch": 6.6,
+    "roll": 13.3
+   },
+   "matrix": {
+    "yaw": -26.9,
+    "pitch": 12.7,
+    "roll": 15.8
+   },
+   "noseYaw": -36.3,
+   "signOk": true,
+   "ipd": 120,
+   "blend": {
+    "jawOpen": 0,
+    "mouthSmileLeft": 0.16,
+    "mouthSmileRight": 0.03,
+    "eyeBlinkLeft": 0.12,
+    "eyeBlinkRight": 0.07,
+    "mouthPucker": 0.01
+   },
+   "cases": [
+    "tres-cuartos-izq",
+    "inclinada"
+   ]
+  },
+  {
+   "file": "a678102615634be56168ae93b1310275.jpg",
+   "status": "ready",
+   "size": {
+    "w": 746,
+    "h": 924
+   },
+   "angles": {
+    "yaw": -29,
+    "pitch": 13.4,
+    "roll": -5.3
+   },
+   "mesh3D": {
+    "yaw": -24.9,
+    "pitch": 11.4,
+    "roll": -5.5
+   },
+   "matrix": {
+    "yaw": -21.9,
+    "pitch": 14.4,
+    "roll": -3.6
+   },
+   "noseYaw": -36.9,
+   "signOk": true,
+   "ipd": 157,
+   "blend": {
+    "jawOpen": 0,
+    "mouthSmileLeft": 0.08,
+    "mouthSmileRight": 0.07,
+    "eyeBlinkLeft": 0.05,
+    "eyeBlinkRight": 0.03,
+    "mouthPucker": 0.03
+   },
+   "cases": [
+    "tres-cuartos-izq",
+    "mira-abajo"
+   ]
+  },
+  {
+   "file": "a6976c72d2bd082c48d65272e780929e.jpg",
+   "status": "ready",
+   "size": {
+    "w": 640,
+    "h": 917
+   },
+   "angles": {
+    "yaw": -16.6,
+    "pitch": 27.9,
+    "roll": -17
+   },
+   "mesh3D": {
+    "yaw": -7.8,
+    "pitch": 23.9,
+    "roll": -17.2
+   },
+   "matrix": {
+    "yaw": -7.6,
+    "pitch": 27.8,
+    "roll": -17.5
+   },
+   "noseYaw": -20.8,
+   "signOk": true,
+   "ipd": 99,
+   "blend": {
+    "jawOpen": 0.01,
+    "mouthSmileLeft": 0,
+    "mouthSmileRight": 0,
+    "eyeBlinkLeft": 0.02,
+    "eyeBlinkRight": 0.02,
+    "mouthPucker": 0.12
+   },
+   "cases": [
+    "tres-cuartos-izq",
+    "inclinada",
+    "mira-abajo"
+   ]
+  },
+  {
+   "file": "a8126b874f5d455ee4f72f1b547432cf.jpg",
+   "status": "ready",
+   "size": {
+    "w": 500,
+    "h": 700
+   },
+   "angles": {
+    "yaw": -33.7,
+    "pitch": 13.6,
+    "roll": -1.1
+   },
+   "mesh3D": {
+    "yaw": -30.3,
+    "pitch": 14,
+    "roll": -0.6
+   },
+   "matrix": {
+    "yaw": -29.5,
+    "pitch": 19.8,
+    "roll": 1.8
+   },
+   "noseYaw": -28.9,
+   "signOk": true,
+   "ipd": 101,
+   "blend": {
+    "jawOpen": 0,
+    "mouthSmileLeft": 0,
+    "mouthSmileRight": 0,
+    "eyeBlinkLeft": 0.08,
+    "eyeBlinkRight": 0.03,
+    "mouthPucker": 0.49
+   },
+   "cases": [
+    "tres-cuartos-izq",
+    "mira-abajo"
+   ]
+  },
+  {
+   "file": "b1a43b0304c79f5e37dab82e329d8d6a.jpg",
+   "status": "ready",
+   "size": {
+    "w": 649,
+    "h": 1079
+   },
+   "angles": {
+    "yaw": -33.8,
+    "pitch": -6,
+    "roll": 4.2
+   },
+   "mesh3D": {
+    "yaw": -30.8,
+    "pitch": -7.6,
+    "roll": 4.1
+   },
+   "matrix": {
+    "yaw": -26.1,
+    "pitch": -5.3,
+    "roll": 5.7
+   },
+   "noseYaw": -41.5,
+   "signOk": true,
+   "ipd": 162,
+   "blend": {
+    "jawOpen": 0,
+    "mouthSmileLeft": 0,
+    "mouthSmileRight": 0,
+    "eyeBlinkLeft": 0.09,
+    "eyeBlinkRight": 0.04,
+    "mouthPucker": 0.27
+   },
+   "cases": [
+    "tres-cuartos-izq"
+   ]
+  },
+  {
+   "file": "b8a8c9738f6b6ab914783554abe133bd.jpg",
+   "status": "ready",
+   "size": {
+    "w": 736,
+    "h": 975
+   },
+   "angles": {
+    "yaw": 1.3,
+    "pitch": 7.5,
+    "roll": -5.2
+   },
+   "mesh3D": {
+    "yaw": 0,
+    "pitch": 9.2,
+    "roll": -5.4
+   },
+   "matrix": {
+    "yaw": 0,
+    "pitch": 12.7,
+    "roll": -4.7
+   },
+   "noseYaw": 1.6,
+   "signOk": true,
+   "ipd": 148,
+   "blend": {
+    "jawOpen": 0,
+    "mouthSmileLeft": 0.01,
+    "mouthSmileRight": 0.02,
+    "eyeBlinkLeft": 0.09,
+    "eyeBlinkRight": 0.15,
+    "mouthPucker": 0
+   },
+   "cases": [
+    "frontal"
+   ]
+  },
+  {
+   "file": "b92da82800ff45191ee4ba7899fbf52f.jpg",
+   "status": "ready",
+   "size": {
+    "w": 736,
+    "h": 1104
+   },
+   "angles": {
+    "yaw": -4.2,
+    "pitch": 5.6,
+    "roll": 0
+   },
+   "mesh3D": {
+    "yaw": -3.9,
+    "pitch": 6.4,
+    "roll": 0.1
+   },
+   "matrix": {
+    "yaw": -3.3,
+    "pitch": 5.2,
+    "roll": 0.2
+   },
+   "noseYaw": -6.7,
+   "signOk": true,
+   "ipd": 178,
+   "blend": {
+    "jawOpen": 0.02,
+    "mouthSmileLeft": 0,
+    "mouthSmileRight": 0,
+    "eyeBlinkLeft": 0.23,
+    "eyeBlinkRight": 0.19,
+    "mouthPucker": 0
+   },
+   "cases": [
+    "frontal"
+   ]
+  },
+  {
+   "file": "b986053c583ccdbd482c4f68cc660491.jpg",
+   "status": "ready",
+   "size": {
+    "w": 750,
+    "h": 743
+   },
+   "angles": {
+    "yaw": -6.2,
+    "pitch": -8.8,
+    "roll": 25.9
+   },
+   "mesh3D": {
+    "yaw": -0.2,
+    "pitch": -15.2,
+    "roll": 26.5
+   },
+   "matrix": {
+    "yaw": 0.6,
+    "pitch": -16.7,
+    "roll": 26.8
+   },
+   "noseYaw": -12.8,
+   "signOk": true,
+   "ipd": 141,
+   "blend": {
+    "jawOpen": 0,
+    "mouthSmileLeft": 0.02,
+    "mouthSmileRight": 0,
+    "eyeBlinkLeft": 0.33,
+    "eyeBlinkRight": 0.27,
+    "mouthPucker": 0.69
+   },
+   "cases": [
+    "frontal",
+    "inclinada"
+   ]
+  },
+  {
+   "file": "ba30df6119374d8b6464ffab508eb5b5.jpg",
+   "status": "ready",
+   "size": {
+    "w": 640,
+    "h": 800
+   },
+   "angles": {
+    "yaw": 11.2,
+    "pitch": 7.2,
+    "roll": -8.6
+   },
+   "mesh3D": {
+    "yaw": 9.7,
+    "pitch": 7.6,
+    "roll": -8.8
+   },
+   "matrix": {
+    "yaw": 8.1,
+    "pitch": 6.3,
+    "roll": -9
+   },
+   "noseYaw": 2.2,
+   "signOk": true,
+   "ipd": 151,
+   "blend": {
+    "jawOpen": 0.01,
+    "mouthSmileLeft": 0,
+    "mouthSmileRight": 0,
+    "eyeBlinkLeft": 0.12,
+    "eyeBlinkRight": 0.08,
+    "mouthPucker": 0.02
+   },
+   "cases": [
+    "tres-cuartos-der"
+   ]
+  },
+  {
+   "file": "bb4e9396cc15363941ec128ebc652d13.jpg",
+   "status": "ready",
+   "size": {
+    "w": 1200,
+    "h": 1600
+   },
+   "angles": {
+    "yaw": -17.5,
+    "pitch": -3.4,
+    "roll": -24.8
+   },
+   "mesh3D": {
+    "yaw": -17.2,
+    "pitch": -1.7,
+    "roll": -24.6
+   },
+   "matrix": {
+    "yaw": -14.4,
+    "pitch": -0.3,
+    "roll": -22.4
+   },
+   "noseYaw": -18.9,
+   "signOk": true,
+   "ipd": 257,
+   "blend": {
+    "jawOpen": 0,
+    "mouthSmileLeft": 0,
+    "mouthSmileRight": 0,
+    "eyeBlinkLeft": 0.1,
+    "eyeBlinkRight": 0.05,
+    "mouthPucker": 0.56
+   },
+   "cases": [
+    "tres-cuartos-izq",
+    "inclinada"
+   ]
+  },
+  {
+   "file": "bcdf8ec915be9692edf2ef634e8759d7.jpg",
+   "status": "ready",
+   "size": {
+    "w": 736,
+    "h": 1277
+   },
+   "angles": {
+    "yaw": -39.5,
+    "pitch": 5.1,
+    "roll": 0.6
+   },
+   "mesh3D": {
+    "yaw": -36.7,
+    "pitch": 6.7,
+    "roll": 1.5
+   },
+   "matrix": {
+    "yaw": -33.9,
+    "pitch": 12.8,
+    "roll": 4.4
+   },
+   "noseYaw": -39.4,
+   "signOk": true,
+   "ipd": 135,
+   "blend": {
+    "jawOpen": 0,
+    "mouthSmileLeft": 0.2,
+    "mouthSmileRight": 0.02,
+    "eyeBlinkLeft": 0.15,
+    "eyeBlinkRight": 0.02,
+    "mouthPucker": 0
+   },
+   "cases": [
+    "tres-cuartos-izq"
+   ]
+  },
+  {
+   "file": "c582c7168bd218d0476f42de783e60f2.jpg",
+   "status": "ready",
+   "size": {
+    "w": 736,
+    "h": 736
+   },
+   "angles": {
+    "yaw": -1.7,
+    "pitch": 10.4,
+    "roll": -6.1
+   },
+   "mesh3D": {
+    "yaw": -1.9,
+    "pitch": 11.2,
+    "roll": -6.1
+   },
+   "matrix": {
+    "yaw": -1.4,
+    "pitch": 17.2,
+    "roll": -5.9
+   },
+   "noseYaw": 2.5,
+   "signOk": true,
+   "ipd": 82,
+   "blend": {
+    "jawOpen": 0.01,
+    "mouthSmileLeft": 0,
+    "mouthSmileRight": 0,
+    "eyeBlinkLeft": 0.05,
+    "eyeBlinkRight": 0.03,
+    "mouthPucker": 0.07
+   },
+   "cases": [
+    "frontal"
+   ]
+  },
+  {
+   "file": "c7056fdcb53df1bae7f221934ff79fae.jpg",
+   "status": "ready",
+   "size": {
+    "w": 735,
+    "h": 913
+   },
+   "angles": {
+    "yaw": -0.5,
+    "pitch": 1.6,
+    "roll": 0.3
+   },
+   "mesh3D": {
+    "yaw": -1.7,
+    "pitch": 2,
+    "roll": 0.1
+   },
+   "matrix": {
+    "yaw": -1.5,
+    "pitch": 2.3,
+    "roll": 0.7
+   },
+   "noseYaw": -0.1,
+   "signOk": true,
+   "ipd": 157,
+   "blend": {
+    "jawOpen": 0.01,
+    "mouthSmileLeft": 0,
+    "mouthSmileRight": 0,
+    "eyeBlinkLeft": 0.1,
+    "eyeBlinkRight": 0.06,
+    "mouthPucker": 0.85
+   },
+   "cases": [
+    "frontal",
+    "labios-fruncidos"
+   ]
+  },
+  {
+   "file": "c70acd1392070c0d7435045e175ba2f2.jpg",
+   "status": "ready",
+   "size": {
+    "w": 735,
+    "h": 1291
+   },
+   "angles": {
+    "yaw": -1.2,
+    "pitch": 3.2,
+    "roll": 0.6
+   },
+   "mesh3D": {
+    "yaw": -0.9,
+    "pitch": 3.5,
+    "roll": 0.6
+   },
+   "matrix": {
+    "yaw": -1,
+    "pitch": 6.8,
+    "roll": 0.6
+   },
+   "noseYaw": -0.8,
+   "signOk": true,
+   "ipd": 158,
+   "blend": {
+    "jawOpen": 0,
+    "mouthSmileLeft": 0,
+    "mouthSmileRight": 0,
+    "eyeBlinkLeft": 0.29,
+    "eyeBlinkRight": 0.25,
+    "mouthPucker": 0.2
+   },
+   "cases": [
+    "frontal"
+   ]
+  },
+  {
+   "file": "c826560dac94a188216e2c4374973635.jpg",
+   "status": "ready",
+   "size": {
+    "w": 1200,
+    "h": 1600
+   },
+   "angles": {
+    "yaw": 47,
+    "pitch": 0.2,
+    "roll": 4.2
+   },
+   "mesh3D": {
+    "yaw": 43.9,
+    "pitch": -0.2,
+    "roll": 4.1
+   },
+   "matrix": {
+    "yaw": 39.4,
+    "pitch": 4.3,
+    "roll": 0
+   },
+   "noseYaw": 45.5,
+   "signOk": true,
+   "ipd": 149,
+   "blend": {
+    "jawOpen": 0,
+    "mouthSmileLeft": 0,
+    "mouthSmileRight": 0,
+    "eyeBlinkLeft": 0.07,
+    "eyeBlinkRight": 0.02,
+    "mouthPucker": 0.27
+   },
+   "cases": [
+    "tres-cuartos-fuerte"
+   ]
+  },
+  {
+   "file": "canvas.png",
+   "status": "no-face",
+   "size": {
+    "w": 1152,
+    "h": 2048
+   },
+   "angles": null,
+   "mesh3D": null,
+   "matrix": null,
+   "noseYaw": null,
+   "signOk": null,
+   "ipd": null,
+   "blend": {
+    "jawOpen": 0,
+    "mouthSmileLeft": 0,
+    "mouthSmileRight": 0,
+    "eyeBlinkLeft": 0,
+    "eyeBlinkRight": 0,
+    "mouthPucker": 0
+   },
+   "cases": [
+    "sin-cara"
+   ]
+  },
+  {
+   "file": "cd62e296e0877388f67a07ddd66b560d.jpg",
+   "status": "ready",
+   "size": {
+    "w": 736,
+    "h": 981
+   },
+   "angles": {
+    "yaw": 3.7,
+    "pitch": -3.1,
+    "roll": 0
+   },
+   "mesh3D": {
+    "yaw": 3.6,
+    "pitch": -2.4,
+    "roll": 0
+   },
+   "matrix": {
+    "yaw": 2.9,
+    "pitch": 0.3,
+    "roll": -0.1
+   },
+   "noseYaw": 6.6,
+   "signOk": true,
+   "ipd": 171,
+   "blend": {
+    "jawOpen": 0.02,
+    "mouthSmileLeft": 0,
+    "mouthSmileRight": 0,
+    "eyeBlinkLeft": 0.03,
+    "eyeBlinkRight": 0.03,
+    "mouthPucker": 0.3
+   },
+   "cases": [
+    "frontal"
+   ]
+  },
+  {
+   "file": "ced3423905cd4afe225f6d84c0ae07d6.jpg",
+   "status": "ready",
+   "size": {
+    "w": 500,
+    "h": 693
+   },
+   "angles": {
+    "yaw": -7.5,
+    "pitch": 2,
+    "roll": -1.2
+   },
+   "mesh3D": {
+    "yaw": -6.4,
+    "pitch": 2.2,
+    "roll": -1.1
+   },
+   "matrix": {
+    "yaw": -5.5,
+    "pitch": 3.6,
+    "roll": -0.8
+   },
+   "noseYaw": -9,
+   "signOk": true,
+   "ipd": 93,
+   "blend": {
+    "jawOpen": 0.01,
+    "mouthSmileLeft": 0,
+    "mouthSmileRight": 0,
+    "eyeBlinkLeft": 0.25,
+    "eyeBlinkRight": 0.19,
+    "mouthPucker": 0
+   },
+   "cases": [
+    "frontal"
+   ]
+  },
+  {
+   "file": "cfc9c21d030864ffdba91e2e01d3922a.jpg",
+   "status": "ready",
+   "size": {
+    "w": 482,
+    "h": 675
+   },
+   "angles": {
+    "yaw": 16.7,
+    "pitch": 10.5,
+    "roll": -2.6
+   },
+   "mesh3D": {
+    "yaw": 15.9,
+    "pitch": 12.8,
+    "roll": -3
+   },
+   "matrix": {
+    "yaw": 13.9,
+    "pitch": 12.5,
+    "roll": -2.8
+   },
+   "noseYaw": 14.1,
+   "signOk": true,
+   "ipd": 126,
+   "blend": {
+    "jawOpen": 0,
+    "mouthSmileLeft": 0,
+    "mouthSmileRight": 0,
+    "eyeBlinkLeft": 0.07,
+    "eyeBlinkRight": 0.1,
+    "mouthPucker": 0.03
+   },
+   "cases": [
+    "tres-cuartos-der"
+   ]
+  },
+  {
+   "file": "d474a68dbf1c78f975c91d13249f8e8a.jpg",
+   "status": "ready",
+   "size": {
+    "w": 1199,
+    "h": 1499
+   },
+   "angles": {
+    "yaw": 2,
+    "pitch": 1.2,
+    "roll": 0.5
+   },
+   "mesh3D": {
+    "yaw": 2,
+    "pitch": 3.1,
+    "roll": 0.5
+   },
+   "matrix": {
+    "yaw": 1.7,
+    "pitch": 5.7,
+    "roll": 0.5
+   },
+   "noseYaw": 1.7,
+   "signOk": true,
+   "ipd": 330,
+   "blend": {
+    "jawOpen": 0,
+    "mouthSmileLeft": 0,
+    "mouthSmileRight": 0,
+    "eyeBlinkLeft": 0.11,
+    "eyeBlinkRight": 0.06,
+    "mouthPucker": 0.4
+   },
+   "cases": [
+    "frontal"
+   ]
+  },
+  {
+   "file": "d60ffa653e6d58a3a689aa38b27eb816.jpg",
+   "status": "ready",
+   "size": {
+    "w": 640,
+    "h": 784
+   },
+   "angles": {
+    "yaw": -51.8,
+    "pitch": 6.9,
+    "roll": -6.7
+   },
+   "mesh3D": {
+    "yaw": -48.5,
+    "pitch": 6.4,
+    "roll": -6.8
+   },
+   "matrix": {
+    "yaw": -39.9,
+    "pitch": 3,
+    "roll": -6.8
+   },
+   "noseYaw": -56.4,
+   "signOk": true,
+   "ipd": 92,
+   "blend": {
+    "jawOpen": 0,
+    "mouthSmileLeft": 0.03,
+    "mouthSmileRight": 0.02,
+    "eyeBlinkLeft": 0.04,
+    "eyeBlinkRight": 0.03,
+    "mouthPucker": 0.02
+   },
+   "cases": [
+    "tres-cuartos-fuerte"
+   ]
+  },
+  {
+   "file": "d7b288684d7c2fb957b1dc8b872b3da0.jpg",
+   "status": "ready",
+   "size": {
+    "w": 640,
+    "h": 960
+   },
+   "angles": {
+    "yaw": 2.8,
+    "pitch": 25,
+    "roll": -4.4
+   },
+   "mesh3D": {
+    "yaw": 3.6,
+    "pitch": 24.7,
+    "roll": -4.3
+   },
+   "matrix": {
+    "yaw": 3.6,
+    "pitch": 25.2,
+    "roll": -4.4
+   },
+   "noseYaw": 2,
+   "signOk": true,
+   "ipd": 150,
+   "blend": {
+    "jawOpen": 0,
+    "mouthSmileLeft": 0.88,
+    "mouthSmileRight": 0.82,
+    "eyeBlinkLeft": 0.15,
+    "eyeBlinkRight": 0.1,
+    "mouthPucker": 0.01
+   },
+   "cases": [
+    "frontal",
+    "mira-abajo",
+    "sonrisa"
+   ]
+  },
+  {
+   "file": "daaf79a8115bbfc4761227cc3523ae5b.jpg",
+   "status": "ready",
+   "size": {
+    "w": 828,
+    "h": 1782
+   },
+   "angles": {
+    "yaw": 3.3,
+    "pitch": 2.5,
+    "roll": -9.1
+   },
+   "mesh3D": {
+    "yaw": 2.8,
+    "pitch": 4,
+    "roll": -9.2
+   },
+   "matrix": {
+    "yaw": 3.5,
+    "pitch": 11.8,
+    "roll": -9.8
+   },
+   "noseYaw": 10.9,
+   "signOk": true,
+   "ipd": 145,
+   "blend": {
+    "jawOpen": 0,
+    "mouthSmileLeft": 0,
+    "mouthSmileRight": 0,
+    "eyeBlinkLeft": 0.01,
+    "eyeBlinkRight": 0.02,
+    "mouthPucker": 0.27
+   },
+   "cases": [
+    "frontal"
+   ]
+  },
+  {
+   "file": "dbcd5bd1f996aa0b29a9d313f48872ab.jpg",
+   "status": "ready",
+   "size": {
+    "w": 736,
+    "h": 1103
+   },
+   "angles": {
+    "yaw": 15.9,
+    "pitch": -8.4,
+    "roll": 12.3
+   },
+   "mesh3D": {
+    "yaw": 15.5,
+    "pitch": -9.1,
+    "roll": 12.3
+   },
+   "matrix": {
+    "yaw": 13.1,
+    "pitch": -5.4,
+    "roll": 11.2
+   },
+   "noseYaw": 19.1,
+   "signOk": true,
+   "ipd": 187,
+   "blend": {
+    "jawOpen": 0,
+    "mouthSmileLeft": 0,
+    "mouthSmileRight": 0,
+    "eyeBlinkLeft": 0.18,
+    "eyeBlinkRight": 0.12,
+    "mouthPucker": 0.53
+   },
+   "cases": [
+    "tres-cuartos-der",
+    "inclinada"
+   ]
+  },
+  {
+   "file": "de0c5db7b6379f6c62b5e4b8a19c915b.jpg",
+   "status": "ready",
+   "size": {
+    "w": 1000,
+    "h": 1250
+   },
+   "angles": {
+    "yaw": -20.1,
+    "pitch": 5.9,
+    "roll": 2.7
+   },
+   "mesh3D": {
+    "yaw": -14.8,
+    "pitch": 3.6,
+    "roll": 2.9
+   },
+   "matrix": {
+    "yaw": -13,
+    "pitch": 5.7,
+    "roll": 3.4
+   },
+   "noseYaw": -22.3,
+   "signOk": true,
+   "ipd": 152,
+   "blend": {
+    "jawOpen": 0,
+    "mouthSmileLeft": 0,
+    "mouthSmileRight": 0,
+    "eyeBlinkLeft": 0.03,
+    "eyeBlinkRight": 0.02,
+    "mouthPucker": 0.22
+   },
+   "cases": [
+    "tres-cuartos-izq"
+   ]
+  },
+  {
+   "file": "dea86cd8ae9383545411eaf1eb7ecdd4.jpg",
+   "status": "ready",
+   "size": {
+    "w": 1080,
+    "h": 1440
+   },
+   "angles": {
+    "yaw": -10,
+    "pitch": 18.4,
+    "roll": -1.9
+   },
+   "mesh3D": {
+    "yaw": -7.8,
+    "pitch": 18.1,
+    "roll": -1.8
+   },
+   "matrix": {
+    "yaw": -7.5,
+    "pitch": 19.8,
+    "roll": -1.9
+   },
+   "noseYaw": -8.8,
+   "signOk": true,
+   "ipd": 190,
+   "blend": {
+    "jawOpen": 0,
+    "mouthSmileLeft": 0.02,
+    "mouthSmileRight": 0.02,
+    "eyeBlinkLeft": 0.18,
+    "eyeBlinkRight": 0.07,
+    "mouthPucker": 0.03
+   },
+   "cases": [
+    "tres-cuartos-izq",
+    "mira-abajo"
+   ]
+  },
+  {
+   "file": "def012b66d713ac1c1daa53e0265b50e.jpg",
+   "status": "ready",
+   "size": {
+    "w": 736,
+    "h": 1308
+   },
+   "angles": {
+    "yaw": -23.5,
+    "pitch": 7.1,
+    "roll": -6.1
+   },
+   "mesh3D": {
+    "yaw": -22.2,
+    "pitch": 6.8,
+    "roll": -6.1
+   },
+   "matrix": {
+    "yaw": -21.3,
+    "pitch": 13.4,
+    "roll": -2.5
+   },
+   "noseYaw": -26.9,
+   "signOk": true,
+   "ipd": 115,
+   "blend": {
+    "jawOpen": 0,
+    "mouthSmileLeft": 0,
+    "mouthSmileRight": 0,
+    "eyeBlinkLeft": 0.04,
+    "eyeBlinkRight": 0.02,
+    "mouthPucker": 0.22
+   },
+   "cases": [
+    "tres-cuartos-izq"
+   ]
+  },
+  {
+   "file": "e7103c30f6ab5809865d6bf053e50123.jpg",
+   "status": "ready",
+   "size": {
+    "w": 640,
+    "h": 800
+   },
+   "angles": {
+    "yaw": -34.6,
+    "pitch": 2.3,
+    "roll": -14.8
+   },
+   "mesh3D": {
+    "yaw": -30.6,
+    "pitch": 0.2,
+    "roll": -15.2
+   },
+   "matrix": {
+    "yaw": -26.1,
+    "pitch": 1.2,
+    "roll": -15.4
+   },
+   "noseYaw": -41.1,
+   "signOk": true,
+   "ipd": 108,
+   "blend": {
+    "jawOpen": 0,
+    "mouthSmileLeft": 0,
+    "mouthSmileRight": 0,
+    "eyeBlinkLeft": 0.12,
+    "eyeBlinkRight": 0.08,
+    "mouthPucker": 0.01
+   },
+   "cases": [
+    "tres-cuartos-izq",
+    "inclinada"
+   ]
+  },
+  {
+   "file": "e72cf03e18840dd52bed1d0134b13a99.jpg",
+   "status": "ready",
+   "size": {
+    "w": 1160,
+    "h": 1889
+   },
+   "angles": {
+    "yaw": 19.8,
+    "pitch": 12.8,
+    "roll": 0.8
+   },
+   "mesh3D": {
+    "yaw": 15.7,
+    "pitch": 16.1,
+    "roll": 0
+   },
+   "matrix": {
+    "yaw": 15.4,
+    "pitch": 21.2,
+    "roll": -2.8
+   },
+   "noseYaw": 20,
+   "signOk": true,
+   "ipd": 173,
+   "blend": {
+    "jawOpen": 0,
+    "mouthSmileLeft": 0,
+    "mouthSmileRight": 0,
+    "eyeBlinkLeft": 0.04,
+    "eyeBlinkRight": 0.03,
+    "mouthPucker": 0.28
+   },
+   "cases": [
+    "tres-cuartos-der",
+    "mira-abajo"
+   ]
+  },
+  {
+   "file": "ebb033f3f0d2aca9d5df8f19454e67d5.jpg",
+   "status": "ready",
+   "size": {
+    "w": 400,
+    "h": 600
+   },
+   "angles": {
+    "yaw": 10.1,
+    "pitch": 10.8,
+    "roll": 0.9
+   },
+   "mesh3D": {
+    "yaw": 8.2,
+    "pitch": 10,
+    "roll": 0.8
+   },
+   "matrix": {
+    "yaw": 7.3,
+    "pitch": 8.4,
+    "roll": 1.1
+   },
+   "noseYaw": 10.6,
+   "signOk": true,
+   "ipd": 99,
+   "blend": {
+    "jawOpen": 0.01,
+    "mouthSmileLeft": 0.56,
+    "mouthSmileRight": 0.66,
+    "eyeBlinkLeft": 0.3,
+    "eyeBlinkRight": 0.22,
+    "mouthPucker": 0
+   },
+   "cases": [
+    "tres-cuartos-der",
+    "sonrisa",
+    "baja-resolucion"
+   ]
+  },
+  {
+   "file": "ee653c63c0c44dc2ea8c0e7e6ab42e6a.jpg",
+   "status": "ready",
+   "size": {
+    "w": 738,
+    "h": 1110
+   },
+   "angles": {
+    "yaw": -10.2,
+    "pitch": 30,
+    "roll": -3.2
+   },
+   "mesh3D": {
+    "yaw": -7.3,
+    "pitch": 26.2,
+    "roll": -3.4
+   },
+   "matrix": {
+    "yaw": -7.3,
+    "pitch": 29.1,
+    "roll": -3.4
+   },
+   "noseYaw": -9.7,
+   "signOk": true,
+   "ipd": 160,
+   "blend": {
+    "jawOpen": 0.1,
+    "mouthSmileLeft": 0.99,
+    "mouthSmileRight": 0.97,
+    "eyeBlinkLeft": 0.19,
+    "eyeBlinkRight": 0.16,
+    "mouthPucker": 0.01
+   },
+   "cases": [
+    "tres-cuartos-izq",
+    "mira-abajo",
+    "sonrisa"
+   ]
+  },
+  {
+   "file": "f3ce1ea4417d546a06d16e4c55594387.jpg",
+   "status": "ready",
+   "size": {
+    "w": 1080,
+    "h": 1350
+   },
+   "angles": {
+    "yaw": 1.1,
+    "pitch": 27.1,
+    "roll": 8.6
+   },
+   "mesh3D": {
+    "yaw": -0.8,
+    "pitch": 31,
+    "roll": 8.7
+   },
+   "matrix": {
+    "yaw": -1.5,
+    "pitch": 29.7,
+    "roll": 9.3
+   },
+   "noseYaw": 7.5,
+   "signOk": true,
+   "ipd": 267,
+   "blend": {
+    "jawOpen": 0.05,
+    "mouthSmileLeft": 0,
+    "mouthSmileRight": 0,
+    "eyeBlinkLeft": 0.04,
+    "eyeBlinkRight": 0.01,
+    "mouthPucker": 0.13
+   },
+   "cases": [
+    "frontal",
+    "mira-abajo"
+   ]
+  },
+  {
+   "file": "f91855465eb271c49e7c5cee5998a6b2.jpg",
+   "status": "ready",
+   "size": {
+    "w": 736,
+    "h": 1318
+   },
+   "angles": {
+    "yaw": 14,
+    "pitch": -6.8,
+    "roll": -9.2
+   },
+   "mesh3D": {
+    "yaw": 14.7,
+    "pitch": -7.3,
+    "roll": -9
+   },
+   "matrix": {
+    "yaw": 14.3,
+    "pitch": -2.7,
+    "roll": -9.9
+   },
+   "noseYaw": 7,
+   "signOk": true,
+   "ipd": 191,
+   "blend": {
+    "jawOpen": 0.29,
+    "mouthSmileLeft": 0,
+    "mouthSmileRight": 0,
+    "eyeBlinkLeft": 0.09,
+    "eyeBlinkRight": 0.11,
+    "mouthPucker": 0.14
+   },
+   "cases": [
+    "tres-cuartos-der"
+   ]
+  },
+  {
+   "file": "fc9d1c9b88e07ec33ae3ab4b37385eea.jpg",
+   "status": "ready",
+   "size": {
+    "w": 1080,
+    "h": 1080
+   },
+   "angles": {
+    "yaw": 9.6,
+    "pitch": 3.4,
+    "roll": 3.8
+   },
+   "mesh3D": {
+    "yaw": 7.7,
+    "pitch": 3,
+    "roll": 3.6
+   },
+   "matrix": {
+    "yaw": 7,
+    "pitch": 6.7,
+    "roll": 3.4
+   },
+   "noseYaw": 12.8,
+   "signOk": true,
+   "ipd": 178,
+   "blend": {
+    "jawOpen": 0.02,
+    "mouthSmileLeft": 0,
+    "mouthSmileRight": 0,
+    "eyeBlinkLeft": 0.06,
+    "eyeBlinkRight": 0.02,
+    "mouthPucker": 0.21
+   },
+   "cases": [
+    "frontal"
+   ]
+  },
+  {
+   "file": "fde63b3e421c3e7eac9e72f84d402685.jpg",
+   "status": "ready",
+   "size": {
+    "w": 735,
+    "h": 949
+   },
+   "angles": {
+    "yaw": -16.3,
+    "pitch": 10.9,
+    "roll": -6.5
+   },
+   "mesh3D": {
+    "yaw": -14.4,
+    "pitch": 9.5,
+    "roll": -6.5
+   },
+   "matrix": {
+    "yaw": -13.8,
+    "pitch": 9.1,
+    "roll": -5.7
+   },
+   "noseYaw": -5.1,
+   "signOk": true,
+   "ipd": 97,
+   "blend": {
+    "jawOpen": 0,
+    "mouthSmileLeft": 0,
+    "mouthSmileRight": 0,
+    "eyeBlinkLeft": 0.02,
+    "eyeBlinkRight": 0.02,
+    "mouthPucker": 0.94
+   },
+   "cases": [
+    "tres-cuartos-izq",
+    "labios-fruncidos"
+   ]
+  }
+ ]
+}

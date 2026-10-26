@@ -31,6 +31,8 @@ export interface AppState {
   autoDetection: Detection | null;
   /** Modo manual (§5.5): puntos marcados a mano; null = detección automática. */
   manual: ManualState | null;
+  /** El proyecto se recuperó de la sesión anterior (IndexedDB). */
+  restored: boolean;
   /** Landmarks en uso (px de la imagen de trabajo), con las correcciones. */
   landmarks: Vec3[] | null;
   /** Puntos fuera de la malla que el usuario ya colocó (los demás se estiman). */
@@ -74,6 +76,7 @@ export const initialState: AppState = {
   detection: null,
   autoDetection: null,
   manual: null,
+  restored: false,
   landmarks: null,
   extrasPlaced: {},
   poseAdjust: ZERO_POSE,

@@ -27,8 +27,9 @@ Requisitos: Node 20 o superior.
 | 4 | Luz estimada de la foto, planos de luz con sombras proyectadas (E), valores en 2, 3 y 5 (F–H) con bordes rectos | ✅ |
 | Cierre | Paso E solo con la cara y el cráneo, sin el paso J, mediciones solo con fotos de mujeres | ✅ |
 | 6 | Modo manual y perfil: puntos marcados a mano (frente, ¾ y perfil) y la malla canónica deformada para pasar por ellos | ✅ |
+| 7 | Pulido: exportar PNG y PDF, proyecto guardado en el navegador, teléfono, teclado, contraste AA, atajos y textos finales | ✅ |
 
-Pasos: R (Revisar puntos) y A–I. Quedaron fuera de esta versión «Mi dibujo» (el paso J) y la fase de pulido (exportar, móvil, accesibilidad completa).
+Pasos: R (Revisar puntos) y A–I. Quedó fuera de esta versión «Mi dibujo» (el paso J).
 
 ## Atajos
 
@@ -40,8 +41,11 @@ Pasos: R (Revisar puntos) y A–I. Quedaron fuera de esta versión «Mi dibujo»
 | Espacio + arrastrar | Mano temporal |
 | F | Ajustar |
 | + / − | Acercar / alejar |
+| Mayús + flechas | Desplazar la vista |
+| Flechas | Con un punto elegido (en la lista o al colocarlo): moverlo 1 px; con Mayús, 10 px |
 | Ctrl + rueda | Zoom al cursor (en trackpad: pellizcar) |
-| Esc | Quitar selección; en modo manual, dejar de colocar puntos |
+| Esc | Soltar el punto elegido; en modo manual, dejar de colocar puntos |
+| ? | Atajos de teclado |
 
 ## Estructura
 
@@ -50,6 +54,10 @@ src/
   main.ts                    arranque y conexión de módulos
   state/store.ts, derived.ts estado único y valores derivados (por etapas, memorizados)
   state/manual.ts            modo manual: colocar, mover, saltar y deshacer puntos
+  state/persist.ts           proyecto actual en IndexedDB (foto, detección, puntos y ajustes)
+  export/overlay.ts          un paso como imagen: SVG autónomo de las capas, foto original, cuadrícula
+  export/pdf.ts              PDF mínimo propio (JPEG + Helvetica WinAnsi), tamaño carta
+  export/report.ts           PNG del paso y PDF con portada, proporciones y un paso por página
   detect/faceLandmarker.ts   carga local del modelo y detección
   detect/segment.ts          segmentación cabello / cara / fondo (local)
   detect/landmarkMap.ts      índices nombrados y cómo se verificaron
@@ -72,7 +80,7 @@ src/
   geom/vec.ts                álgebra mínima
   sample/render.ts           muestra de ejemplo: cabeza 3D rasterizada en la app
   draw/layers/*.ts           una capa por archivo
-  ui/*.ts                    visor, barra, panel
+  ui/*.ts                    visor, barra, panel, diálogos de exportar y de atajos
   i18n/es.ts                 todo el texto de la interfaz
   debug/synthRotate.ts       renders girados con verdad conocida (solo pruebas)
 tests/
@@ -103,6 +111,9 @@ node tests/visual/mesh-labels.mjs <salida>                   # malla canónica c
 node tests/visual/light-synth.mjs <salida>                   # luz con verdad conocida (muestra en 8 direcciones)
 node tests/visual/light-photos.mjs <salida> <carpeta>…       # luz en fotos; con tests/fixtures/user/luz.json mide el lado iluminado
 node tests/visual/manual.mjs <salida>                         # modo manual con la muestra girada (clics reales, verdad conocida)
+node tests/visual/export.mjs <salida>                         # PNG y PDF exportados (pdfinfo, pdftoppm, pdftotext)
+node tests/visual/persist.mjs                                 # el proyecto vuelve al recargar; «Cerrar foto» lo borra
+node tests/visual/polish.mjs <salida>                         # teléfono sin scroll horizontal, teclado y contraste AA
 ```
 
 `test:visual` levanta Vite si hace falta y deja las capturas en `tests/screenshots/latest/`. Las capturas revisadas de cada fase se guardan en `tests/screenshots/faseN/`.
@@ -147,4 +158,13 @@ La primera vez, Playwright necesita su navegador: `npx playwright install chromi
 - **Perfil.** El óvalo de MediaPipe pasa unos 2 cm por delante del trago y del ángulo real de la mandíbula; de perfil se marcan esos puntos anatómicos: anclan el ajuste rígido con medio peso y llevan consigo el vértice del óvalo, así la malla llega a la oreja y al contorno real. De perfil (giro de 60° o más) los anchos no se miden, el paso C usa medidas de perfil en largos de nariz, el ancho del cráneo no se propone y la malla de «Revisar puntos» solo dibuja lo que mira a la cámara.
 - **Verificación.** Con la muestra 3D girada y clics reales con error de marcado de 1 % del alto de la cabeza: el giro queda a menos de 3.5° del real en perfil, ¾ y frente, y la malla a 0.7–1.1 % del alto de la cabeza (`tests/screenshots/fase6/manual.json`). Se probó además con las dos fotos del usuario que el detector no encuentra (un perfil y un dibujo a lápiz; capturas no versionadas).
 - **Segmentación sin cabello.** En la muestra de perfil el segmentador marca el cabello como ropa o como piel del cuerpo; si casi no encuentra cabello, esas clases cuentan como cabeza (siempre conectadas a la cara y por encima del corte bajo el mentón).
+
+## Decisiones de la fase 7
+
+- **Exportar.** «Exportar» (cabecera) da el PNG del paso actual a la resolución original de la foto (hasta 4096 px), con las capas encendidas, con o sin foto y con una cuadrícula opcional de N × N (columnas con letras y filas con números) para pasar el dibujo a la hoja. Las capas se convierten en un SVG autónomo con los estilos calculados en línea, las fuentes incrustadas y siempre los colores del tema claro; líneas y etiquetas se escalan como se ven en pantalla.
+- **PDF sin dependencias.** Un escritor de PDF propio (`export/pdf.ts`): imágenes JPEG y texto en Helvetica con codificación WinAnsi, que cubre el español. Tamaño carta, el habitual en México: portada con la foto, la pose, la luz, la expresión y lo distintivo; una página con todas las proporciones; y una página por paso (A–I) con la construcción, «Qué hacer», «Error común» y, en C, E e I, sus medidas o su orden de revisión. Se valida con `pdfinfo` y `pdftotext`.
+- **Proyecto guardado.** La foto original, la detección (o los puntos del modo manual), los puntos corregidos y los ajustes de cada paso se guardan en IndexedDB, solo en este navegador, y vuelven al recargar; la segmentación se recalcula. «Cerrar foto» quita la foto y borra lo guardado. Las preferencias de vista siguen en localStorage.
+- **Teléfono.** Lienzo arriba y panel debajo, sin scroll horizontal (probado a 390 px en los pasos R, C, D, E y H): la cabecera y las capas pasan a dos renglones y los deslizadores conservan su nombre.
+- **Teclado.** Todo se alcanza con Tab. Un punto elegido en la lista se mueve con las flechas (Mayús: de 10 en 10 px) y Esc lo suelta; Mayús + flechas desplaza la vista; en modo manual, «Colocar en el centro de la vista» coloca el punto pendiente y las flechas lo ajustan. «?» abre los atajos. El lienzo describe el paso que muestra y un aviso para lectores de pantalla anuncia cada cambio de paso.
+- **Contraste AA.** Se mide el contraste de todo el texto visible en los temas claro y oscuro (844 textos en cinco pasos): mínimo 4.9 en claro y 6.5 en oscuro. La información no depende solo del color: líneas punteadas, grosores y etiquetas acompañan a cada color de la leyenda.
 

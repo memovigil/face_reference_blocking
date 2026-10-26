@@ -27,6 +27,10 @@ export interface PanelActions {
   focusKey(id: string): void;
   enterManual(): void;
   exitManual(): void;
+  closePhoto(): void;
+  /** Modo manual: coloca el punto pendiente en el centro de la vista. */
+  placeAtCenter(): void;
+  selectKey(id: string | null): void;
   focusPoint(p: Vec2): void;
 }
 
@@ -172,6 +176,7 @@ function renderStatus(el: HTMLElement, s: AppState, d: Derived | null, store: St
           : null,
     ),
   );
+  if (s.restored) rows.push(h('p', { class: 'hint' }, es.persist.restored));
   if (s.status === 'no-face') {
     rows.push(
       h('p', { class: 'hint' }, es.noFaceBody),
@@ -228,6 +233,16 @@ function renderStatus(el: HTMLElement, s: AppState, d: Derived | null, store: St
     const segText = s.segStatus === 'running' ? es.seg.running : s.segStatus === 'done' ? es.seg.done : s.segStatus === 'unavailable' ? es.seg.unavailable : '';
     if (segText) rows.push(h('div', { class: 'status-row' }, h('span', { class: 'label' }, es.seg.label), h('span', { class: 'muted' }, segText)));
     rows.push(h('div', { class: 'status-row' }, h('span', { class: 'label' }, es.detection.light), h('span', { class: 'muted' }, lightLine(s, d))));
+  }
+  const working = s.status === 'rendering-sample' || s.status === 'loading-model' || s.status === 'detecting';
+  if (s.image && !working) {
+    rows.push(
+      h(
+        'div',
+        { class: 'btn-row end' },
+        h('button', { 'type': 'button', 'class': 'btn small', 'data-fid': 'close-photo', 'title': es.persist.closeHint, 'onclick': () => actions.closePhoto() }, es.persist.close),
+      ),
+    );
   }
   replaceKeepingFocus(el, rows);
 }
@@ -288,6 +303,7 @@ function renderStepCard(
       h('h3', {}, es.steps.legend),
       legend([['sw-point', es.legend.point], ['sw-est', es.legend.estimated], ['sw-sel', es.legend.selected], ['sw-mesh', es.legend.mesh]]),
       h('p', { class: 'hint' }, es.review.dragHint),
+      h('p', { class: 'hint' }, es.review.keyboardHint),
       d ? chipsHost : null,
       d ? h('p', { class: 'hint' }, es.review.estimatedHelp) : null,
       d ? poseFine : null,
@@ -420,7 +436,7 @@ function renderStepCard(
 }
 
 /** Texto de la luz para la tarjeta de estado y los pasos de valores. */
-function lightLine(s: AppState, d: Derived): string {
+export function lightLine(s: AppState, d: Derived): string {
   if (s.lightOverride) return `${es.light.summary(lightFrom(s.lightOverride.theta), lightSpread(s.lightOverride.phi))} (${es.light.manual})`;
   if (!d.light) return d.lightDir === null && ['E', 'F', 'G', 'H', 'I'].includes(s.step) ? es.light.none : es.detection.lightPending;
   const t = es.light.summary(lightFrom(d.light.theta), lightSpread(d.light.phi));
@@ -591,9 +607,11 @@ function manualCard(s: AppState, d: Derived | null, poseFine: HTMLElement, actio
     out.push(
       h('p', { 'class': 'manual-next', 'aria-live': 'polite' }, es.manual.next(manualLabel(m.next))),
       h('p', { class: 'hint' }, es.manual.clickHint),
+      h('p', { class: 'hint' }, es.manual.keyboardHint),
       h(
         'div',
         { class: 'btn-row' },
+        btn(es.manual.placeCenter, 'manual-center', () => actions.placeAtCenter()),
         btn(es.manual.skip, 'manual-skip', () => setManual(skipManual)),
         btn(es.manual.undo, 'manual-undo', () => setManual(undoManual), !m.order.length),
         btn(es.manual.stop, 'manual-stop', () => setManual((mm) => chooseManual(mm, null))),
@@ -615,7 +633,10 @@ function manualCard(s: AppState, d: Derived | null, poseFine: HTMLElement, actio
     );
     b.addEventListener('click', () => {
       setManual((mm) => chooseManual(mm, id));
-      if (p) actions.focusPoint(p);
+      if (p) {
+        actions.selectKey(`m:${id}`);
+        actions.focusPoint(p);
+      }
     });
     list.append(h('li', {}, b));
   }

@@ -289,6 +289,24 @@ export class Viewer {
     return this.screenToImage(pane, v2(clientX - r.left, clientY - r.top));
   }
 
+  /** Centro de la vista, en px de la imagen. */
+  center(): Vec2 {
+    return v2(this.cx, this.cy);
+  }
+
+  /** Desplaza la vista (fracción del panel; con el teclado). */
+  panBy(fx: number, fy: number): void {
+    this.cx += (fx * this.main.w) / this.scale;
+    this.cy += (fy * this.main.h) / this.scale;
+    this.clampCenter();
+    this.schedule();
+  }
+
+  /** Texto alternativo del lienzo principal (cambia con el paso). */
+  describe(text: string): void {
+    this.main.photo.setAttribute('aria-label', text);
+  }
+
   /** Inversa de `clientToImage` en el panel principal (para las pruebas). */
   imageToClient(p: Vec2): Vec2 {
     const r = this.main.el.getBoundingClientRect();

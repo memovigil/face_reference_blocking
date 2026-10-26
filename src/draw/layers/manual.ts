@@ -13,7 +13,8 @@ export function drawManualPoints(parent: SVGGElement, state: AppState): void {
   for (const id of MANUAL_POINTS[m.view]) {
     const p = m.points[id];
     if (!p) continue;
-    const sg = screenGroup(p, g, { 'class': `kp kp-manual${id === m.next ? ' kp-sel' : ''}`, 'data-handle': `m:${id}` });
+    const sel = id === m.next || state.selectedKey === `m:${id}`;
+    const sg = screenGroup(p, g, { 'class': `kp kp-manual${sel ? ' kp-sel' : ''}`, 'data-handle': `m:${id}` });
     s('circle', { class: 'kp-hit', r: 13 }, sg);
     s('circle', { class: 'kp-ring', r: 6.5 }, sg);
     s('circle', { class: 'kp-dot', r: 2 }, sg);

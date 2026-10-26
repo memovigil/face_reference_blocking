@@ -284,7 +284,7 @@ const toClient = (page, p) => page.evaluate((p) => {
   await page.locator('[data-fid=terminator]').fill('0.8');
   const t1 = await page.evaluate(() => window.__encaje.derive(window.__encaje.store.get()).values.map.thresholds[1]);
   check(t1 > t0, `el terminador mueve el umbral de la sombra (${t0.toFixed(2)} → ${t1.toFixed(2)})`);
-  await page.getByLabel('Bordes rectos (block‑in)').check();
+  await page.getByLabel('Bordes rectos').check();
   await page.waitForFunction(() => document.querySelectorAll('.l-values .val-shape').length > 0, null, { timeout: 10000 }).catch(() => {});
   check((await page.evaluate(() => document.querySelectorAll('.l-values .val-shape').length)) >= 3, 'bordes rectos: masas como polígonos');
   await page.screenshot({ path: `${out}/paso-H-rectas.png` });

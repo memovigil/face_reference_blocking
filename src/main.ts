@@ -21,9 +21,12 @@ import { renderSample, sampleFacePoints, type SampleOptions, type SampleRender }
 import { valueCanvas, type ValueMap } from './values/posterize';
 import { derive } from './state/derived';
 import { chooseManual, moveManual, placeManual, startManual } from './state/manual';
+import { clearProject, loadProject, projectChanged, saveProject } from './state/persist';
 import { createStore, initialState, loadPrefs, savePrefs, type AppState, type LayerId } from './state/store';
 import { h } from './ui/dom';
 import { buildPanel, STEP_ORDER } from './ui/panel';
+import { buildExportDialog } from './ui/exportDialog';
+import { buildShortcutsDialog } from './ui/shortcuts';
 import { buildToolbar } from './ui/toolbar';
 import { isControl, isTyping, Viewer } from './ui/viewer';
 
@@ -41,12 +44,16 @@ const themeSelect = h(
 );
 themeSelect.addEventListener('change', () => store.set({ theme: themeSelect.value as AppState['theme'] }));
 
+const exporter = buildExportDialog(store);
+const shortcuts = buildShortcutsDialog();
 const header = h(
   'header',
   { class: 'app-header' },
   h('div', { class: 'brand' }, h('h1', {}, es.appTitle), h('span', { class: 'subtitle' }, es.appSubtitle)),
-  h('div', { class: 'header-actions' }, themeSelect, uploadBtn, fileInput),
+  h('div', { class: 'header-actions' }, themeSelect, shortcuts.button, exporter.button, uploadBtn, fileInput),
 );
+/** Aviso para lectores de pantalla al cambiar de paso. */
+const stepAnnounce = h('div', { 'class': 'sr-only', 'aria-live': 'polite' });
 
 const toolbarHost = h('div', { 'class': 'toolbar', 'role': 'toolbar', 'aria-label': 'Lienzo' });
 const stageHost = h('div', { class: 'stage-host' });
@@ -70,7 +77,7 @@ stageHost.append(emptyState, busy, dropHint);
 const canvasCol = h('section', { 'class': 'canvas-col', 'aria-label': es.a11y.canvas }, toolbarHost, stageHost);
 const panelHost = h('aside', { class: 'panel' });
 const workspace = h('main', { class: 'workspace' }, canvasCol, panelHost);
-document.querySelector('#app')!.append(header, workspace);
+document.querySelector('#app')!.append(header, workspace, stepAnnounce);
 
 const viewer = new Viewer(stageHost);
 const layers = new LayerRenderer(viewer.layers);
@@ -78,6 +85,16 @@ buildToolbar(toolbarHost, store, viewer);
 buildPanel(panelHost, store, {
   enterManual,
   exitManual,
+  closePhoto,
+  placeAtCenter() {
+    const s = store.get();
+    const id = s.manual?.next;
+    if (!s.manual || !id) return;
+    store.set({ manual: placeManual(s.manual, viewer.center()), selectedKey: `m:${id}` });
+  },
+  selectKey(id) {
+    store.set({ selectedKey: id });
+  },
   focusPoint(p) {
     viewer.focus(p, 3);
   },
@@ -127,6 +144,12 @@ store.subscribe((s, prev) => {
   if (s.tool !== prev.tool) viewer.setHandTool(s.tool === 'hand');
   viewer.setPlacing(!!s.manual?.next && s.tool === 'select');
   if (s.manual !== prev.manual && s.manual) applyManual(s);
+  if (projectChanged(s, prev)) scheduleSave();
+  if (s.step !== prev.step || s.image !== prev.image) {
+    const def = es.stepDefs[s.step];
+    viewer.describe(s.image ? es.a11y.stepCanvas(s.step === 'R' ? 'R' : s.step, def.title) : es.a11y.canvas);
+    if (s.step !== prev.step) stepAnnounce.textContent = es.a11y.stepNow(s.step, def.title);
+  }
   if (s.theme !== prev.theme) applyTheme(s.theme);
   emptyState.hidden = !!s.image;
   const working = s.status === 'rendering-sample' || s.status === 'loading-model' || s.status === 'detecting';
@@ -173,6 +196,7 @@ async function openImage(get: () => Promise<WorkImage>): Promise<void> {
     detection: null,
     autoDetection: null,
     manual: null,
+    restored: false,
     landmarks: null,
     extrasPlaced: {},
     poseAdjust: ZERO_POSE,
@@ -215,6 +239,85 @@ async function runSegmentation(img: WorkImage, seq: number): Promise<void> {
   const seg = await segmentImage(img.canvas);
   if (seq !== loadSeq) return;
   store.set({ segmentation: seg, segStatus: seg ? 'done' : 'unavailable' });
+}
+
+// ------------------------------------------------------------------ proyecto guardado (IndexedDB)
+let saveTimer = 0;
+function scheduleSave() {
+  clearTimeout(saveTimer);
+  saveTimer = window.setTimeout(() => void saveProject(store.get()), 700);
+}
+
+/** Al abrir: la última foto con su detección, sus puntos y los ajustes de cada paso. */
+async function restoreProject(): Promise<void> {
+  const saved = await loadProject();
+  if (!saved || store.get().image) return;
+  const seq = ++loadSeq;
+  let img: WorkImage;
+  try {
+    img = { ...(await loadImageFile(saved.photo.blob, saved.photo.name)), id: saved.photo.id };
+  } catch {
+    return;
+  }
+  if (seq !== loadSeq) return;
+  const { project: p } = saved;
+  const det = p.detection;
+  store.set({
+    image: img,
+    detection: det,
+    autoDetection: p.autoDetection,
+    landmarks: p.landmarks ?? det?.landmarks ?? null,
+    extrasPlaced: p.extrasPlaced,
+    poseAdjust: p.poseAdjust,
+    ignoreExpressions: p.ignoreExpressions,
+    envelopeSides: p.envelopeSides,
+    checkedMeasures: p.checkedMeasures,
+    blockLevel: p.blockLevel,
+    blockLineWidth: p.blockLineWidth,
+    blockNames: p.blockNames,
+    valueBlur: p.valueBlur,
+    terminator: p.terminator,
+    valueStraight: p.valueStraight,
+    lightOverride: p.lightOverride,
+    compareLight: p.compareLight,
+    step: p.step,
+    manual: null,
+    segmentation: null,
+    segStatus: 'running',
+    selectedKey: null,
+    error: null,
+    status: det ? 'ready' : 'no-face',
+    restored: true,
+  });
+  // El modo manual reconstruye la malla con sus puntos (applyManual).
+  if (p.manual) store.set({ manual: p.manual });
+  frameHead();
+  await runSegmentation(img, seq);
+}
+
+/** Quita la foto y borra lo guardado en este navegador. */
+function closePhoto() {
+  ++loadSeq;
+  clearTimeout(saveTimer);
+  store.set({
+    image: null,
+    detection: null,
+    autoDetection: null,
+    manual: null,
+    landmarks: null,
+    extrasPlaced: {},
+    poseAdjust: ZERO_POSE,
+    segmentation: null,
+    segStatus: 'idle',
+    ignoreExpressions: {},
+    checkedMeasures: {},
+    selectedKey: null,
+    step: 'R',
+    status: 'empty',
+    error: null,
+    restored: false,
+  });
+  void clearProject();
 }
 
 // ------------------------------------------------------------------ modo manual (§5.5)
@@ -366,12 +469,49 @@ viewer.handles = {
 // ------------------------------------------------------------------ atajos
 const LAYER_BY_KEY: Record<string, LayerId> = { '1': 'envelope', '2': 'structure', '3': 'measures', '4': 'points', '5': 'indices', '6': 'values' };
 
+const ARROWS: Record<string, [number, number]> = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1] };
+
+/** Mueve con el teclado el punto elegido (clave o del modo manual), en px de la imagen. */
+function nudge(id: string, dx: number, dy: number): boolean {
+  const s = store.get();
+  if (id.startsWith('m:')) {
+    const mid = id.slice(2);
+    const p = s.manual?.points[mid];
+    if (!s.manual || !p) return false;
+    store.set({ manual: moveManual(s.manual, mid, v2(p.x + dx, p.y + dy)) });
+    return true;
+  }
+  const def = KEY_BY_ID.get(id);
+  const d = derive(s);
+  const kp = d?.keypoints.find((k) => k.def.id === id);
+  if (!def || !d || !kp || !s.landmarks) return false;
+  const target = v2(kp.p.x + dx, kp.p.y + dy);
+  if (def.landmark !== undefined && !s.manual) store.set({ landmarks: dragLandmarks(s.landmarks, def.landmark, target, Math.max(4, d.ipd * 0.22)) });
+  else if (def.extra) {
+    const extra = def.extra;
+    store.set((st) => ({ extrasPlaced: { ...st.extrasPlaced, [extra]: target } }));
+  } else return false;
+  return true;
+}
+
 window.addEventListener('keydown', (e) => {
   if (isTyping(e) || e.metaKey || e.ctrlKey || e.altKey) return;
   const s = store.get();
-  if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
+  if (ARROWS[e.key]) {
     // Las flechas son del control enfocado (deslizadores, selector…).
     if (isControl(e)) return;
+    const [ax, ay] = ARROWS[e.key];
+    // Con un punto elegido, las flechas lo mueven; con Mayús, de 10 en 10.
+    if (s.selectedKey && nudge(s.selectedKey, ax * (e.shiftKey ? 10 : 1), ay * (e.shiftKey ? 10 : 1))) {
+      e.preventDefault();
+      return;
+    }
+    if (e.shiftKey) {
+      viewer.panBy(ax * 0.15, ay * 0.15);
+      e.preventDefault();
+      return;
+    }
+    if (!ax) return;
     const i = STEP_ORDER.indexOf(s.step);
     const next = STEP_ORDER[Math.max(0, Math.min(STEP_ORDER.length - 1, i + (e.key === 'ArrowRight' ? 1 : -1)))];
     if (next && next !== s.step) store.set({ step: next });
@@ -390,6 +530,8 @@ window.addEventListener('keydown', (e) => {
   } else if (e.key === 'Escape') {
     if (s.manual?.next) store.set({ manual: chooseManual(s.manual, null) });
     else store.set({ selectedKey: null });
+  } else if (e.key === '?') {
+    shortcuts.open();
   }
 });
 
@@ -432,3 +574,5 @@ window.__encaje = {
     return URL.createObjectURL(blob);
   },
 };
+
+void restoreProject();

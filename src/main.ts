@@ -16,7 +16,8 @@ import { ZERO_POSE } from './geom/pose';
 import { v2, type Vec2, type Vec3 } from './geom/vec';
 import { es } from './i18n/es';
 import { loadImageFile, loadImageUrl, workImageFromCanvas, type WorkImage } from './image/load';
-import { renderSample } from './sample/render';
+import { renderSample, type SampleOptions } from './sample/render';
+import { valueCanvas, type ValueMap } from './values/posterize';
 import { derive } from './state/derived';
 import { createStore, initialState, loadPrefs, savePrefs, type AppState, type LayerId } from './state/store';
 import { h } from './ui/dom';
@@ -94,9 +95,17 @@ function scheduleLayers() {
   layerRaf = requestAnimationFrame(() => {
     layerRaf = 0;
     const s = store.get();
-    layers.render(s, derive(s));
+    const d = derive(s);
+    layers.render(s, d);
+    // Paso E, «Comparar con la foto»: el panel de referencia muestra la foto en 3 valores.
+    const compare = s.step === 'E' && s.compareLight && d?.values ? d.values.map : null;
+    if (compare !== refMap) {
+      refMap = compare;
+      viewer.setRefImage(compare ? valueCanvas(compare) : null, es.light.compareLabel);
+    }
   });
 }
+let refMap: ValueMap | null = null;
 
 function applyTheme(t: AppState['theme']) {
   if (t === 'auto') delete document.documentElement.dataset.theme;
@@ -192,11 +201,11 @@ async function openImage(get: () => Promise<WorkImage>): Promise<void> {
 }
 
 /** Muestra de ejemplo: cabeza 3D generada en la app (sin foto de una persona real). */
-async function openSample(): Promise<void> {
+async function openSample(opts?: SampleOptions): Promise<void> {
   await openImage(async () => {
     store.set({ status: 'rendering-sample' });
     await new Promise((r) => requestAnimationFrame(() => setTimeout(r, 0)));
-    return workImageFromCanvas(renderSample().canvas, es.sampleName);
+    return workImageFromCanvas(renderSample(opts).canvas, es.sampleName);
   });
 }
 
@@ -265,7 +274,7 @@ viewer.handles = {
 };
 
 // ------------------------------------------------------------------ atajos
-const LAYER_BY_KEY: Record<string, LayerId> = { '1': 'envelope', '2': 'structure', '3': 'measures', '4': 'points', '5': 'indices' };
+const LAYER_BY_KEY: Record<string, LayerId> = { '1': 'envelope', '2': 'structure', '3': 'measures', '4': 'points', '5': 'indices', '6': 'values' };
 
 window.addEventListener('keydown', (e) => {
   if (isTyping(e) || e.metaKey || e.ctrlKey || e.altKey) return;
@@ -302,7 +311,7 @@ declare global {
       viewer: Viewer;
       derive: typeof derive;
       openUrl(url: string): Promise<void>;
-      openSample(): Promise<void>;
+      openSample(opts?: SampleOptions): Promise<void>;
       synthRotate(yaw: number, pitch?: number): Promise<string>;
     };
   }

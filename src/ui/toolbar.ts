@@ -6,7 +6,7 @@ import type { LayerId, Store } from '../state/store';
 import { h } from './dom';
 import { ZOOM_MAX, ZOOM_MIN, type Viewer } from './viewer';
 
-const LAYER_IDS: readonly LayerId[] = ['envelope', 'structure', 'measures', 'points', 'indices'];
+const LAYER_IDS: readonly LayerId[] = ['envelope', 'structure', 'measures', 'points', 'indices', 'values'];
 
 export function buildToolbar(host: HTMLElement, store: Store, viewer: Viewer): void {
   const zoomRange = h('input', {

@@ -476,24 +476,49 @@ export function buildBlocking(landmarks: readonly Vec3[], level: BlockLevel, ipd
   });
 
   // 3 · Polígonos.
-  const faces: BlockFace[] = topo.regions.map((reg, r) => {
+  const loopVerts = (r: number) => {
     const verts: number[] = [];
     for (const { chain, forward } of topo.loops[r]) {
       const ids = forward ? chainKept[chain] : [...chainKept[chain]].reverse();
       for (let i = 0; i < ids.length - 1; i++) if (verts[verts.length - 1] !== ids[i]) verts.push(ids[i]);
     }
     if (verts.length > 1 && verts[0] === verts[verts.length - 1]) verts.pop();
+    return verts;
+  };
+  const faces: BlockFace[] = topo.regions.map((reg, r) => {
     // Visibilidad: z de la foto aumenta alejándose de la cámara.
     const front = planes[r].n.z < -0.02;
     const neighbors = [...new Set(topo.loops[r].map(({ chain }) => topo.chains[chain]).map((c) => (c.left === r ? c.right : c.left)).filter((x) => x >= 0))];
-    return { index: r, id: reg.id, name: reg.name, side: reg.side, plane: planes[r], verts, front, neighbors };
+    return { index: r, id: reg.id, name: reg.name, side: reg.side, plane: planes[r], verts: loopVerts(r), front, neighbors };
   });
 
   // Si llevar las esquinas a los planos cruza un polígono (labios muy curvos,
-  // vistas muy de lado), sus vértices vuelven a la posición medida.
-  for (const f of faces) {
-    if (f.verts.length < 4) continue;
-    if (selfIntersects(projectToPlane(f.verts.map((v) => vertices[v].p), f.plane.n))) for (const v of f.verts) vertices[v].p = vertices[v].raw;
+  // vistas muy de lado), sus vértices vuelven a la posición medida; si aun así
+  // se cruza, sus fronteras reciben más puntos (también medidos).
+  const crossed = (f: BlockFace) => f.verts.length >= 4 && selfIntersects(projectToPlane(f.verts.map((v) => vertices[v].p), f.plane.n));
+  for (let pass = 0; pass < 4; pass++) {
+    const bad = faces.filter(crossed);
+    if (!bad.length) break;
+    for (const f of bad) {
+      if (pass > 0) {
+        const t = ([0.1, 0.05, 0.02][pass - 1] ?? 0.02) * ipd;
+        for (const { chain } of topo.loops[f.index]) {
+          const c = topo.chains[chain];
+          const more = douglasPeucker3(c.verts.map(P), t);
+          const merged = [...new Set([...keptIdx[chain], ...more])].sort((x, y) => x - y);
+          if (merged.length === keptIdx[chain].length) continue;
+          keptIdx[chain] = merged;
+          chainKept[chain] = merged.map((k, i) => {
+            const m = c.verts[k];
+            const isEnd = i === 0 || i === merged.length - 1;
+            return vertexFor(m, isEnd ? topo.labels[m] : [c.left, c.right]);
+          });
+        }
+        // Las vecinas comparten esas cadenas: se rearman también.
+        for (const g of [f.index, ...f.neighbors]) faces[g].verts = loopVerts(g);
+      }
+      for (const v of f.verts) vertices[v].p = vertices[v].raw;
+    }
   }
 
   // 4 · Aristas.
@@ -657,6 +682,20 @@ const MAX_CENTER_Z = -3.2;
 /** Puntos del borde de la cara donde se cose el cráneo: sien alta y altura de la oreja. */
 export const SKULL_ANCHORS = { templeR: 54, templeL: 284, earR: 234, earL: 454 } as const;
 
+/**
+ * Del marco de frente (cm) a px de la foto, con la z en la misma escala y
+ * origen que los landmarks (la z de MediaPipe tiene otro origen que la
+ * proyección del modelo).
+ */
+export function pxProjector(frame: SkullInput['frame'], frontal: readonly Vec3[], landmarks: readonly Vec3[]): (c: Vec3) => Vec3 {
+  const zs = [10, 54, 284, 234, 454, 152, 4, 33, 263].map((i) => landmarks[i].z - projectCanonical(frame, frontal[i]).z).sort((a, b) => a - b);
+  const dz = zs[Math.floor(zs.length / 2)];
+  return (c: Vec3) => {
+    const q = projectCanonical(frame, c);
+    return v3(q.x, q.y, q.z + dz);
+  };
+}
+
 function addSkull(
   sk: SkullInput,
   landmarks: readonly Vec3[],
@@ -679,13 +718,7 @@ function addSkull(
   };
   const A = SKULL_ANCHORS;
   if ([A.templeR, A.templeL, A.earR, A.earL].some((m) => idOf(m) === undefined)) return;
-  // Profundidad: la z de MediaPipe tiene otro origen que la proyección del modelo.
-  const zs = [10, 54, 284, 234, 454, 152, 4, 33, 263].map((i) => landmarks[i].z - projectCanonical(sk.frame, sk.frontal[i]).z).sort((a, b) => a - b);
-  const dz = zs[Math.floor(zs.length / 2)];
-  const toPx = (c: Vec3) => {
-    const q = projectCanonical(sk.frame, c);
-    return v3(q.x, q.y, q.z + dz);
-  };
+  const toPx = pxProjector(sk.frame, sk.frontal, landmarks);
   const C = sk.center;
   const r = sk.radius;
   const add = (c: Vec3) => {

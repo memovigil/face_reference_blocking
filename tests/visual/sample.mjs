@@ -46,7 +46,7 @@ check(info.envelope === 'silhouette', 'la envolvente sale de la silueta');
 
 const jpg = await page.evaluate(() => window.__encaje.store.get().image.canvas.toDataURL('image/jpeg', 0.9));
 writeFileSync(join(out, 'muestra.jpg'), Buffer.from(jpg.split(',')[1], 'base64'));
-for (const st of ['R', 'A', 'B', 'C', 'D', 'I']) {
+for (const st of ['R', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I']) {
   await page.evaluate((st) => window.__encaje.store.set({ step: st }), st);
   await page.waitForTimeout(300);
   await page.screenshot({ path: join(out, `muestra-${st}.jpg`), quality: 82 });
@@ -72,6 +72,16 @@ await page.evaluate(() => window.__encaje.store.set({ blockLevel: 'medio', block
 await page.waitForTimeout(250);
 await page.screenshot({ path: join(out, 'muestra-D-medio-nombres.jpg'), quality: 82 });
 await page.evaluate(() => window.__encaje.store.set({ blockNames: false, photoOpacity: 1 }));
+// Luz: la muestra se renderiza con luz conocida (SAMPLE_LIGHT).
+const light = await page.evaluate(async () => {
+  const { SAMPLE_LIGHT } = await import('/src/sample/render.ts');
+  window.__encaje.store.set({ step: 'E' });
+  const e = window.__encaje.derive(window.__encaje.store.get()).light;
+  if (!e) return null;
+  const c = SAMPLE_LIGHT.x * e.dir.x + SAMPLE_LIGHT.y * e.dir.y + SAMPLE_LIGHT.z * e.dir.z;
+  return { err: (Math.acos(Math.min(1, c)) * 180) / Math.PI, confident: e.confident };
+});
+check(!!light && light.err < 25 && light.confident, `luz estimada contra la renderizada (error ${light?.err.toFixed(1)}°)`);
 check(errors.length === 0, `sin errores de página${errors.length ? `: ${errors.join(' | ')}` : ''}`);
 await browser.close();
 console.log(fails ? `\n${fails} FALLAS` : '\nTodo OK');

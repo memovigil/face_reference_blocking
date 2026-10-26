@@ -41,7 +41,7 @@ export const es = {
     pose: 'Pose',
     expression: 'Expresión',
     light: 'Luz',
-    lightPending: 'Se estima en la fase 4',
+    lightPending: 'se lee de la foto en el paso E',
     neutral: 'Neutra',
     edited: 'Con tus correcciones',
   },
@@ -105,13 +105,14 @@ export const es = {
   },
 
   layers: {
+    values: 'Valores',
     envelope: 'Envolvente',
     structure: 'Estructura',
     measures: 'Medidas',
     points: 'Puntos',
     indices: 'Índices',
   } satisfies Record<LayerId, string>,
-  layerKeys: { envelope: '1', structure: '2', measures: '3', points: '4', indices: '5' } satisfies Record<LayerId, string>,
+  layerKeys: { envelope: '1', structure: '2', measures: '3', points: '4', indices: '5', values: '6' } satisfies Record<LayerId, string>,
 
   steps: {
     whatToDo: 'Qué hacer',
@@ -186,6 +187,32 @@ export const es = {
     blockContour: 'Contorno exterior',
     blockHard: 'Cambio de plano (más de 20°)',
     blockAccent: 'Órbita y base de la nariz (acentos)',
+  },
+
+  light: {
+    title: 'Luz',
+    fromPhoto: 'estimada de la foto',
+    manual: 'elegida a mano',
+    usePhoto: 'Usar la luz de la foto',
+    theta: 'Dirección',
+    phi: 'Qué tan de lado',
+    diffuse: 'Luz difusa: la foto no muestra una dirección clara. Puedes elegirla a mano.',
+    none: 'No se pudo estimar la luz: hay muy pocos planos de piel a la vista.',
+    summary: (from: string, spread: string) => `${from} de la foto, ${spread}`,
+    fit: (r2: number, used: number) => `El modelo explica ${Math.round(Math.max(0, r2) * 100)} % de la variación de luz en ${used} planos de piel.`,
+    terminator: 'Terminador',
+    lessShadow: 'menos sombra',
+    moreShadow: 'más sombra',
+    blur: 'Simplificar',
+    straight: 'Bordes rectos (block‑in)',
+    compare: 'Comparar con la foto',
+    compareLabel: 'Foto en 3 valores',
+    compareHint: 'A la izquierda, las masas de la foto en 3 valores; a la derecha, las de los planos con la misma luz.',
+    planesHint: 'Cada plano se sombrea según hacia dónde mira; la nariz, la ceja y el mentón proyectan su sombra.',
+    valuesHint: 'Valores de la foto, desenfocados y separados con umbrales de Otsu dentro de la cabeza con cabello.',
+    legend: { light: 'Luz', half: 'Medio tono', shadow: 'Sombra', cast: 'Sombra proyectada' },
+    values: { 2: ['Sombra', 'Luz'], 3: ['Sombra', 'Medio tono', 'Luz'], 5: ['Acento', 'Sombra', 'Medio tono', 'Luz', 'Brillo'] } as Record<2 | 3 | 5, string[]>,
+    gizmo: (from: string, spread: string) => `Esfera iluminada ${from}, ${spread}`,
   },
 
   blocking: {

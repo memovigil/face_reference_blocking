@@ -711,6 +711,90 @@ svg.overlay .ss {
   stroke-width: 1.5px;
 }
 
+/* Pasos E–H · planos de luz y valores. */
+.light-ctl {
+  display: grid;
+  grid-template-columns: 84px 1fr;
+  gap: 10px;
+  align-items: start;
+  margin: 8px 0;
+}
+
+.light-gizmo {
+  width: 84px;
+  height: 84px;
+  color: var(--line);
+}
+
+.light-info p {
+  margin: 0 0 4px;
+}
+
+.light-info .control-row input[type='range'] {
+  flex: 1;
+  min-width: 0;
+}
+
+.range-ends {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  flex: 1;
+  min-width: 0;
+}
+
+.range-ends input {
+  grid-column: 1 / -1;
+  width: 100%;
+}
+
+.range-ends .end {
+  text-align: right;
+}
+
+.small {
+  font-size: 0.8rem;
+}
+
+.hint.warn {
+  color: var(--warn);
+}
+
+.sw-lp-light {
+  background: #e3e5e1;
+  border: 1px solid var(--line);
+}
+
+.sw-lp-half {
+  background: #8f9497;
+}
+
+.sw-lp-shadow {
+  background: #3d4246;
+}
+
+.sw-value {
+  border: 1px solid var(--line);
+}
+
+.layer-values {
+  opacity: var(--line-opacity);
+}
+
+.lp-face {
+  stroke: none;
+}
+
+.lp-edge {
+  fill: none;
+  stroke: var(--graphite);
+  stroke-width: 0.7px;
+  opacity: 0.45;
+}
+
+.val-raster {
+  image-rendering: auto;
+}
+
 /* Paso D · blocking: contorno azul 2 px, cambios de plano grafito 1.5 px. */
 .bk {
   fill: none;

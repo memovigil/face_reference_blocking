@@ -44,6 +44,8 @@ export class Viewer {
   private main: Pane;
   private loupe: HTMLCanvasElement;
   private image: HTMLCanvasElement | null = null;
+  /** Imagen alternativa del panel de referencia (la foto en valores, paso E). */
+  private refImage: HTMLCanvasElement | null = null;
   private iw = 0;
   private ih = 0;
   private scale = 1;
@@ -132,6 +134,13 @@ export class Viewer {
     this.ih = img?.height ?? 0;
     this.el.classList.toggle('has-image', !!img);
     this.fit();
+  }
+
+  /** En «Lado a lado», el panel de referencia muestra esta imagen en lugar de la foto. */
+  setRefImage(img: HTMLCanvasElement | null, label?: string): void {
+    this.refImage = img;
+    this.ref.el.querySelector('.pane-label')!.textContent = img && label ? label : es.toolbar.reference;
+    this.schedule();
   }
 
   setMode(mode: 'overlay' | 'side'): void {
@@ -341,7 +350,13 @@ export class Viewer {
         ctx.imageSmoothingEnabled = this.scale < 3;
         ctx.imageSmoothingQuality = 'high';
         ctx.setTransform(s, 0, 0, s, (p.w / 2 - this.cx * this.scale) * dpr, (p.h / 2 - this.cy * this.scale) * dpr);
-        ctx.drawImage(this.image, 0, 0);
+        if (p === this.ref && this.refImage) {
+          // La foto atenuada debajo y los valores encima, en px de la foto.
+          ctx.globalAlpha = 0.35;
+          ctx.drawImage(this.image, 0, 0);
+          ctx.globalAlpha = 1;
+          ctx.drawImage(this.refImage, 0, 0, this.iw, this.ih);
+        } else ctx.drawImage(this.image, 0, 0);
       }
       const vw = p.w / this.scale;
       const vh = p.h / this.scale;

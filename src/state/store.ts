@@ -12,7 +12,7 @@ import type { Vec2, Vec3 } from '../geom/vec';
 import type { WorkImage } from '../image/load';
 
 export type StepId = 'R' | 'A' | 'B' | 'C' | 'D' | 'E' | 'F' | 'G' | 'H' | 'I' | 'J';
-export type LayerId = 'envelope' | 'structure' | 'measures' | 'points' | 'indices';
+export type LayerId = 'values' | 'envelope' | 'structure' | 'measures' | 'points' | 'indices';
 export type Status = 'empty' | 'rendering-sample' | 'loading-model' | 'detecting' | 'ready' | 'no-face' | 'error';
 export type ViewMode = 'overlay' | 'side';
 export type Tool = 'select' | 'hand';
@@ -42,6 +42,14 @@ export interface AppState {
   blockLevel: BlockLevel;
   blockLineWidth: number;
   blockNames: boolean;
+  /** Pasos F–H: radio del desenfoque (en distancias entre pupilas), terminador (−1…1) y bordes rectos. */
+  valueBlur: number;
+  terminator: number;
+  valueStraight: boolean;
+  /** Luz elegida a mano (null = la estimada de la foto). θ: de dónde viene, en sentido horario desde arriba; φ: ángulo desde el frente. */
+  lightOverride: { theta: number; phi: number } | null;
+  /** Paso E: comparar las masas del poliedro con las de la foto, lado a lado. */
+  compareLight: boolean;
   step: StepId;
   layers: Record<LayerId, boolean>;
   lineOpacity: number;
@@ -68,8 +76,13 @@ export const initialState: AppState = {
   blockLevel: 'grande',
   blockLineWidth: 1,
   blockNames: false,
+  valueBlur: 0.06,
+  terminator: 0,
+  valueStraight: false,
+  lightOverride: null,
+  compareLight: false,
   step: 'R',
-  layers: { envelope: true, structure: true, measures: true, points: true, indices: false },
+  layers: { values: true, envelope: true, structure: true, measures: true, points: true, indices: false },
   lineOpacity: 0.9,
   photoOpacity: 1,
   viewMode: 'overlay',
@@ -111,7 +124,10 @@ type Prefs = Pick<AppState, 'layers' | 'lineOpacity' | 'photoOpacity' | 'viewMod
 export function loadPrefs(): Partial<Prefs> {
   try {
     const raw = localStorage.getItem(PREFS_KEY);
-    return raw ? (JSON.parse(raw) as Partial<Prefs>) : {};
+    const p = raw ? (JSON.parse(raw) as Partial<Prefs>) : {};
+    // Capas nuevas de versiones posteriores: se completan con las de omisión.
+    if (p.layers) p.layers = { ...initialState.layers, ...p.layers };
+    return p;
   } catch {
     return {};
   }

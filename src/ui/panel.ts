@@ -1,6 +1,8 @@
 // Panel derecho: estado de la detección, pasos, tarjeta del paso y diagnóstico.
 
+import { lightFrom, lightSpread, anglesFromLight } from '../geom/light';
 import { BLOCK_LEVELS } from '../geom/planes';
+import { VALUE_PALETTE } from '../values/posterize';
 import type { KeyGroup } from '../detect/keypoints';
 import type { ExpressionId } from '../geom/expression';
 import { buildMeasures } from '../geom/measures';
@@ -14,7 +16,7 @@ import { estimateTag, keyLabel } from './labels';
 
 export const STEP_ORDER: readonly StepId[] = ['R', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'];
 /** Fase en la que se construyó la app actual (los pasos de fases futuras se ven desactivados). */
-export const CURRENT_PHASE = 3;
+export const CURRENT_PHASE = 4;
 
 /** Diferencia mínima (en desviaciones típicas) para presentar un rasgo como distintivo. */
 const DISTINCTIVE_Z = 1;
@@ -103,6 +105,7 @@ export function buildPanel(host: HTMLElement, store: Store, actions: PanelAction
       chipSig = '';
       renderStepCard(stepCard, s, d, chipsHost, poseFine, actions, store);
     }
+    if (d) liveUpdate(stepCard, s, d);
     if (s.step === 'R' && d) {
       const csig = d.keypoints.map((k) => `${k.def.id}:${k.visible ? 1 : 0}${k.estimated ? 1 : 0}${k.caveat ?? ''}`).join(',') + `|${s.selectedKey}`;
       if (csig !== chipSig) {
@@ -136,7 +139,16 @@ function stepSignature(s: AppState, d: Derived | null): string {
     case 'C':
       return buildMeasures(s.landmarks!, d).items.map((i) => i.text).join('|') + JSON.stringify(s.checkedMeasures);
     case 'D':
-      return `${s.blockLevel}|${s.blockLineWidth}|${s.blockNames}|${s.photoOpacity > 0}|${d.blocking?.faces.length ?? 0}|${d.blocking?.faces.filter((f) => f.front).length ?? 0}`;
+      // Sin el grosor de línea: redibujar la tarjeta cortaría el arrastre del deslizador.
+      return `${s.blockLevel}|${s.blockNames}|${s.photoOpacity > 0}|${d.blocking?.faces.length ?? 0}|${d.blocking?.faces.filter((f) => f.front).length ?? 0}`;
+    case 'E':
+      // Los deslizadores (luz, terminador) no redibujan la tarjeta: sus textos se
+      // actualizan en su lugar (liveUpdate).
+      return `${s.blockLevel}|${s.compareLight}|${!!d.lightDir}|${d.light?.confident}`;
+    case 'F':
+    case 'G':
+    case 'H':
+      return `${s.valueStraight}|${!!d.lightDir}`;
     case 'I':
       return mostDistinctive(d.metrics).map((m) => m.def.id).join(',');
     default:
@@ -202,7 +214,7 @@ function renderStatus(el: HTMLElement, s: AppState, d: Derived | null, store: St
     rows.push(h('div', { class: 'status-row' }, h('span', { class: 'label' }, es.detection.expression), expressionChips(s, d, store)));
     const segText = s.segStatus === 'running' ? es.seg.running : s.segStatus === 'done' ? es.seg.done : s.segStatus === 'unavailable' ? es.seg.unavailable : '';
     if (segText) rows.push(h('div', { class: 'status-row' }, h('span', { class: 'label' }, es.seg.label), h('span', { class: 'muted' }, segText)));
-    rows.push(h('div', { class: 'status-row' }, h('span', { class: 'label' }, es.detection.light), h('span', { class: 'muted' }, es.detection.lightPending)));
+    rows.push(h('div', { class: 'status-row' }, h('span', { class: 'label' }, es.detection.light), h('span', { class: 'muted' }, lightLine(s, d))));
   }
   replaceKeepingFocus(el, rows);
 }
@@ -335,6 +347,44 @@ function renderStepCard(
       h('p', { class: 'hint' }, es.blocking.how),
       b ? h('p', { class: 'hint' }, es.blocking.stats(b.faces.length, b.faces.filter((f) => f.front).length, b.ms)) : null,
     );
+  } else if (d && s.step === 'E') {
+    const seg = h('div', { 'class': 'seg-group', 'role': 'group', 'aria-label': es.blocking.level });
+    for (const lv of BLOCK_LEVELS) {
+      const btn = h('button', { 'type': 'button', 'class': 'seg', 'data-fid': `level-${lv}`, 'aria-pressed': String(s.blockLevel === lv) }, es.blocking.levels[lv]);
+      btn.addEventListener('click', () => store.set({ blockLevel: lv }));
+      seg.append(btn);
+    }
+    const compare = h('input', { 'type': 'checkbox', 'data-fid': 'lp-compare', 'checked': s.compareLight });
+    compare.addEventListener('change', () => store.set({ compareLight: compare.checked, viewMode: compare.checked ? 'side' : 'overlay' }));
+    children.push(
+      h('h3', {}, es.steps.legend),
+      legend([
+        ['sw-lp-light', es.light.legend.light],
+        ['sw-lp-half', es.light.legend.half],
+        ['sw-lp-shadow', es.light.legend.shadow],
+      ]),
+      h('p', { class: 'hint' }, es.light.planesHint),
+      lightControls(s, d, store),
+      terminatorRow(s, store),
+      h('div', { class: 'control-row' }, h('span', {}, es.blocking.level), seg),
+      h('label', { class: 'control-row' }, compare, h('span', {}, es.light.compare)),
+      s.compareLight ? h('p', { class: 'hint' }, es.light.compareHint) : null,
+    );
+  } else if (d && (s.step === 'F' || s.step === 'G' || s.step === 'H')) {
+    const levels = ({ F: 2, G: 3, H: 5 } as const)[s.step];
+    const blur = h('input', { 'type': 'range', 'min': 0, 'max': 0.2, 'step': 0.01, 'value': s.valueBlur, 'data-fid': 'val-blur', 'aria-label': es.light.blur });
+    blur.addEventListener('input', () => store.set({ valueBlur: Number(blur.value) }));
+    const straight = h('input', { 'type': 'checkbox', 'data-fid': 'val-straight', 'checked': s.valueStraight });
+    straight.addEventListener('change', () => store.set({ valueStraight: straight.checked }));
+    children.push(
+      h('h3', {}, es.steps.legend),
+      h('ul', { class: 'legend' }, ...VALUE_PALETTE[levels].map((c, i) => h('li', {}, h('span', { 'class': 'swatch sw-value', 'style': `background:${c}`, 'aria-hidden': 'true' }), es.light.values[levels][i]))),
+      h('p', { class: 'hint' }, es.light.valuesHint),
+      terminatorRow(s, store),
+      h('div', { class: 'control-row' }, h('span', {}, es.light.blur), blur),
+      h('label', { class: 'control-row' }, straight, h('span', {}, es.light.straight)),
+      d.lightDir ? h('p', { 'class': 'hint', 'data-live': 'light-hint' }, '') : null,
+    );
   } else if (d && s.step === 'I') {
     const top = mostDistinctive(d.metrics).filter((v) => Math.abs(v.z) >= DISTINCTIVE_Z);
     const side = h('button', { 'type': 'button', 'class': 'btn', 'data-fid': 'side' }, es.compare.sideBySide);
@@ -348,6 +398,121 @@ function renderStepCard(
     );
   }
   replaceKeepingFocus(el, children);
+}
+
+/** Texto de la luz para la tarjeta de estado y los pasos de valores. */
+function lightLine(s: AppState, d: Derived): string {
+  if (s.lightOverride) return `${es.light.summary(lightFrom(s.lightOverride.theta), lightSpread(s.lightOverride.phi))} (${es.light.manual})`;
+  if (!d.light) return d.lightDir === null && ['E', 'F', 'G', 'H', 'I'].includes(s.step) ? es.light.none : es.detection.lightPending;
+  const t = es.light.summary(lightFrom(d.light.theta), lightSpread(d.light.phi));
+  return d.light.confident ? t : `${t} · ${es.light.diffuse}`;
+}
+
+function terminatorRow(s: AppState, store: Store): HTMLElement {
+  const input = h('input', { 'type': 'range', 'min': -1, 'max': 1, 'step': 0.05, 'value': s.terminator, 'data-fid': 'terminator', 'aria-label': es.light.terminator });
+  input.addEventListener('input', () => store.set({ terminator: Number(input.value) }));
+  return h(
+    'div',
+    { class: 'control-row terminator-row' },
+    h('span', {}, es.light.terminator),
+    h('div', { class: 'range-ends' }, input, h('span', { class: 'muted small' }, es.light.lessShadow), h('span', { class: 'muted small end' }, es.light.moreShadow)),
+  );
+}
+
+/** Gizmo de la luz (esfera iluminada con flecha) y deslizadores para elegirla a mano. */
+function lightControls(s: AppState, d: Derived, store: Store): HTMLElement {
+  const L = d.lightDir;
+  const ang = s.lightOverride ?? (L ? anglesFromLight(L) : { theta: 45, phi: 45 });
+  const wrap = h('div', { class: 'light-ctl' });
+  wrap.append(lightGizmo(L, ang));
+  const info = h('div', { class: 'light-info' });
+  info.append(h('p', {}, h('strong', {}, es.light.title), ' ', h('span', { 'data-live': 'light-summary' }, '')));
+  info.append(h('p', { 'class': 'muted small', 'data-live': 'light-source' }, ''));
+  if (d.light && !d.light.confident) info.append(h('p', { 'class': 'hint warn', 'data-live': 'light-diffuse' }, es.light.diffuse));
+  const theta = h('input', { 'type': 'range', 'min': 0, 'max': 355, 'step': 5, 'value': Math.round(ang.theta / 5) * 5, 'data-fid': 'light-theta', 'aria-label': es.light.theta });
+  const phi = h('input', { 'type': 'range', 'min': 0, 'max': 120, 'step': 5, 'value': Math.round(ang.phi / 5) * 5, 'data-fid': 'light-phi', 'aria-label': es.light.phi });
+  const set = () => store.set({ lightOverride: { theta: Number(theta.value), phi: Number(phi.value) } });
+  theta.addEventListener('input', set);
+  phi.addEventListener('input', set);
+  info.append(h('div', { class: 'control-row' }, h('span', {}, es.light.theta), theta), h('div', { class: 'control-row' }, h('span', {}, es.light.phi), phi));
+  const reset = h('button', { 'type': 'button', 'class': 'btn', 'data-fid': 'light-reset', 'data-live': 'light-reset' }, es.light.usePhoto);
+  reset.addEventListener('click', () => store.set({ lightOverride: null }));
+  info.append(reset);
+  wrap.append(info);
+  return wrap;
+}
+
+/**
+ * Lo que cambia con los deslizadores, sin redibujar la tarjeta: texto de la
+ * luz, gizmo, botón «Usar la luz de la foto» y valores de los deslizadores si
+ * la luz cambió por otro lado.
+ */
+function liveUpdate(card: HTMLElement, s: AppState, d: Derived) {
+  const L = d.lightDir;
+  const ang = s.lightOverride ?? (L ? anglesFromLight(L) : null);
+  const text = (sel: string, t: string) => {
+    const el = card.querySelector<HTMLElement>(`[data-live="${sel}"]`);
+    if (el && el.textContent !== t) el.textContent = t;
+  };
+  text('light-summary', ang && L ? es.light.summary(lightFrom(ang.theta), lightSpread(ang.phi)) : es.light.none);
+  text('light-source', s.lightOverride ? es.light.manual : d.light ? `${es.light.fromPhoto}. ${es.light.fit(d.light.r2, d.light.used.length)}` : '');
+  text('light-hint', `${es.light.title}: ${lightLine(s, d)}.`);
+  const diffuse = card.querySelector<HTMLElement>('[data-live="light-diffuse"]');
+  if (diffuse) diffuse.hidden = !!s.lightOverride;
+  const reset = card.querySelector<HTMLButtonElement>('[data-live="light-reset"]');
+  if (reset) reset.hidden = !s.lightOverride;
+  const giz = card.querySelector('.light-gizmo');
+  const key = `${ang?.theta.toFixed(0)}|${ang?.phi.toFixed(0)}|${!!L}`;
+  if (giz && giz.getAttribute('data-key') !== key && ang) {
+    const next = lightGizmo(L, ang);
+    next.setAttribute('data-key', key);
+    giz.replaceWith(next);
+  }
+  // Si la luz vuelve a la de la foto, los deslizadores la siguen (sin tocar el que se arrastra).
+  if (ang) {
+    for (const [fid, v] of [['light-theta', ang.theta], ['light-phi', ang.phi]] as const) {
+      const input = card.querySelector<HTMLInputElement>(`[data-fid="${fid}"]`);
+      if (input && document.activeElement !== input) input.value = String(Math.round(v / 5) * 5);
+    }
+  }
+}
+
+function lightGizmo(L: Derived['lightDir'], ang: { theta: number; phi: number }): SVGSVGElement {
+  const NS = 'http://www.w3.org/2000/svg';
+  const el = <K extends keyof SVGElementTagNameMap>(tag: K, attrs: Record<string, string | number>, parent: Element) => {
+    const e = document.createElementNS(NS, tag);
+    for (const [k, v] of Object.entries(attrs)) e.setAttribute(k, String(v));
+    parent.append(e);
+    return e;
+  };
+  const svg = document.createElementNS(NS, 'svg');
+  svg.setAttribute('viewBox', '0 0 80 80');
+  svg.setAttribute('class', 'light-gizmo');
+  svg.setAttribute('role', 'img');
+  svg.setAttribute('aria-label', es.light.gizmo(lightFrom(ang.theta), lightSpread(ang.phi)));
+  const defs = el('defs', {}, svg);
+  const lx = L ? L.x : 0;
+  const ly = L ? L.y : 0;
+  const grad = el('radialGradient', { id: 'lg-sphere', cx: 0.5 + lx * 0.32, cy: 0.5 - ly * 0.32, r: 0.75 }, defs);
+  el('stop', { 'offset': 0, 'stop-color': '#f6f7f4' }, grad);
+  el('stop', { 'offset': 0.55, 'stop-color': '#8f9497' }, grad);
+  el('stop', { 'offset': 1, 'stop-color': '#2b2f32' }, grad);
+  el('circle', { cx: 40, cy: 40, r: 21, fill: 'url(#lg-sphere)', stroke: 'currentColor', 'stroke-width': 1 }, svg);
+  if (L) {
+    const l = Math.hypot(lx, ly);
+    if (l > 0.08) {
+      const ux = lx / l;
+      const uy = -ly / l;
+      // Flecha desde la luz hacia la esfera.
+      el('line', { 'x1': 40 + ux * 34, 'y1': 40 + uy * 34, 'x2': 40 + ux * 25, 'y2': 40 + uy * 25, 'stroke': 'var(--measure)', 'stroke-width': 2.5, 'stroke-linecap': 'round' }, svg);
+      el('circle', { cx: 40 + ux * 34, cy: 40 + uy * 34, r: 3, fill: 'var(--measure)' }, svg);
+      const px = -uy;
+      const py = ux;
+      const tip = { x: 40 + ux * 22, y: 40 + uy * 22 };
+      el('path', { d: `M${tip.x} ${tip.y}L${tip.x + ux * 6 + px * 4} ${tip.y + uy * 6 + py * 4}L${tip.x + ux * 6 - px * 4} ${tip.y + uy * 6 - py * 4}Z`, fill: 'var(--measure)' }, svg);
+    } else el('circle', { cx: 40, cy: 40, r: 3, fill: 'var(--measure)' }, svg);
+  }
+  return svg;
 }
 
 function legend(items: [string, string][]): HTMLElement {

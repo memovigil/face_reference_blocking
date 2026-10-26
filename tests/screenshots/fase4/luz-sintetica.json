@@ -1,0 +1,113 @@
+{
+ "fecha": "2026-10-26T02:26:39.752Z",
+ "que_es": "Luz con verdad conocida: la muestra 3D renderizada con la luz clave en 8 direcciones (θ: de dónde viene, en grados en sentido horario desde arriba de la foto; φ: ángulo con la cámara) y la luz estimada por el modelo lambertiano sobre los planos del blocking.",
+ "errorMedianoGrados": 8.9,
+ "errorMaximoGrados": 18.9,
+ "ladoCorrecto": 8,
+ "casos": [
+  {
+   "theta": 45,
+   "phi": 55,
+   "est": {
+    "theta": 32,
+    "phi": 53,
+    "r2": 0.94,
+    "confident": true
+   },
+   "err": 10.7,
+   "sideOk": true,
+   "vertOk": true
+  },
+  {
+   "theta": 315,
+   "phi": 55,
+   "est": {
+    "theta": 308,
+    "phi": 50,
+    "r2": 0.97,
+    "confident": true
+   },
+   "err": 7.5,
+   "sideOk": true,
+   "vertOk": true
+  },
+  {
+   "theta": 90,
+   "phi": 70,
+   "est": {
+    "theta": 97,
+    "phi": 61,
+    "r2": 0.9,
+    "confident": true
+   },
+   "err": 11,
+   "sideOk": true,
+   "vertOk": true
+  },
+  {
+   "theta": 270,
+   "phi": 70,
+   "est": {
+    "theta": 276,
+    "phi": 66,
+    "r2": 0.98,
+    "confident": true
+   },
+   "err": 6.9,
+   "sideOk": true,
+   "vertOk": true
+  },
+  {
+   "theta": 0,
+   "phi": 45,
+   "est": {
+    "theta": 348,
+    "phi": 47,
+    "r2": 0.96,
+    "confident": true
+   },
+   "err": 8.9,
+   "sideOk": true,
+   "vertOk": true
+  },
+  {
+   "theta": 135,
+   "phi": 50,
+   "est": {
+    "theta": 131,
+    "phi": 49,
+    "r2": 0.93,
+    "confident": true
+   },
+   "err": 3.2,
+   "sideOk": true,
+   "vertOk": true
+  },
+  {
+   "theta": 225,
+   "phi": 60,
+   "est": {
+    "theta": 244,
+    "phi": 49,
+    "r2": 0.99,
+    "confident": true
+   },
+   "err": 18.9,
+   "sideOk": true,
+   "vertOk": true
+  },
+  {
+   "theta": 60,
+   "phi": 25,
+   "est": {
+    "theta": 47,
+    "phi": 24,
+    "r2": 0.87,
+    "confident": true
+   },
+   "err": 5.5,
+   "sideOk": true,
+   "vertOk": true
+  }
+ ]
+}

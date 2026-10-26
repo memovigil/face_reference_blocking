@@ -3,6 +3,8 @@
 import type { Derived } from '../../state/derived';
 import type { AppState, LayerId } from '../../state/store';
 import { blockingLayer } from './blocking';
+import { lightPlanesLayer } from './lightPlanes';
+import { valuesLayer } from './values';
 import { envelopeLayer } from './envelope';
 import { indicesLayer } from './indices';
 import { keypointsLayer } from './keypoints';
@@ -11,7 +13,7 @@ import { measuresLayer } from './measures';
 import { meshLayer } from './mesh';
 import type { LayerDef } from './types';
 
-const LAYERS: readonly LayerDef[] = [meshLayer, envelopeLayer, loomisLayer, canonLayer, blockingLayer, measuresLayer, indicesLayer, keypointsLayer];
+const LAYERS: readonly LayerDef[] = [valuesLayer, meshLayer, envelopeLayer, loomisLayer, canonLayer, blockingLayer, lightPlanesLayer, measuresLayer, indicesLayer, keypointsLayer];
 
 /** Capas que enciende cada paso al entrar (el usuario puede cambiarlas después). */
 export const STEP_LAYERS: Partial<Record<AppState['step'], Partial<Record<LayerId, boolean>>>> = {
@@ -20,9 +22,13 @@ export const STEP_LAYERS: Partial<Record<AppState['step'], Partial<Record<LayerI
   B: { structure: true, measures: true, points: true, envelope: false },
   C: { measures: true, structure: true, points: false, envelope: false },
   D: { structure: true, points: false, envelope: false, measures: false },
+  E: { structure: true, points: false, envelope: false, measures: false },
+  F: { values: true, structure: false, points: false, envelope: false, measures: false },
+  G: { values: true, structure: false, points: false, envelope: false, measures: false },
+  H: { values: true, structure: false, points: false, envelope: false, measures: false },
   I: { envelope: true, structure: true, measures: true, points: false },
 };
-const ORDER: readonly LayerId[] = ['envelope', 'structure', 'measures', 'indices', 'points'];
+const ORDER: readonly LayerId[] = ['values', 'envelope', 'structure', 'measures', 'indices', 'points'];
 
 export class LayerRenderer {
   private groups = new Map<LayerId, SVGGElement>();

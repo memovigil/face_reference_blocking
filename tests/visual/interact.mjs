@@ -255,6 +255,41 @@ const toClient = (page, p) => page.evaluate((p) => {
   check(quality.floating === 0 && quality.crossed === 0, `sin planos sueltos ni polígonos cruzados (${JSON.stringify(quality)})`);
   await page.evaluate(() => window.__encaje.store.set({ blockNames: false, blockLineWidth: 1, blockLevel: 'grande' }));
 
+  // --- Fase 4: pasos E–H -------------------------------------------------------
+  await page.getByRole('button', { name: /Planos de luz/ }).click();
+  await page.waitForFunction(() => document.querySelectorAll('.l-lightPlanes .lp-face').length > 0, null, { timeout: 10000 }).catch(() => {});
+  const lp = await page.evaluate(() => {
+    const d = window.__encaje.derive(window.__encaje.store.get());
+    return { faces: document.querySelectorAll('.l-lightPlanes .lp-face').length, light: !!d.light, gizmo: !!document.querySelector('.light-gizmo') };
+  });
+  check(lp.faces > 5 && lp.light && lp.gizmo, `paso E: planos sombreados, luz estimada y gizmo (${JSON.stringify(lp)})`);
+  await page.locator('[data-fid=light-theta]').fill('270');
+  const manual = await page.evaluate(() => window.__encaje.store.get().lightOverride);
+  check(manual && manual.theta === 270, 'el deslizador de dirección elige la luz a mano');
+  check(await page.getByRole('button', { name: 'Usar la luz de la foto' }).isVisible(), 'aparece «Usar la luz de la foto»');
+  await page.getByRole('button', { name: 'Usar la luz de la foto' }).click();
+  check((await page.evaluate(() => window.__encaje.store.get().lightOverride)) === null, '«Usar la luz de la foto» vuelve a la estimada');
+  await page.getByLabel('Comparar con la foto').check();
+  const cmp = await page.evaluate(() => ({ mode: window.__encaje.store.get().viewMode, label: document.querySelector('.pane-ref .pane-label')?.textContent }));
+  check(cmp.mode === 'side' && cmp.label === 'Foto en 3 valores', `comparar: lado a lado con la foto en 3 valores (${JSON.stringify(cmp)})`);
+  await page.screenshot({ path: `${out}/paso-E-comparar.png` });
+  await page.getByLabel('Comparar con la foto').uncheck();
+  for (const [btn, levels] of [[/Sombra en 2 valores/, 2], [/Medios tonos/, 3], [/Acentos y brillos/, 5]]) {
+    await page.getByRole('button', { name: btn }).click();
+    await page.waitForFunction(() => !!document.querySelector('.l-values .val-raster'), null, { timeout: 10000 }).catch(() => {});
+    const v = await page.evaluate(() => ({ raster: !!document.querySelector('.l-values .val-raster'), map: window.__encaje.derive(window.__encaje.store.get()).values?.map }));
+    check(v.raster && v.map?.levels === levels && v.map.thresholds.length === levels - 1, `${levels} valores con ${levels - 1} ${levels === 2 ? "umbral" : "umbrales"} de Otsu`);
+  }
+  const t0 = await page.evaluate(() => window.__encaje.derive(window.__encaje.store.get()).values.map.thresholds[1]);
+  await page.locator('[data-fid=terminator]').fill('0.8');
+  const t1 = await page.evaluate(() => window.__encaje.derive(window.__encaje.store.get()).values.map.thresholds[1]);
+  check(t1 > t0, `el terminador mueve el umbral de la sombra (${t0.toFixed(2)} → ${t1.toFixed(2)})`);
+  await page.getByLabel('Bordes rectos (block‑in)').check();
+  await page.waitForFunction(() => document.querySelectorAll('.l-values .val-shape').length > 0, null, { timeout: 10000 }).catch(() => {});
+  check((await page.evaluate(() => document.querySelectorAll('.l-values .val-shape').length)) >= 3, 'bordes rectos: masas como polígonos');
+  await page.screenshot({ path: `${out}/paso-H-rectas.png` });
+  await page.evaluate(() => window.__encaje.store.set({ terminator: 0, valueStraight: false }));
+
   // Diagnóstico visible.
   check(await page.locator('.diag-card h2').isVisible(), 'el diagnóstico está en el panel');
 

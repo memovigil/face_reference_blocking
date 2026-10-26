@@ -1,16 +1,13 @@
-// Paso E · Planos de luz: el mismo poliedro del blocking, cada plano en luz,
-// medio tono o sombra según n · L, más sombras proyectadas simples (nariz sobre
-// la mejilla, ceja sobre la órbita, mentón sobre el cuello).
+// Paso E · Planos de luz: el mismo poliedro del blocking (cara y cráneo), cada
+// plano en luz, medio tono o sombra según n · L, más sombras proyectadas simples
+// (nariz sobre la mejilla, ceja sobre la órbita).
 //
 // Sombras proyectadas por plano: para cada plano iluminado (receptor), cada
 // otro plano que queda del lado de la luz se proyecta sobre él a lo largo de L;
 // lo que cae dentro del receptor está en sombra (el dibujo recorta con el
-// polígono del receptor). Para recibir la sombra del mentón se agregan dos
-// planos que el blocking no tiene: el plano inferior de la mandíbula y el
-// frente del cuello.
+// polígono del receptor).
 
-import { FACE_OVAL } from '../detect/landmarkMap';
-import { pxProjector, type Blocking, type SkullInput } from './blocking';
+import type { Blocking } from './blocking';
 import { v2, v3, type Vec2, type Vec3 } from './vec';
 
 export type ShadeValue = 0 | 1 | 2;
@@ -29,7 +26,6 @@ export interface ShadedFace {
   cast: Vec2[][];
   /** Fracción del plano en sombra proyectada (0–1). */
   castFraction: number;
-  extra?: boolean;
 }
 
 export interface ShadedPlanes {
@@ -47,20 +43,18 @@ interface Poly3 {
   d: number;
   front: boolean;
   /** Puede recibir y proyectar sombra. */
-  receiver: boolean;
-  occluder: boolean;
-  extra?: boolean;
+  shadows: boolean;
 }
 
 /** Ancho de la banda de medio tono, en n · L. */
 const HALF_BAND = 0.38;
 
-export function shadePlanes(b: Blocking, Lcam: Vec3, terminator: number, ctx: { frame: SkullInput['frame']; frontal: readonly Vec3[]; landmarks: readonly Vec3[] }): ShadedPlanes {
+/** `ipd`: distancia entre pupilas en px de la foto (escala de las tolerancias). */
+export function shadePlanes(b: Blocking, Lcam: Vec3, terminator: number, ipd: number): ShadedPlanes {
   const t0 = Math.max(-0.6, Math.min(0.6, terminator * 0.5));
   const t1 = t0 + HALF_BAND;
   // Luz en el marco de la foto (y abajo, z lejos).
   const L = v3(Lcam.x, -Lcam.y, -Lcam.z);
-  const ipd = Math.hypot(ctx.landmarks[473].x - ctx.landmarks[468].x, ctx.landmarks[473].y - ctx.landmarks[468].y) || 1;
   const polys: Poly3[] = b.faces
     .filter((f) => f.verts.length >= 3)
     .map((f) => ({
@@ -70,27 +64,25 @@ export function shadePlanes(b: Blocking, Lcam: Vec3, terminator: number, ctx: { 
       n: f.plane.n,
       d: f.plane.d,
       front: f.front,
-      receiver: !f.inset,
-      occluder: !f.inset,
+      shadows: !f.inset,
     }));
-  polys.push(...neckPlanes(b, ctx));
 
   const faces: ShadedFace[] = [];
   for (const R of polys) {
-    if (!R.front || !R.receiver) continue;
+    if (!R.front || !R.shadows) continue;
     const ndl = R.n.x * L.x + R.n.y * L.y + R.n.z * L.z;
     const value: ShadeValue = ndl <= t0 ? 0 : ndl <= t1 ? 1 : 2;
     const cast: Vec2[][] = [];
     if (value > 0 && ndl > 1e-3) {
       for (const O of polys) {
-        if (O === R || !O.occluder) continue;
+        if (O === R || !O.shadows) continue;
         const shadow = projectOnto(O.pts, R, L, ndl, 0.004 * ipd);
         if (shadow && Math.abs(area2(shadow)) > (0.02 * ipd) ** 2 && overlaps(shadow, R.pts)) cast.push(shadow);
       }
     }
     const poly = R.pts.map((p) => v2(p.x, p.y));
     const depth = R.pts.reduce((s, p) => s + p.z, 0) / R.pts.length;
-    faces.push({ id: R.id, name: R.name, poly, value, ndl, depth, cast, castFraction: cast.length ? coverage(poly, cast) : 0, extra: R.extra });
+    faces.push({ id: R.id, name: R.name, poly, value, ndl, depth, cast, castFraction: cast.length ? coverage(poly, cast) : 0 });
   }
   faces.sort((a, c) => c.depth - a.depth);
   return { faces, t0, t1 };
@@ -178,58 +170,4 @@ function area2(p: readonly Vec2[]): number {
   let s = 0;
   for (let i = 0; i < p.length; i++) s += p[i].x * p[(i + 1) % p.length].y - p[(i + 1) % p.length].x * p[i].y;
   return s / 2;
-}
-
-/** Plano inferior de la mandíbula y frente del cuello (marco de frente, cm). */
-function neckPlanes(b: Blocking, ctx: { frame: SkullInput['frame']; frontal: readonly Vec3[]; landmarks: readonly Vec3[] }): Poly3[] {
-  const toPx = pxProjector(ctx.frame, ctx.frontal, ctx.landmarks);
-  // Borde de la mandíbula: del ángulo derecho al izquierdo pasando por el mentón.
-  const ring = FACE_OVAL as readonly number[];
-  const arc = [...ring.slice(ring.indexOf(397), ring.indexOf(172) + 1)].reverse();
-  const byMesh = new Map<number, number>();
-  b.vertices.forEach((v, i) => {
-    if (v.mesh >= 0 && !byMesh.has(v.mesh)) byMesh.set(v.mesh, i);
-  });
-  const jaw = arc.map((m) => byMesh.get(m)).filter((i): i is number => i !== undefined).map((i) => b.vertices[i].p);
-  if (jaw.length < 2) return [];
-  const f = ctx.frontal;
-  const chinY = f[152].y;
-  const wR = Math.abs(f[172].x) * 0.72;
-  const wL = Math.abs(f[397].x) * 0.72;
-  const topR = toPx(v3(-wR, chinY - 0.4, f[172].z - 1.2));
-  const topL = toPx(v3(wL, chinY - 0.4, f[397].z - 1.2));
-  const botR = toPx(v3(-wR * 1.05, chinY - 7, f[172].z - 2));
-  const botL = toPx(v3(wL * 1.05, chinY - 7, f[397].z - 2));
-  const inside = toPx(v3(0, chinY + 2, f[172].z - 4));
-  const make = (id: string, name: string, pts: Vec3[], occluder: boolean): Poly3 => {
-    const pl = newell(pts, inside);
-    return { id, name, pts, n: pl.n, d: pl.d, front: pl.n.z < -0.02, receiver: true, occluder, extra: true };
-  };
-  return [make('underJaw', 'plano inferior de la mandíbula', [...jaw, topL, topR], true), make('neck', 'cuello', [topR, topL, botL, botR], false)];
-}
-
-function newell(pts: readonly Vec3[], inside: Vec3): { n: Vec3; d: number } {
-  let nx = 0;
-  let ny = 0;
-  let nz = 0;
-  let cx = 0;
-  let cy = 0;
-  let cz = 0;
-  for (let i = 0; i < pts.length; i++) {
-    const a = pts[i];
-    const c = pts[(i + 1) % pts.length];
-    nx += (a.y - c.y) * (a.z + c.z);
-    ny += (a.z - c.z) * (a.x + c.x);
-    nz += (a.x - c.x) * (a.y + c.y);
-    cx += a.x;
-    cy += a.y;
-    cz += a.z;
-  }
-  cx /= pts.length;
-  cy /= pts.length;
-  cz /= pts.length;
-  const l = Math.hypot(nx, ny, nz) || 1;
-  let n = v3(nx / l, ny / l, nz / l);
-  if (n.x * (cx - inside.x) + n.y * (cy - inside.y) + n.z * (cz - inside.z) < 0) n = v3(-n.x, -n.y, -n.z);
-  return { n, d: n.x * cx + n.y * cy + n.z * cz };
 }

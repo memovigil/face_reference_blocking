@@ -11,7 +11,7 @@ import { ZERO_POSE, type PoseAngles } from '../geom/pose';
 import type { Vec2, Vec3 } from '../geom/vec';
 import type { WorkImage } from '../image/load';
 
-export type StepId = 'R' | 'A' | 'B' | 'C' | 'D' | 'E' | 'F' | 'G' | 'H' | 'I' | 'J';
+export type StepId = 'R' | 'A' | 'B' | 'C' | 'D' | 'E' | 'F' | 'G' | 'H' | 'I';
 export type LayerId = 'values' | 'envelope' | 'structure' | 'measures' | 'points' | 'indices';
 export type Status = 'empty' | 'rendering-sample' | 'loading-model' | 'detecting' | 'ready' | 'no-face' | 'error';
 export type ViewMode = 'overlay' | 'side';

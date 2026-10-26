@@ -1121,12 +1121,6 @@ svg.overlay .ss {
   flex: 1;
 }
 
-.step-phase {
-  font-family: var(--font-mono);
-  font-size: 0.75rem;
-  color: var(--muted);
-}
-
 .step-head {
   display: flex;
   align-items: center;

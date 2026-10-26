@@ -2,12 +2,13 @@
 // distintos deben coincidir dentro de ±5 %. Usa tests/fixtures/user/grupos.json
 // (fotos del usuario, no versionadas). Con ALL=1 calcula la mediana y la
 // dispersión de cada métrica en la población, para calibrar el canon: una sola
-// entrada por persona (los grupos se reducen a su mediana) y sin las fotos de
-// tests/fixtures/user/excluir-canon.json (el canon de esta versión es femenino).
+// entrada por persona (los grupos se reducen a su mediana). En los dos modos
+// entran solo las fotos de mujeres (ver solo-mujeres.mjs).
 // Uso: node tests/visual/invariance.mjs [salida.json]
 import { chromium } from 'playwright';
 import { readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { isExcluded } from './solo-mujeres.mjs';
 
 const out = process.argv[2];
 const base = 'tests/fixtures/user';
@@ -79,13 +80,6 @@ const median = (a) => { const s = [...a].sort((x, y) => x - y); const n = s.leng
 
 // Modo población: todas las fotos de tests/fixtures/user/*, para calibrar el canon.
 if (process.env.ALL) {
-  let excluded = [];
-  try {
-    excluded = JSON.parse(readFileSync(join(base, 'excluir-canon.json'), 'utf8')).excluir;
-  } catch {
-    // Sin lista: entran todas.
-  }
-  const isExcluded = (file) => excluded.some((e) => file.startsWith(e));
   const all = [];
   for (const dir of readdirSync(base).filter((d) => !d.includes('.'))) {
     for (const f of readdirSync(join(base, dir)).filter((x) => /\.(jpe?g|png)$/i.test(x))) {
@@ -127,7 +121,7 @@ if (process.env.ALL) {
 const data = {};
 for (const [g, items] of Object.entries(groups)) {
   data[g] = [];
-  for (const it of items) {
+  for (const it of items.filter((x) => !isExcluded(x))) {
     const r = await measure(resolve(it));
     if (r) data[g].push({ file: it, ...r });
     process.stdout.write('.');

@@ -29,7 +29,7 @@ export const es = {
     'error': 'Algo falló',
   },
   noFaceBody:
-    'El detector no encontró una cara en esta foto. Pasa con perfiles muy marcados, dibujos o caras muy tapadas. El modo manual llega en la fase 6; por ahora prueba con otra foto.',
+    'El detector no encontró una cara en esta foto. Pasa con perfiles muy marcados, dibujos o caras muy tapadas. Prueba con otra foto en la que la cara se vea de frente o de tres cuartos.',
   loadError: 'No se pudo abrir la imagen. Prueba con un JPG o PNG.',
   modelError: 'No se pudo cargar el modelo de detección. Revisa que existan public/models y public/wasm (npm run assets).',
 
@@ -118,7 +118,6 @@ export const es = {
     whatToDo: 'Qué hacer',
     commonError: 'Error común',
     legend: 'Leyenda',
-    comingIn: (n: number) => `Llega en la fase ${n}`,
     needsFace: 'Primero sube una foto con una cara detectada.',
     prev: 'Paso anterior',
     next: 'Paso siguiente',
@@ -333,69 +332,53 @@ export const es = {
       title: 'Revisar puntos',
       what: 'La detección colocó los puntos clave. Acércate con el zoom y revisa que cada uno esté sobre su rasgo; arrastra los que estén corridos. Los puntos punteados (cima, cráneo y orejas) son estimados: llévalos a la silueta real con cabello.',
       error: 'Aceptar los puntos estimados sin revisarlos: la cima y el cráneo con cabello casi nunca coinciden con el promedio.',
-      phase: 1,
     },
     A: {
       title: 'Envolvente con rectas',
       what: 'Encierra toda la cabeza, con cabello, en un polígono de 7 a 9 rectas. Mide el ángulo de cada recta contra la plomada y compara los espacios negativos: son lo más fácil de medir a ojo.',
       error: 'Empezar por los ojos. Primero va la silueta general; los rasgos vienen después.',
-      phase: 2,
     },
     B: {
       title: 'Esfera de Loomis en 3D',
       what: 'Ubica la esfera del cráneo y su plano lateral. Traza la línea central y los anillos de ceja, nariz y boca siguiendo el giro de la cabeza.',
       error: 'Dibujar la línea central recta cuando la cabeza está girada: se curva sobre la esfera.',
-      phase: 2,
     },
     C: {
       title: 'Medidas y triangulación',
       what: 'Compara el triángulo pupila‑pupila‑boca, las plomadas desde lagrimales y alas de la nariz, y los niveles de ceja, nariz, boca y lóbulo. Pasa cada medida a tu hoja y márcala como revisada.',
       error: 'Medir el lado lejano como si la cabeza estuviera de frente: con el giro, ese lado se acorta.',
-      phase: 2,
     },
     D: {
       title: 'Blocking de planos',
       what: 'Simplifica la cara en planos grandes que comparten aristas: frente, órbitas, nariz en cuña, pómulos, boca sobre el cilindro de los dientes y mentón. Empieza en el nivel Grande.',
       error: 'Dibujar los rasgos como cajas sueltas: cada plano tiene que tocar a sus vecinos.',
-      phase: 3,
     },
     E: {
       title: 'Planos de luz',
       what: 'Rellena cada plano con luz, medio tono o sombra según hacia dónde mira y de dónde viene la luz de la foto.',
       error: 'Inventar la luz: léela de la foto antes de sombrear.',
-      phase: 4,
     },
     F: {
       title: 'Sombra en 2 valores',
       what: 'Separa la cabeza en dos masas, luz y sombra. Mueve el terminador hasta que la forma de la sombra se parezca a la de la foto.',
       error: 'Meter medios tonos antes de tener clara la forma de la sombra.',
-      phase: 4,
     },
     G: {
       title: 'Medios tonos (3 valores)',
       what: 'Divide la luz en luz y medio tono. Mantén las masas grandes y simples.',
       error: 'Oscurecer el medio tono hasta confundirlo con la sombra.',
-      phase: 4,
     },
     H: {
       title: 'Acentos y brillos (5 valores)',
       what: 'Agrega los acentos más oscuros (fosas nasales, comisuras, línea de los párpados) y los brillos más claros, solo donde la foto los tiene.',
       error: 'Repartir acentos por todos lados: pierden fuerza.',
-      phase: 4,
     },
     I: {
       title: 'Comparar con la foto',
       what: 'Alterna entre la foto limpia y la construcción. Usa «Lado a lado» para medir con la cruz sincronizada y revisa primero lo que aparece en el resumen.',
       error: 'Corregir detalles antes que la silueta y los tercios.',
-      phase: 2,
     },
-    J: {
-      title: 'Mi dibujo',
-      what: 'Sube una foto de tu dibujo. La herramienta lo alinea con la referencia y te dice qué rasgo corregir primero.',
-      error: 'Fotografiar el dibujo en ángulo: la perspectiva deforma las medidas.',
-      phase: 5,
-    },
-  } satisfies Record<StepId, { title: string; what: string; error: string; phase: number }>,
+  } satisfies Record<StepId, { title: string; what: string; error: string }>,
 
   a11y: {
     canvas: 'Foto de referencia con la construcción encima',

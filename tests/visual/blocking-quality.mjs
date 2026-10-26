@@ -1,15 +1,17 @@
 // Criterios numéricos del blocking (§12.2) sobre un lote de fotos: planos sin
 // vecinos, polígonos con autointersección, polígonos cóncavos y tiempo de
-// cálculo, por nivel. Uso: node tests/visual/blocking-quality.mjs <foto|carpeta>… [--out=resumen.json]
+// cálculo, por nivel, solo con fotos de mujeres (ver solo-mujeres.mjs).
+// Uso: node tests/visual/blocking-quality.mjs <foto|carpeta>… [--out=resumen.json]
 import { chromium } from 'playwright';
 import { readdirSync, statSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { soloMujeres } from './solo-mujeres.mjs';
 
 const args = process.argv.slice(2);
 const outFile = args.find((a) => a.startsWith('--out='))?.slice(6);
-const files = args
-  .filter((a) => !a.startsWith('--'))
-  .flatMap((p) => (statSync(p).isDirectory() ? readdirSync(p).filter((f) => /\.(jpe?g|png)$/i.test(f)).map((f) => join(p, f)) : [p]));
+const files = soloMujeres(
+  args.filter((a) => !a.startsWith('--')).flatMap((p) => (statSync(p).isDirectory() ? readdirSync(p).filter((f) => /\.(jpe?g|png)$/i.test(f)).map((f) => join(p, f)) : [p])),
+);
 const browser = await chromium.launch();
 const page = await browser.newPage({ viewport: { width: 1200, height: 800 } });
 await page.goto(process.env.APP_URL ?? 'http://localhost:5173/');

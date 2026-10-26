@@ -278,9 +278,7 @@ const valuesStage = memo((luma: LumaImage, mask: Uint8Array, levels: 2 | 3 | 5, 
   posterize(luma, mask, { levels, blur, terminator }, ipd * luma.scale),
 );
 const shapesStage = memo((map: ValueMap, ipd: number) => valueShapes(map, 0.035 * ipd * map.scale, (0.06 * ipd * map.scale) ** 2));
-const shadedStage = memo((b: Blocking, L: Vec3, terminator: number, pose: PoseEstimate, frontal: FrontalFace, landmarks: Vec3[]) =>
-  shadePlanes(b, L, terminator, { frame: pose.frame, frontal: frontal.points, landmarks }),
-);
+const shadedStage = memo((b: Blocking, L: Vec3, terminator: number, ipd: number) => shadePlanes(b, L, terminator, ipd));
 const manualDir = memo((theta: number, phi: number) => lightFromAngles(theta, phi));
 
 export function derive(s: AppState): Derived | null {
@@ -321,7 +319,7 @@ export function derive(s: AppState): Derived | null {
     const luma = lumaStage(s.image);
     out.light = lightStage(lightBlockingStage(s.landmarks, pose, frontal, loomis), luma, s.segmentation);
     out.lightDir = s.lightOverride ? manualDir(s.lightOverride.theta, s.lightOverride.phi) : (out.light?.dir ?? null);
-    if (s.step === 'E' && out.blocking && out.lightDir) out.shaded = shadedStage(out.blocking, out.lightDir, s.terminator, pose, frontal, s.landmarks);
+    if (s.step === 'E' && out.blocking && out.lightDir) out.shaded = shadedStage(out.blocking, out.lightDir, s.terminator, interpupillaryPx(s.landmarks));
     const levels = VALUE_LEVELS[s.step] ?? (s.step === 'E' && s.compareLight ? 3 : undefined);
     if (levels) {
       const ipd = interpupillaryPx(s.landmarks);

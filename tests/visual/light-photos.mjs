@@ -1,15 +1,16 @@
 // Luz estimada en un lote de fotos: guarda la cara recortada con una flecha que
 // apunta desde la luz (para revisar a ojo) y, si hay etiquetas en
 // tests/fixtures/user/luz.json ({"archivo": "izquierda" | "derecha"}), mide si
-// el lado iluminado coincide (§8, §12.2).
+// el lado iluminado coincide (§8, §12.2). Solo fotos de mujeres (ver solo-mujeres.mjs).
 // Uso: node tests/visual/light-photos.mjs <salida> <foto|carpeta>…  (NOARROW=1: recortes sin flecha, para etiquetar)
 import { chromium } from 'playwright';
 import { existsSync, mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
 import { basename, join } from 'node:path';
+import { soloMujeres } from './solo-mujeres.mjs';
 
 const [out, ...inputs] = process.argv.slice(2);
 mkdirSync(out, { recursive: true });
-const files = inputs.flatMap((p) => (statSync(p).isDirectory() ? readdirSync(p).filter((f) => /\.(jpe?g|png)$/i.test(f)).sort().map((f) => join(p, f)) : [p]));
+const files = soloMujeres(inputs.flatMap((p) => (statSync(p).isDirectory() ? readdirSync(p).filter((f) => /\.(jpe?g|png)$/i.test(f)).sort().map((f) => join(p, f)) : [p])));
 const labelsFile = 'tests/fixtures/user/luz.json';
 const labels = existsSync(labelsFile) ? JSON.parse(readFileSync(labelsFile, 'utf8')).lados : {};
 const browser = await chromium.launch();

@@ -1,6 +1,6 @@
 # Encaje de Retrato v2
 
-Herramienta local para construir retratos que se parezcan: detecta la cara, sus rasgos y la pose 3D de la cabeza, y construye encima, paso a paso, la estructura de un dibujante (envolvente, Loomis 3D, medidas, blocking de planos y valores).
+Herramienta local para construir retratos que se parezcan: detecta la cara, sus rasgos y la pose 3D de la cabeza, y construye encima, paso a paso, la estructura de un dibujante (envolvente, Loomis 3D, medidas, blocking de planos y valores). Esta versión se centra en rostros femeninos: el canon, la muestra y las mediciones de calidad salen de caras de mujeres.
 
 Todo corre en tu navegador: la foto no sale de tu computadora y el modelo de detección se sirve desde el propio proyecto (sin CDNs).
 
@@ -25,9 +25,9 @@ Requisitos: Node 20 o superior.
 | 2 | Envolvente (A), Loomis 3D (B), medidas (C), marco canónico, diagnóstico, expresiones, silueta con cabello, muestra 3D | ✅ |
 | 3 | Blocking de planos (D): regiones anatómicas, poliedro con aristas compartidas, tres niveles, cráneo y orejas; canon femenino | ✅ |
 | 4 | Luz estimada de la foto, planos de luz con sombras proyectadas (E), valores en 2, 3 y 5 (F–H) con bordes rectos | ✅ |
-| 5 | Mi dibujo (J) | — |
-| 6 | Modo manual y perfil | — |
-| 7 | Exportar, persistencia, móvil, accesibilidad, pulido | — |
+| Cierre | Paso E solo con la cara y el cráneo, sin el paso J, mediciones solo con fotos de mujeres | ✅ |
+
+Pasos: R (Revisar puntos) y A–I. Quedaron fuera de esta versión «Mi dibujo» (el paso J), el modo manual y los perfiles estrictos (fase 6) y la fase de pulido (exportar, móvil, accesibilidad completa).
 
 ## Atajos
 
@@ -107,7 +107,7 @@ La primera vez, Playwright necesita su navegador: `npx playwright install chromi
 
 ## Decisiones de la fase 2
 
-- **Medir sin el giro.** Las métricas se calculan en un marco «de frente» (`geom/frontal.ts`). Se probaron dos métodos con 14 grupos de la misma persona en distintas poses; el elegido se desvía en promedio 2.4–3.8 % dentro de cada grupo (`tests/screenshots/fase2/invariancia.json`).
+- **Medir sin el giro.** Las métricas se calculan en un marco «de frente» (`geom/frontal.ts`). Se probaron dos métodos con 14 grupos de la misma persona en distintas poses; el elegido se desvía en promedio 2.4–3.8 % dentro de cada grupo (`tests/screenshots/fase2/invariancia.json`). Repetida al cierre solo con mujeres (10 grupos, 52 fotos): 2.5–3.8 % (`tests/screenshots/cierre/invariancia-mujeres.json`).
 - **El canon es un promedio, no un ideal.** Cada valor dice de dónde sale: medianas medidas con el mismo detector en un conjunto de referencias (una foto por persona, `canon-poblacion.json`), Loomis para las orejas y tercios iguales solo como convención de dibujo (`geom/metrics.ts`).
 - **Expresiones.** Sonrisa, boca abierta, ojos cerrados y boca en «O» salen de los blendshapes; cada una puede ignorarse. Con la boca abierta se cierra la mandíbula girándola alrededor de la bisagra y la real se dibuja en rojo punteado.
 - **Silueta con cabello.** La segmentación local estima cima, cráneo y nacimiento del cabello; si la foto los corta o el fleco los tapa, el punto queda como estimado y no entra en el diagnóstico.
@@ -120,11 +120,17 @@ La primera vez, Playwright necesita su navegador: `npx playwright install chromi
 - **Niveles.** Fino: 53 regiones de la cara. Medio: la lista mínima de §7.1, unos 30 tipos de plano (izquierdo y derecho cuentan una vez). Grande: 15 planos agrupados por normal parecida, con la nariz en cuña (frente, base y dos lados). A los tres se suman el cráneo y las orejas.
 - **Poliedro.** Un plano por región (PCA con los puntos de esa cara); los vértices son las uniones de 3 o más regiones, llevados a la intersección de sus planos sin alejarse de la malla; entre dos planos la arista es una recta compartida. La abertura de la boca es un hueco y su borde se dibuja como acento (`geom/blocking.ts`).
 - **Cráneo.** Una caja con biseles sobre la esfera de Loomis, cosida al borde de la cara: frente alta, tapa, laterales, nuca y la oreja en «C». Casi de frente la silueta no fija la profundidad de la esfera, así que la caja usa un límite tomado del modelo canónico.
-- **Calidad (155 fotos).** Ningún plano suelto en ningún nivel; el poliedro tarda menos de 16 ms (mediana 1–3 ms). En el nivel Medio quedan 2 fotos con un polígono de labio cruzado (boca con puchero o sonrisa a 18°; `blocking-calidad.json`).
+- **Calidad (136 fotos de mujeres).** Ningún plano suelto y ningún polígono cruzado en ningún nivel; el poliedro tarda una mediana de 0.6–2.5 ms según el nivel (p95 ≤ 4 ms, pico de 35 ms; `tests/screenshots/cierre/blocking-calidad.json`).
 
 ## Decisiones de la fase 4
 
-- **Luz desde la foto (§8).** Con los planos del nivel medio del blocking se mide la luminancia mediana en el centro de cada plano (solo píxeles de piel) y se ajusta `I = albedo · max(0, n·L) + ambiente` con una búsqueda en rejilla de direcciones; se excluyen ojos, boca, cejas, fosas nasales, cabello y orejas, y se descartan los planos que el modelo no explica (sombras proyectadas, brillos). Con la muestra iluminada desde 8 direcciones el error mediano es de 9° (máximo 19°) y el lado siempre coincide; en las fotos del usuario con luz lateral clara, el lado iluminado coincide en 24 de 24 (`tests/screenshots/fase4/`).
-- **Paso E.** El mismo poliedro del paso D, cada plano en luz, medio tono o sombra según n·L; el terminador mueve la frontera. Las sombras proyectadas se calculan por plano: cada otro plano del lado de la luz se proyecta sobre el receptor a lo largo de L y se recorta con su polígono. Para la sombra del mentón se agregan el plano inferior de la mandíbula y el frente del cuello. «Comparar con la foto» pone lado a lado la foto en 3 valores.
+- **Luz desde la foto (§8).** Con los planos del nivel medio del blocking se mide la luminancia mediana en el centro de cada plano (solo píxeles de piel) y se ajusta `I = albedo · max(0, n·L) + ambiente` con una búsqueda en rejilla de direcciones; se excluyen ojos, boca, cejas, fosas nasales, cabello y orejas, y se descartan los planos que el modelo no explica (sombras proyectadas, brillos). Con la muestra iluminada desde 8 direcciones el error mediano es de 9° (máximo 19°) y el lado siempre coincide; en las fotos de mujeres con luz lateral clara, el lado iluminado coincide en 22 de 22, y 120 de 136 dan una dirección confiable (`tests/screenshots/cierre/luz-fotos-mujeres.json`).
+- **Paso E.** El mismo poliedro del paso D, cada plano en luz, medio tono o sombra según n·L; el terminador mueve la frontera. Las sombras proyectadas se calculan por plano: cada otro plano del lado de la luz se proyecta sobre el receptor a lo largo de L y se recorta con su polígono. Solo entran la cara y el cráneo (al cierre se quitaron el plano inferior de la mandíbula y el cuello). «Comparar con la foto» pone lado a lado la foto en 3 valores.
 - **Pasos F–H.** Luma de la foto, desenfoque de caja dentro de la máscara de la cabeza con cabello (sin mezclar el fondo), umbrales de Otsu multinivel exactos y un control del terminador; opción de bordes rectos (contornos simplificados con Douglas‑Peucker).
 - **Deslizadores.** La tarjeta del paso no se redibuja mientras se arrastra un control: los textos (luz, gizmo) se actualizan en su lugar.
+
+## Decisiones del cierre
+
+- **Solo mujeres.** Las herramientas que miden sobre las fotos del usuario (`invariance.mjs`, `blocking-quality.mjs`, `light-photos.mjs`) dejan fuera la lista local de exclusión (`tests/visual/solo-mujeres.mjs`; `TODAS=1` incluye todo). Quedan 139 fotos, 136 con cara detectada.
+- **Paso E: cara y cráneo.** Se quitaron el plano inferior de la mandíbula y el cuello: eran bloques deducidos, sin landmarks propios. Las sombras proyectadas que quedan son las de la cara (nariz sobre la mejilla, ceja sobre la órbita).
+- **Sin paso J.** «Mi dibujo» no entra en esta versión: el último paso es «Comparar con la foto» (I) y ya no hay pasos desactivados en el panel.

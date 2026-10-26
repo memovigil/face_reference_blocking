@@ -2,8 +2,6 @@ import { describe, expect, it } from 'vitest';
 import { buildBlocking } from '../../src/geom/blocking';
 import { anglesFromLight, estimateLight, lightFrom, lightFromAngles, lightSpread, type LightSample } from '../../src/geom/light';
 import { shadePlanes } from '../../src/geom/lightPlanes';
-import { fitSimilarity2D } from '../../src/geom/pose';
-import { toFrontal } from '../../src/geom/frontal';
 import { v3, type Vec3 } from '../../src/geom/vec';
 import { syntheticLandmarks } from './helpers';
 
@@ -66,27 +64,23 @@ describe('dirección de la luz', () => {
 
 describe('planos de luz', () => {
   const lm = syntheticLandmarks({ yaw: 0, pitch: 0, roll: 0 }, 18, 400, 500);
-  const frame = fitSimilarity2D(lm);
-  const frontal = toFrontal(lm, frame).points;
   const ipd = Math.hypot(lm[473].x - lm[468].x, lm[473].y - lm[468].y);
   const b = buildBlocking(lm, 'medio', ipd);
-  const ctx = { frame, frontal, landmarks: lm };
 
   it('con luz desde la derecha de la foto, la mejilla izquierda de la foto queda en sombra', () => {
-    const sh = shadePlanes(b, lightFromAngles(90, 75), 0, ctx);
+    const sh = shadePlanes(b, lightFromAngles(90, 75), 0, ipd);
     const val = (id: string) => sh.faces.find((f) => f.id === id)!.value;
     // Derecha de la foto = lado izquierdo del sujeto (L).
     expect(val('cheekboneL')).toBe(2);
     expect(val('cheekboneR')).toBe(0);
   });
 
-  it('sombras proyectadas: nariz sobre la mejilla, ceja sobre la órbita, mentón sobre el cuello', () => {
-    const frac = (L: Vec3, id: string) => shadePlanes(b, L, 0, ctx).faces.find((f) => f.id === id)!.castFraction;
+  it('sombras proyectadas: nariz sobre la mejilla, ceja sobre la órbita', () => {
+    const frac = (L: Vec3, id: string) => shadePlanes(b, L, 0, ipd).faces.find((f) => f.id === id)!.castFraction;
     // Luz desde la derecha de la foto: la nariz ensombrece la mejilla del otro lado (R del sujeto).
     expect(frac(lightFromAngles(90, 55), 'cheekFrontR')).toBeGreaterThan(0.3);
     expect(frac(lightFromAngles(90, 55), 'cheekFrontL')).toBeLessThan(0.05);
-    // Luz desde arriba: el mentón sobre el cuello y la ceja sobre el techo de la órbita.
-    expect(frac(lightFromAngles(0, 45), 'neck')).toBeGreaterThan(0.5);
+    // Luz desde arriba: la ceja sobre el techo de la órbita.
     expect(frac(lightFromAngles(0, 45), 'orbitRoofR')).toBeGreaterThan(0.15);
     // Luz frontal: casi sin sombras proyectadas en las mejillas.
     expect(frac(lightFromAngles(0, 5), 'cheekFrontR')).toBeLessThan(0.05);
@@ -95,7 +89,7 @@ describe('planos de luz', () => {
 
   it('el terminador mueve la frontera entre luz y sombra', () => {
     const L = lightFromAngles(90, 60);
-    const dark = (t: number) => shadePlanes(b, L, t, ctx).faces.filter((f) => f.value === 0).length;
+    const dark = (t: number) => shadePlanes(b, L, t, ipd).faces.filter((f) => f.value === 0).length;
     expect(dark(1)).toBeGreaterThan(dark(0));
     expect(dark(-1)).toBeLessThan(dark(0));
   });

@@ -14,16 +14,10 @@ import type { AppState, StepId, Store } from '../state/store';
 import { h } from './dom';
 import { estimateTag, keyLabel } from './labels';
 
-export const STEP_ORDER: readonly StepId[] = ['R', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'];
-/** Fase en la que se construyó la app actual (los pasos de fases futuras se ven desactivados). */
-export const CURRENT_PHASE = 4;
+export const STEP_ORDER: readonly StepId[] = ['R', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I'];
 
 /** Diferencia mínima (en desviaciones típicas) para presentar un rasgo como distintivo. */
 const DISTINCTIVE_Z = 1;
-
-export function stepEnabled(id: StepId): boolean {
-  return es.stepDefs[id].phase <= CURRENT_PHASE;
-}
 
 export interface PanelActions {
   resetDetection(): void;
@@ -49,18 +43,11 @@ export function buildPanel(host: HTMLElement, store: Store, actions: PanelAction
   const stepBtns = new Map<StepId, HTMLButtonElement>();
   for (const id of STEP_ORDER) {
     const def = es.stepDefs[id];
-    const enabled = stepEnabled(id);
     const b = h(
       'button',
-      {
-        'type': 'button',
-        'class': 'step-btn',
-        'disabled': !enabled,
-        'title': enabled ? def.title : `${def.title} · ${es.steps.comingIn(def.phase)}`,
-      },
+      { type: 'button', class: 'step-btn', title: def.title },
       h('span', { class: 'step-letter' }, id === 'R' ? '✓' : id),
       h('span', { class: 'step-name' }, def.title),
-      !enabled ? h('span', { class: 'step-phase' }, `F${def.phase}`) : null,
     );
     b.addEventListener('click', () => store.set({ step: id }));
     stepBtns.set(id, b);
@@ -264,9 +251,7 @@ function renderStepCard(
     h('h3', {}, es.steps.commonError),
     h('p', { class: 'common-error' }, def.error),
   ];
-  if (!stepEnabled(s.step)) {
-    children.push(h('p', { class: 'hint' }, es.steps.comingIn(def.phase)));
-  } else if (!d && s.step !== 'R') {
+  if (!d && s.step !== 'R') {
     children.push(h('p', { class: 'hint' }, es.steps.needsFace));
   } else if (s.step === 'R') {
     children.push(

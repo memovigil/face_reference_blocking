@@ -21,7 +21,7 @@ import { valueCanvas, type ValueMap } from './values/posterize';
 import { derive } from './state/derived';
 import { createStore, initialState, loadPrefs, savePrefs, type AppState, type LayerId } from './state/store';
 import { h } from './ui/dom';
-import { buildPanel, STEP_ORDER, stepEnabled } from './ui/panel';
+import { buildPanel, STEP_ORDER } from './ui/panel';
 import { buildToolbar } from './ui/toolbar';
 import { isControl, isTyping, Viewer } from './ui/viewer';
 
@@ -282,9 +282,8 @@ window.addEventListener('keydown', (e) => {
   if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
     // Las flechas son del control enfocado (deslizadores, selector…).
     if (isControl(e)) return;
-    const enabled = STEP_ORDER.filter(stepEnabled);
-    const i = enabled.indexOf(s.step);
-    const next = enabled[Math.max(0, Math.min(enabled.length - 1, i + (e.key === 'ArrowRight' ? 1 : -1)))];
+    const i = STEP_ORDER.indexOf(s.step);
+    const next = STEP_ORDER[Math.max(0, Math.min(STEP_ORDER.length - 1, i + (e.key === 'ArrowRight' ? 1 : -1)))];
     if (next && next !== s.step) store.set({ step: next });
     e.preventDefault();
   } else if (LAYER_BY_KEY[e.key]) {

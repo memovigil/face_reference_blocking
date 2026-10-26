@@ -1,0 +1,45 @@
+{
+ "fecha": "2026-10-26T02:51:27.137Z",
+ "que_es": "Criterios numéricos del blocking (§12.2) sobre las fotos de mujeres de las referencias del usuario (136 con cara detectada; sin la lista local de exclusión): planos sin vecinos (menos de dos aristas compartidas), polígonos con autointersección en su plano, polígonos con algún ángulo interior mayor de 200° (promedio por foto) y tiempo de cálculo del poliedro (ms, incluido el cráneo). Solo resúmenes; las fotos no se versionan.",
+ "summary": {
+  "grande": {
+   "fotos": 136,
+   "planos": 21,
+   "conPlanosSueltos": 0,
+   "planosSueltos": [],
+   "conAutointerseccion": 0,
+   "fotosConAutointerseccion": [],
+   "autointersecciones": [],
+   "concavosPromedio": 5,
+   "msMediana": 0.6,
+   "msP95": 1.5,
+   "msMax": 10.8
+  },
+  "medio": {
+   "fotos": 136,
+   "planos": 51,
+   "conPlanosSueltos": 0,
+   "planosSueltos": [],
+   "conAutointerseccion": 0,
+   "fotosConAutointerseccion": [],
+   "autointersecciones": [],
+   "concavosPromedio": 11.1,
+   "msMediana": 2,
+   "msP95": 3.3,
+   "msMax": 24.4
+  },
+  "fino": {
+   "fotos": 136,
+   "planos": 59,
+   "conPlanosSueltos": 0,
+   "planosSueltos": [],
+   "conAutointerseccion": 0,
+   "fotosConAutointerseccion": [],
+   "autointersecciones": [],
+   "concavosPromedio": 9.7,
+   "msMediana": 2.5,
+   "msP95": 4,
+   "msMax": 34.9
+  }
+ }
+}

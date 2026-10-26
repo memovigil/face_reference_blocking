@@ -9,6 +9,7 @@
 //   6. Regiones del blocking pintadas sobre la malla canónica (regions.mjs).
 //   7. Luz con verdad conocida: la muestra con la luz en 8 direcciones (light-synth.mjs).
 //   8. Luz en las fotos del usuario con luz lateral etiquetada (light-photos.mjs).
+//   9. Modo manual con la muestra girada (manual.mjs): clics reales y verdad conocida.
 // Levanta el servidor de Vite si no está corriendo.
 // Uso: npm run test:visual
 import { spawn } from 'node:child_process';
@@ -86,9 +87,11 @@ console.log('\n== luz con verdad conocida');
 const lightSynth = await run('light-synth.mjs', [join(out, 'luz-sintetica')]);
 console.log('\n== luz en las fotos del usuario (lado iluminado)');
 const lightPhotos = userSets.length ? await run('light-photos.mjs', [join(out, 'luz-fotos'), ...userSets.map((d) => join(userDir, d))]) : { code: 0 };
+console.log('\n== modo manual (muestra de perfil, ¾ y frente)');
+const manual = await run('manual.mjs', [join(out, 'manual')]);
 
-writeFileSync(join(out, 'resumen.json'), JSON.stringify({ fecha: new Date().toISOString(), summary, batches, synth: synth.code, interact: inter.code, sample: sample.code, regions: regions.code, lightSynth: lightSynth.code, lightPhotos: lightPhotos.code }, null, 1));
+writeFileSync(join(out, 'resumen.json'), JSON.stringify({ fecha: new Date().toISOString(), summary, batches, synth: synth.code, interact: inter.code, sample: sample.code, regions: regions.code, lightSynth: lightSynth.code, lightPhotos: lightPhotos.code, manual: manual.code }, null, 1));
 server?.kill();
-const failed = summary.some((s) => s.code) || batches.some((b) => b.code) || synth.code || inter.code || sample.code || regions.code || lightSynth.code || lightPhotos.code;
+const failed = summary.some((s) => s.code) || batches.some((b) => b.code) || synth.code || inter.code || sample.code || regions.code || lightSynth.code || lightPhotos.code || manual.code;
 console.log(failed ? '\nHAY FALLAS — revisa la salida' : `\nListo. Capturas en ${out.replace(root + '/', '')}`);
 process.exit(failed ? 1 : 0);

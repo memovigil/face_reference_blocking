@@ -1,18 +1,21 @@
 // Panel derecho: estado de la detección, pasos, tarjeta del paso y diagnóstico.
 
 import { lightFrom, lightSpread, anglesFromLight } from '../geom/light';
+import { MANUAL_MIN_POINTS, MANUAL_POINTS, manualReady, type ManualView } from '../geom/manualFit';
 import { BLOCK_LEVELS } from '../geom/planes';
 import { VALUE_PALETTE } from '../values/posterize';
 import type { KeyGroup } from '../detect/keypoints';
 import type { ExpressionId } from '../geom/expression';
 import { buildMeasures } from '../geom/measures';
-import { METRICS, mostDistinctive, type MetricGroup, type MetricValue } from '../geom/metrics';
+import { METRICS, mostDistinctive, SIDEWAYS_YAW, type MetricGroup, type MetricValue } from '../geom/metrics';
 import { ZERO_POSE } from '../geom/pose';
 import { degStr, es, pct } from '../i18n/es';
 import { derive, type Derived } from '../state/derived';
+import { chooseManual, placedCount, setManualView, skipManual, startManual, undoManual } from '../state/manual';
 import type { AppState, StepId, Store } from '../state/store';
+import type { Vec2 } from '../geom/vec';
 import { h } from './dom';
-import { estimateTag, keyLabel } from './labels';
+import { estimateTag, keyLabel, manualLabel } from './labels';
 
 export const STEP_ORDER: readonly StepId[] = ['R', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I'];
 
@@ -22,6 +25,9 @@ const DISTINCTIVE_Z = 1;
 export interface PanelActions {
   resetDetection(): void;
   focusKey(id: string): void;
+  enterManual(): void;
+  exitManual(): void;
+  focusPoint(p: Vec2): void;
 }
 
 /** Reemplaza el contenido conservando el foco del teclado (por data-fid). */
@@ -81,7 +87,7 @@ export function buildPanel(host: HTMLElement, store: Store, actions: PanelAction
 
   const render = (s: AppState) => {
     const d = derive(s);
-    renderStatus(statusEl, s, d, store);
+    renderStatus(statusEl, s, d, store, actions);
     for (const [id, b] of stepBtns) {
       if (id === s.step) b.setAttribute('aria-current', 'step');
       else b.removeAttribute('aria-current');
@@ -117,6 +123,10 @@ export function buildPanel(host: HTMLElement, store: Store, actions: PanelAction
 
 /** Lo que cambia el contenido de la tarjeta del paso (para no redibujar de más). */
 function stepSignature(s: AppState, d: Derived | null): string {
+  if (s.step === 'R' && s.manual) {
+    const m = s.manual;
+    return `manual|${m.view}|${m.next}|${Object.keys(m.points).sort().join(',')}|${Object.keys(m.skipped).sort().join(',')}|${!!d}|${!!s.autoDetection}`;
+  }
   if (!d) return 'none';
   switch (s.step) {
     case 'A':
@@ -146,19 +156,28 @@ function stepSignature(s: AppState, d: Derived | null): string {
 // ---------------------------------------------------------------------------
 // Estado
 
-function renderStatus(el: HTMLElement, s: AppState, d: Derived | null, store: Store) {
+function renderStatus(el: HTMLElement, s: AppState, d: Derived | null, store: Store, actions: PanelActions) {
   const rows: (HTMLElement | null)[] = [];
-  const statusText = es.status[s.status];
+  const statusText = s.manual && s.status === 'ready' ? es.manual.statusReady : es.status[s.status];
   rows.push(
     h(
       'div',
       { class: `status-line status-${s.status}` },
       h('span', { 'class': 'dot', 'aria-hidden': 'true' }),
       h('strong', {}, statusText),
-      s.detection ? h('span', { class: 'muted mono' }, ` · ${es.detection.points(s.detection.landmarks.length)} · ${es.detection.time(s.detection.ms)}`) : null,
+      s.manual
+        ? h('span', { class: 'muted mono' }, ` · ${es.manual.count(placedCount(s.manual), MANUAL_POINTS[s.manual.view].length)}`)
+        : s.detection
+          ? h('span', { class: 'muted mono' }, ` · ${es.detection.points(s.detection.landmarks.length)} · ${es.detection.time(s.detection.ms)}`)
+          : null,
     ),
   );
-  if (s.status === 'no-face') rows.push(h('p', { class: 'hint' }, es.noFaceBody));
+  if (s.status === 'no-face') {
+    rows.push(
+      h('p', { class: 'hint' }, es.noFaceBody),
+      h('button', { 'type': 'button', 'class': 'btn primary', 'data-fid': 'manual-start', 'onclick': () => actions.enterManual() }, es.manual.start),
+    );
+  }
   if (s.status === 'error' && s.error) rows.push(h('p', { class: 'hint error' }, s.error));
   if (d && s.detection) {
     const a = d.pose.angles;
@@ -195,10 +214,17 @@ function renderStatus(el: HTMLElement, s: AppState, d: Derived | null, store: St
         d.pose.matrixAngles ? h('p', { class: 'hint' }, `${es.pose.matrix}: ${angleText(d.pose.matrixAngles)}`) : null,
         d.pose.agreement !== null ? h('p', { class: 'hint' }, es.pose.agreement(d.pose.agreement)) : null,
         h('p', { class: 'hint' }, es.pose.fitError(d.pose.frame.rms)),
-        h('p', { class: 'hint mono' }, es.pose.engine(s.detection.delegate, s.detection.ms)),
+        s.detection.manual ? h('p', { class: 'hint' }, es.manual.rms(s.detection.manual.rms)) : h('p', { class: 'hint mono' }, es.pose.engine(s.detection.delegate, s.detection.ms)),
       ),
     );
-    rows.push(h('div', { class: 'status-row' }, h('span', { class: 'label' }, es.detection.expression), expressionChips(s, d, store)));
+    rows.push(
+      h(
+        'div',
+        { class: 'status-row' },
+        h('span', { class: 'label' }, es.detection.expression),
+        s.manual ? h('span', { class: 'muted' }, es.manual.noExpressions) : expressionChips(s, d, store),
+      ),
+    );
     const segText = s.segStatus === 'running' ? es.seg.running : s.segStatus === 'done' ? es.seg.done : s.segStatus === 'unavailable' ? es.seg.unavailable : '';
     if (segText) rows.push(h('div', { class: 'status-row' }, h('span', { class: 'label' }, es.seg.label), h('span', { class: 'muted' }, segText)));
     rows.push(h('div', { class: 'status-row' }, h('span', { class: 'label' }, es.detection.light), h('span', { class: 'muted' }, lightLine(s, d))));
@@ -244,15 +270,19 @@ function renderStepCard(
   store: Store,
 ) {
   const def = es.stepDefs[s.step];
+  const manualR = s.step === 'R' && !!s.manual;
+  const profileC = s.step === 'C' && !!d && Math.abs(d.pose.angles.yaw) >= SIDEWAYS_YAW;
   const children: (HTMLElement | null)[] = [
     h('header', { class: 'step-head' }, h('span', { class: 'step-letter big' }, s.step === 'R' ? '✓' : s.step), h('h2', {}, def.title)),
     h('h3', {}, es.steps.whatToDo),
-    h('p', {}, def.what),
+    h('p', {}, manualR ? es.manual.what : profileC ? es.measures.profileWhat : def.what),
     h('h3', {}, es.steps.commonError),
-    h('p', { class: 'common-error' }, def.error),
+    h('p', { class: 'common-error' }, manualR ? es.manual.error : def.error),
   ];
   if (!d && s.step !== 'R') {
     children.push(h('p', { class: 'hint' }, es.steps.needsFace));
+  } else if (s.step === 'R' && s.manual) {
+    children.push(...manualCard(s, d, poseFine, actions, store));
   } else if (s.step === 'R') {
     children.push(
       h('h3', {}, es.steps.legend),
@@ -262,6 +292,10 @@ function renderStepCard(
       d ? h('p', { class: 'hint' }, es.review.estimatedHelp) : null,
       d ? poseFine : null,
       d ? h('button', { type: 'button', class: 'btn', onclick: () => actions.resetDetection() }, es.review.resetDetection) : null,
+      s.image && s.status !== 'detecting' && s.status !== 'loading-model' ? h('p', { class: 'hint' }, es.manual.startHint) : null,
+      s.image && s.status !== 'detecting' && s.status !== 'loading-model'
+        ? h('button', { 'type': 'button', 'class': 'btn', 'data-fid': 'manual-start-r', 'onclick': () => actions.enterManual() }, es.manual.start)
+        : null,
     );
   } else if (d && s.step === 'A') {
     const seg = h('div', { 'class': 'seg-group', 'role': 'group', 'aria-label': es.envelope.sides });
@@ -304,7 +338,7 @@ function renderStepCard(
       h('h3', {}, es.steps.legend),
       legend([['sw-measure', es.legend.measures], ['sw-level', es.legend.levels]]),
       h('h3', {}, es.measures.title),
-      h('p', { class: 'hint' }, es.measures.help),
+      h('p', { class: 'hint' }, m.profile ? es.measures.profileHelp : es.measures.help),
       list,
     );
   } else if (d && s.step === 'D') {
@@ -531,6 +565,71 @@ function renderChips(host: HTMLElement, s: AppState, d: Derived, actions: PanelA
       .filter((g) => groups.has(g))
       .map((g) => h('div', { class: 'key-group' }, h('h4', {}, es.review.groups[g]), h('div', { class: 'chips' }, ...groups.get(g)!))),
   );
+}
+
+/** Tarjeta de «Revisar puntos» en modo manual: vista, punto siguiente y lista. */
+function manualCard(s: AppState, d: Derived | null, poseFine: HTMLElement, actions: PanelActions, store: Store): (HTMLElement | null)[] {
+  const m = s.manual!;
+  const setManual = (f: (mm: NonNullable<AppState['manual']>) => NonNullable<AppState['manual']>) =>
+    store.set((st) => (st.manual ? { manual: f(st.manual) } : {}));
+  const seg = h('div', { 'class': 'seg-group', 'role': 'group', 'aria-label': es.manual.view });
+  for (const v of ['front', 'threeQuarter', 'profile'] as ManualView[]) {
+    const b = h('button', { 'type': 'button', 'class': 'seg', 'data-fid': `mview-${v}`, 'aria-pressed': String(m.view === v) }, es.manual.views[v]);
+    b.addEventListener('click', () => setManual((mm) => setManualView(mm, v)));
+    seg.append(b);
+  }
+  const ready = manualReady(m.points, m.view);
+  const out: (HTMLElement | null)[] = [
+    h('h3', {}, es.manual.title),
+    h('p', { class: 'hint' }, es.manual.intro),
+    h('div', { class: 'control-row' }, h('span', {}, es.manual.view), seg),
+    h('p', { class: 'hint' }, es.manual.viewHint[m.view]),
+  ];
+  const btn = (label: string, fid: string, onClick: () => void, disabled = false) =>
+    h('button', { 'type': 'button', 'class': 'btn small', 'data-fid': fid, 'disabled': disabled, 'onclick': onClick }, label);
+  if (m.next) {
+    out.push(
+      h('p', { 'class': 'manual-next', 'aria-live': 'polite' }, es.manual.next(manualLabel(m.next))),
+      h('p', { class: 'hint' }, es.manual.clickHint),
+      h(
+        'div',
+        { class: 'btn-row' },
+        btn(es.manual.skip, 'manual-skip', () => setManual(skipManual)),
+        btn(es.manual.undo, 'manual-undo', () => setManual(undoManual), !m.order.length),
+        btn(es.manual.stop, 'manual-stop', () => setManual((mm) => chooseManual(mm, null))),
+      ),
+    );
+  } else {
+    out.push(h('div', { class: 'btn-row' }, btn(es.manual.undo, 'manual-undo', () => setManual(undoManual), !m.order.length)));
+  }
+  out.push(h('p', { class: `hint${ready ? '' : ' warn'}` }, !ready ? es.manual.missing(MANUAL_MIN_POINTS) : m.next ? es.manual.fitted : es.manual.done));
+  const list = h('ol', { class: 'manual-list' });
+  for (const id of MANUAL_POINTS[m.view]) {
+    const p = m.points[id];
+    const state = p ? 'placed' : m.skipped[id] ? 'skipped' : 'pending';
+    const b = h(
+      'button',
+      { 'type': 'button', 'data-fid': `mp-${id}`, 'aria-pressed': String(m.next === id), 'class': `manual-item ${state}` },
+      h('span', {}, manualLabel(id)),
+      h('span', { class: 'manual-tag' }, es.manual[state]),
+    );
+    b.addEventListener('click', () => {
+      setManual((mm) => chooseManual(mm, id));
+      if (p) actions.focusPoint(p);
+    });
+    list.append(h('li', {}, b));
+  }
+  out.push(list);
+  if (d) out.push(poseFine);
+  out.push(
+    h(
+      'div',
+      { class: 'btn-row' },
+      btn(es.manual.clear, 'manual-clear', () => setManual((mm) => startManual(mm.view)), !Object.keys(m.points).length),
+      s.autoDetection ? btn(es.manual.back, 'manual-back', () => actions.exitManual()) : null,
+    ),
+  );
+  return out;
 }
 
 // ---------------------------------------------------------------------------

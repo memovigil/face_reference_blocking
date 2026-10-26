@@ -212,7 +212,7 @@ export function fitSimilarity2D(
 }
 
 /** Horn (cuaterniones): semejanza que lleva a → b (ambos en marco K), con pesos opcionales. */
-function kabsch(a: Vec3[], b: Vec3[], w?: readonly number[]): SimilarityFit {
+export function kabsch(a: Vec3[], b: Vec3[], w?: readonly number[]): SimilarityFit {
   const ca = weightedCentroid(a, w);
   const cb = weightedCentroid(b, w);
   const S = [0, 0, 0, 0, 0, 0, 0, 0, 0];

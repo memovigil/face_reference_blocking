@@ -14,6 +14,8 @@ export interface Detection {
   /** Milisegundos que tardó la detección (sin contar la carga del modelo). */
   ms: number;
   delegate: 'GPU' | 'CPU';
+  /** Solo en modo manual: la malla salió de los puntos marcados (error del ajuste rígido en px y hacia dónde mira la cara). */
+  manual?: { rms: number; facing: 'left' | 'right' };
 }
 
 const BASE = import.meta.env.BASE_URL;

@@ -13,8 +13,12 @@ export const keypointsLayer: LayerDef = {
     const order = [...d.keypoints].sort((a, b) => Number(a.def.id === state.selectedKey) - Number(b.def.id === state.selectedKey));
     // Fuera de «Revisar puntos» se dibujan pequeños: siguen siendo arrastrables.
     g.classList.toggle('kp-mini', state.step !== 'R');
+    // En modo manual, los puntos de la malla salen de los marcados a mano (se
+    // arrastran esos) y las orejas cercanas son parte de la lista en ¾ y perfil.
+    const manual = state.manual;
     for (const kp of order) {
       if (!kp.visible) continue;
+      if (manual && (kp.def.landmark !== undefined || (manual.view !== 'front' && kp.def.extra?.startsWith('ear')))) continue;
       drawKey(g, kp, kp.def.id === state.selectedKey, keyLabel(kp, d.keypoints));
     }
   },

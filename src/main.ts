@@ -10,15 +10,17 @@ import './styles.css';
 import { renderRotatedFace } from './debug/synthRotate';
 import { detectFace, getLandmarker } from './detect/faceLandmarker';
 import { segmentImage } from './detect/segment';
-import { dragLandmarks, KEY_BY_ID } from './detect/keypoints';
+import { dragLandmarks, KEY_BY_ID, type ExtraId } from './detect/keypoints';
+import { fitManual, MANUAL_POINTS, manualKey, type ManualView } from './geom/manualFit';
 import { LayerRenderer, STEP_LAYERS } from './draw/layers';
 import { ZERO_POSE } from './geom/pose';
-import { v2, type Vec2, type Vec3 } from './geom/vec';
+import { v2, type Mat3, type Vec2, type Vec3 } from './geom/vec';
 import { es } from './i18n/es';
 import { loadImageFile, loadImageUrl, workImageFromCanvas, type WorkImage } from './image/load';
-import { renderSample, type SampleOptions } from './sample/render';
+import { renderSample, sampleFacePoints, type SampleOptions, type SampleRender } from './sample/render';
 import { valueCanvas, type ValueMap } from './values/posterize';
 import { derive } from './state/derived';
+import { chooseManual, moveManual, placeManual, startManual } from './state/manual';
 import { createStore, initialState, loadPrefs, savePrefs, type AppState, type LayerId } from './state/store';
 import { h } from './ui/dom';
 import { buildPanel, STEP_ORDER } from './ui/panel';
@@ -74,6 +76,11 @@ const viewer = new Viewer(stageHost);
 const layers = new LayerRenderer(viewer.layers);
 buildToolbar(toolbarHost, store, viewer);
 buildPanel(panelHost, store, {
+  enterManual,
+  exitManual,
+  focusPoint(p) {
+    viewer.focus(p, 3);
+  },
   resetDetection() {
     const s = store.get();
     if (!s.detection) return;
@@ -118,6 +125,8 @@ store.subscribe((s, prev) => {
   if (s.viewMode !== prev.viewMode) viewer.setMode(s.viewMode);
   if (s.photoOpacity !== prev.photoOpacity) viewer.setPhotoOpacity(s.photoOpacity);
   if (s.tool !== prev.tool) viewer.setHandTool(s.tool === 'hand');
+  viewer.setPlacing(!!s.manual?.next && s.tool === 'select');
+  if (s.manual !== prev.manual && s.manual) applyManual(s);
   if (s.theme !== prev.theme) applyTheme(s.theme);
   emptyState.hidden = !!s.image;
   const working = s.status === 'rendering-sample' || s.status === 'loading-model' || s.status === 'detecting';
@@ -162,6 +171,8 @@ async function openImage(get: () => Promise<WorkImage>): Promise<void> {
   store.set({
     image: img,
     detection: null,
+    autoDetection: null,
+    manual: null,
     landmarks: null,
     extrasPlaced: {},
     poseAdjust: ZERO_POSE,
@@ -188,24 +199,88 @@ async function openImage(get: () => Promise<WorkImage>): Promise<void> {
   const det = await detectFace(img.canvas);
   if (seq !== loadSeq) return;
   if (!det) {
-    store.set({ status: 'no-face' });
+    // La segmentación sirve igual en modo manual (silueta con cabello).
+    store.set({ status: 'no-face', segStatus: 'running' });
+    await runSegmentation(img, seq);
     return;
   }
-  store.set({ status: 'ready', detection: det, landmarks: det.landmarks, segStatus: 'running' });
+  store.set({ status: 'ready', detection: det, autoDetection: det, landmarks: det.landmarks, segStatus: 'running' });
   frameHead();
   // La segmentación (silueta con cabello) llega después, sin bloquear la revisión.
+  await runSegmentation(img, seq);
+}
+
+async function runSegmentation(img: WorkImage, seq: number): Promise<void> {
   await new Promise((r) => setTimeout(r, 0));
   const seg = await segmentImage(img.canvas);
   if (seq !== loadSeq) return;
   store.set({ segmentation: seg, segStatus: seg ? 'done' : 'unavailable' });
 }
 
+// ------------------------------------------------------------------ modo manual (§5.5)
+const EAR_EXTRAS: readonly ExtraId[] = ['earTopR', 'earLobeR', 'earTopL', 'earLobeL'];
+/** Rotación del último ajuste: arranque extra para que la malla no salte al arrastrar. */
+let manualRotation: Mat3 | undefined;
+
+/** Vista inicial: de la pose detectada si la hay; si no, perfil (lo que el detector suele no encontrar). */
+function guessView(s: AppState): ManualView {
+  const d = s.detection ? derive(s) : null;
+  if (!d) return 'profile';
+  const yaw = Math.abs(d.pose.angles.yaw);
+  return yaw < 18 ? 'front' : yaw < 55 ? 'threeQuarter' : 'profile';
+}
+
+function enterManual() {
+  const s = store.get();
+  if (!s.image) return;
+  manualRotation = undefined;
+  store.set({ manual: startManual(guessView(s)), step: 'R', selectedKey: null, poseAdjust: ZERO_POSE });
+}
+
+function exitManual() {
+  const s = store.get();
+  const det = s.autoDetection;
+  store.set({ manual: null, detection: det, landmarks: det?.landmarks ?? null, status: det ? 'ready' : 'no-face', poseAdjust: ZERO_POSE, selectedKey: null });
+}
+
+/** La malla canónica deformada por los puntos marcados hace de detección. */
+function applyManual(s: AppState) {
+  const m = s.manual!;
+  const f = fitManual(m.view, m.points, manualRotation);
+  manualRotation = f?.frame.rotation;
+  // Las orejas cercanas de la lista (¾ y perfil) son los puntos de oreja confirmados.
+  const extrasPlaced = { ...s.extrasPlaced };
+  if (m.view !== 'front') for (const id of EAR_EXTRAS) delete extrasPlaced[id];
+  if (f) {
+    for (const id of MANUAL_POINTS[m.view]) {
+      const p = m.points[id];
+      const extra = manualKey(id, f.facing).extra;
+      if (p && extra) extrasPlaced[extra] = p;
+    }
+  }
+  store.set({
+    landmarks: f?.landmarks ?? null,
+    detection: f ? { landmarks: f.landmarks, blendshapes: {}, matrix: null, ms: 0, delegate: s.autoDetection?.delegate ?? 'CPU', manual: { rms: f.rms, facing: f.facing } } : null,
+    status: f ? 'ready' : 'manual',
+    extrasPlaced,
+  });
+}
+
+viewer.onTap = (p) => {
+  const s = store.get();
+  if (!s.manual?.next || s.tool !== 'select' || !s.image) return;
+  if (p.x < 0 || p.y < 0 || p.x > s.image.width || p.y > s.image.height) return;
+  store.set({ manual: placeManual(s.manual, p) });
+};
+
 /** Muestra de ejemplo: cabeza 3D generada en la app (sin foto de una persona real). */
+let lastSample: SampleRender | null = null;
 async function openSample(opts?: SampleOptions): Promise<void> {
   await openImage(async () => {
     store.set({ status: 'rendering-sample' });
     await new Promise((r) => requestAnimationFrame(() => setTimeout(r, 0)));
-    return workImageFromCanvas(renderSample(opts).canvas, es.sampleName);
+    lastSample = renderSample(opts);
+    return workImageFromCanvas(lastSample.canvas, es.sampleName);
   });
 }
 
@@ -244,10 +319,17 @@ canvasCol.addEventListener('drop', (e) => {
 
 // ------------------------------------------------------------------ arrastre de puntos
 let dragBase: { landmarks: Vec3[]; offset: Vec2; sigma: number } | null = null;
+/** Arrastre de un punto del modo manual (ids «m:…»). */
+let manualDrag: { id: string; offset: Vec2 } | null = null;
 
 viewer.handles = {
   down(id, p) {
     const s = store.get();
+    if (id.startsWith('m:')) {
+      const q = s.manual?.points[id.slice(2)];
+      if (q) manualDrag = { id: id.slice(2), offset: v2(q.x - p.x, q.y - p.y) };
+      return;
+    }
     const d = derive(s);
     const kp = d?.keypoints.find((k) => k.def.id === id);
     if (!d || !kp || !s.landmarks) return;
@@ -255,6 +337,13 @@ viewer.handles = {
     store.set({ selectedKey: id });
   },
   move(id, p, e) {
+    if (manualDrag) {
+      const target = v2(p.x + manualDrag.offset.x, p.y + manualDrag.offset.y);
+      const mid = manualDrag.id;
+      store.set((s) => ({ manual: s.manual ? moveManual(s.manual, mid, target) : null }));
+      viewer.showLoupe(target, v2(e.clientX, e.clientY));
+      return;
+    }
     if (!dragBase) return;
     const def = KEY_BY_ID.get(id);
     if (!def) return;
@@ -269,6 +358,7 @@ viewer.handles = {
   },
   up() {
     dragBase = null;
+    manualDrag = null;
     viewer.hideLoupe();
   },
 };
@@ -298,7 +388,8 @@ window.addEventListener('keydown', (e) => {
   } else if (e.key === '-') {
     viewer.setZoom(viewer.view.zoom / 1.25);
   } else if (e.key === 'Escape') {
-    store.set({ selectedKey: null });
+    if (s.manual?.next) store.set({ manual: chooseManual(s.manual, null) });
+    else store.set({ selectedKey: null });
   }
 });
 
@@ -311,6 +402,8 @@ declare global {
       derive: typeof derive;
       openUrl(url: string): Promise<void>;
       openSample(opts?: SampleOptions): Promise<void>;
+      /** Verdad conocida de la última muestra: pose y vértices de la cara en px de la imagen de trabajo. */
+      sampleTruth(): { pose: SampleRender['pose']; points: Vec3[]; frame: SampleRender['frame'] } | null;
       synthRotate(yaw: number, pitch?: number): Promise<string>;
     };
   }
@@ -321,6 +414,15 @@ window.__encaje = {
   derive,
   openUrl: (url) => openImage(() => loadImageUrl(url)),
   openSample,
+  sampleTruth() {
+    const s = store.get();
+    if (!lastSample || !s.image) return null;
+    // La imagen de trabajo puede estar reducida respecto del render.
+    const k = s.image.width / lastSample.canvas.width;
+    const f = lastSample.frame;
+    const frame = { rotation: f.rotation, scale: f.scale * k, translation: { x: f.translation.x * k, y: f.translation.y * k, z: f.translation.z * k } };
+    return { pose: lastSample.pose, points: sampleFacePoints(frame), frame };
+  },
   async synthRotate(yaw, pitch = 0) {
     const s = store.get();
     if (!s.image || !s.detection) throw new Error('sin detección');

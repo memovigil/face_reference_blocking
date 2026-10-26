@@ -397,6 +397,16 @@ function faceTexture(): ImageData {
 }
 
 
+/**
+ * Dónde cae en la imagen cada vértice de la cara de la muestra (verdad conocida
+ * para probar el modo manual; los iris no son parte de la malla).
+ */
+export function sampleFacePoints(frame: SampleRender['frame']): Vec3[] {
+  const out: Vec3[] = [];
+  for (let i = 0; i < 468; i++) out.push(projectCanonical(frame, feminize(canon(i))));
+  return out;
+}
+
 // ---------------------------------------------------------------------------
 // Render.
 

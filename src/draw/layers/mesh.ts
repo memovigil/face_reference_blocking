@@ -1,30 +1,40 @@
 // Malla detectada (capa «Estructura» en el paso de revisión): teselado tenue y
 // óvalo de la cara, para ver de un vistazo si la detección siguió a la cara.
+// Solo se dibuja lo que mira a la cámara: de perfil (modo manual) el lado
+// lejano quedaría cruzando la cara.
 
 import { CANONICAL_TRIANGLES } from '../../data/canonicalFace';
 import { FACE_OVAL } from '../../detect/landmarkMap';
-import type { Vec2 } from '../../geom/vec';
-import { polyline, s, segments } from '../svg';
+import { meshTopology } from '../../geom/planes';
+import type { Vec2, Vec3 } from '../../geom/vec';
+import { s, segments } from '../svg';
 import type { LayerDef } from './types';
 
-const EDGES: [number, number][] = (() => {
-  const seen = new Set<number>();
-  const out: [number, number][] = [];
+const edgeKey = (a: number, b: number) => (a < b ? a * 1000 + b : b * 1000 + a);
+
+/** Aristas de la malla y los triángulos que las comparten. */
+const EDGES: Map<number, { a: number; b: number; tris: number[] }> = (() => {
+  const out = new Map<number, { a: number; b: number; tris: number[] }>();
   for (let t = 0; t < CANONICAL_TRIANGLES.length; t += 3) {
     for (const [a, b] of [
       [CANONICAL_TRIANGLES[t], CANONICAL_TRIANGLES[t + 1]],
       [CANONICAL_TRIANGLES[t + 1], CANONICAL_TRIANGLES[t + 2]],
       [CANONICAL_TRIANGLES[t + 2], CANONICAL_TRIANGLES[t]],
     ]) {
-      const key = a < b ? a * 1000 + b : b * 1000 + a;
-      if (!seen.has(key)) {
-        seen.add(key);
-        out.push([a, b]);
-      }
+      const k = edgeKey(a, b);
+      const e = out.get(k) ?? { a, b, tris: [] };
+      e.tris.push(t / 3);
+      out.set(k, e);
     }
   }
   return out;
 })();
+
+/** Triángulos que miran a la cámara (en la imagen: y abajo, z lejos). */
+function frontFacing(lm: readonly Vec3[]): boolean[] {
+  const { tris, windingSign } = meshTopology();
+  return tris.map(([a, b, c]) => windingSign * ((lm[b].x - lm[a].x) * (lm[c].y - lm[a].y) - (lm[b].y - lm[a].y) * (lm[c].x - lm[a].x)) < 0);
+}
 
 // Contornos de ojos y labios en orden (para dibujarlos como curvas cerradas).
 const ORDERED = {
@@ -40,11 +50,15 @@ export const meshLayer: LayerDef = {
   steps: ['R'],
   render(g, { state }) {
     const lm = state.landmarks!;
-    const pairs = EDGES.map(([a, b]) => [lm[a], lm[b]] as [Vec2, Vec2]);
+    const front = frontFacing(lm);
+    const seen = (a: number, b: number) => {
+      const e = EDGES.get(edgeKey(a, b));
+      return !e || e.tris.some((t) => front[t]);
+    };
+    const pairs = [...EDGES.values()].filter((e) => e.tris.some((t) => front[t])).map((e) => [lm[e.a], lm[e.b]] as [Vec2, Vec2]);
     s('path', { class: 'mesh-tess', d: segments(pairs) }, g);
-    s('path', { class: 'mesh-oval', d: polyline(FACE_OVAL.map((i) => lm[i]), true) }, g);
-    for (const ring of Object.values(ORDERED)) {
-      s('path', { class: 'mesh-feature', d: polyline(ring.map((i) => lm[i]), true) }, g);
-    }
+    const ring = (ids: readonly number[]) => ids.map((a, i) => [a, ids[(i + 1) % ids.length]] as const).filter(([a, b]) => seen(a, b)).map(([a, b]) => [lm[a], lm[b]] as [Vec2, Vec2]);
+    s('path', { class: 'mesh-oval', d: segments(ring(FACE_OVAL)) }, g);
+    for (const r of Object.values(ORDERED)) s('path', { class: 'mesh-feature', d: segments(ring(r)) }, g);
   },
 };

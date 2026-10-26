@@ -3,7 +3,7 @@
 // convexo para la envolvente.
 
 import { LM } from '../detect/landmarkMap';
-import { SEG, type Segmentation } from '../detect/segment';
+import { headClassTest, SEG, type Segmentation } from '../detect/segment';
 import type { SimilarityFit } from './pose';
 import { apply3, v2, v3, type Vec2, type Vec3 } from './vec';
 
@@ -34,10 +34,9 @@ export function headAxis(rotation: SimilarityFit['rotation'], axis: Vec3): Vec2 
   return v2(k.x / l, -k.y / l);
 }
 
-const isHead = (c: number) => c === SEG.hair || c === SEG.faceSkin || c === SEG.other;
-
 export function headSilhouette(seg: Segmentation, landmarks: readonly Vec3[], frame: SimilarityFit): HeadSilhouette | null {
   const { width: W, height: H, mask } = seg;
+  const isHead = headClassTest(seg);
   const up = headAxis(frame.rotation, v3(0, 1, 0));
   const down = v2(-up.x, -up.y);
   const ipd = Math.hypot(landmarks[LM.subjectLeft.pupil].x - landmarks[LM.subjectRight.pupil].x, landmarks[LM.subjectLeft.pupil].y - landmarks[LM.subjectRight.pupil].y);
@@ -74,7 +73,8 @@ export function headSilhouette(seg: Segmentation, landmarks: readonly Vec3[], fr
   const seedX = Math.round(cx) - x0;
   const seedY = Math.round(cy) - y0;
   let seed = -1;
-  for (let r = 0; r < ipd * 0.5 && seed < 0; r++) {
+  // De perfil la distancia entre pupilas casi desaparece: el radio de búsqueda va también con el alto de la cara.
+  for (let r = 0; r < Math.max(ipd * 0.5, faceH * 0.08) && seed < 0; r++) {
     for (const [dx, dy] of [[0, 0], [r, 0], [-r, 0], [0, r], [0, -r]]) {
       const x = seedX + dx;
       const y = seedY + dy;

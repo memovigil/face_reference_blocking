@@ -69,3 +69,32 @@ function resample(s: Segmentation, w: number, h: number): Segmentation {
   }
   return { width: w, height: h, mask, ms: s.ms };
 }
+
+/** Si el cabello encontrado no llega a esta fracción de la piel de la cara, se busca en la ropa. */
+const MIN_HAIR_FRACTION = 0.05;
+const headTests = new WeakMap<Segmentation, (c: number) => boolean>();
+
+/**
+ * Clases que forman la cabeza con cabello: cabello, piel de la cara y
+ * accesorios. En algunas imágenes (la muestra 3D de perfil, por ejemplo) el
+ * segmentador marca el cabello como ropa o como piel del cuerpo; si casi no
+ * encuentra cabello, esas clases también cuentan. Quien usa la prueba recorta
+ * por conexión con la cara y un poco por debajo del mentón, así que el cuello y
+ * el torso quedan fuera.
+ */
+export function headClassTest(seg: Segmentation): (c: number) => boolean {
+  const cached = headTests.get(seg);
+  if (cached) return cached;
+  let hair = 0;
+  let face = 0;
+  for (let i = 0; i < seg.mask.length; i++) {
+    if (seg.mask[i] === SEG.hair) hair++;
+    else if (seg.mask[i] === SEG.faceSkin) face++;
+  }
+  const noHair = face > 0 && hair < MIN_HAIR_FRACTION * face;
+  const test = noHair
+    ? (c: number) => c !== SEG.background
+    : (c: number) => c === SEG.hair || c === SEG.faceSkin || c === SEG.other;
+  headTests.set(seg, test);
+  return test;
+}

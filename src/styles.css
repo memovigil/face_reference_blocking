@@ -384,6 +384,10 @@ input[type='range'] {
   user-select: none;
 }
 
+.stage[data-cursor='crosshair'] {
+  cursor: crosshair;
+}
+
 .stage[data-cursor='grab'] {
   cursor: grab;
 }
@@ -619,6 +623,7 @@ svg.overlay .ss {
 }
 
 .kp-label {
+  pointer-events: none;
   font-size: 12px;
   font-weight: 500;
   fill: var(--ink);
@@ -909,6 +914,11 @@ svg.overlay .ss {
 
 .kp-mini .kp-hit {
   r: 9px;
+}
+
+/* Hay un punto del modo manual por colocar: los demás se agarran solo justo encima. */
+.layers[data-placing='true'] .kp-hit {
+  r: 4px;
 }
 
 .crosshair path {
@@ -1446,5 +1456,77 @@ ul.compare-list {
 
 .metric-list li.unreliable .m-label,
 .metric-list li.unreliable .m-value {
+  color: var(--muted);
+}
+
+/* ------------------------------------------------------------- modo manual */
+.btn-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 6px 0;
+}
+
+.manual-next {
+  margin: 10px 0 2px;
+  font-weight: 600;
+  font-size: 1.02rem;
+}
+
+.manual-list {
+  list-style: none;
+  margin: 8px 0;
+  padding: 0;
+  display: grid;
+  gap: 2px;
+  max-height: 340px;
+  overflow-y: auto;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface-2);
+}
+
+.manual-item {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+  padding: 5px 10px;
+  border: 0;
+  border-left: 3px solid transparent;
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-size: 0.9rem;
+  text-align: left;
+  cursor: pointer;
+}
+
+.manual-item:hover {
+  background: var(--surface);
+}
+
+.manual-item[aria-pressed='true'] {
+  border-left-color: var(--measure);
+  background: var(--surface);
+  font-weight: 600;
+}
+
+.manual-tag {
+  font-size: 0.78rem;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.manual-item.placed .manual-tag {
+  color: var(--ok);
+}
+
+.manual-item.placed .manual-tag::before {
+  content: '✓ ';
+}
+
+.manual-item.skipped {
   color: var(--muted);
 }

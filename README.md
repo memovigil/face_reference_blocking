@@ -26,8 +26,9 @@ Requisitos: Node 20 o superior.
 | 3 | Blocking de planos (D): regiones anatómicas, poliedro con aristas compartidas, tres niveles, cráneo y orejas; canon femenino | ✅ |
 | 4 | Luz estimada de la foto, planos de luz con sombras proyectadas (E), valores en 2, 3 y 5 (F–H) con bordes rectos | ✅ |
 | Cierre | Paso E solo con la cara y el cráneo, sin el paso J, mediciones solo con fotos de mujeres | ✅ |
+| 6 | Modo manual y perfil: puntos marcados a mano (frente, ¾ y perfil) y la malla canónica deformada para pasar por ellos | ✅ |
 
-Pasos: R (Revisar puntos) y A–I. Quedaron fuera de esta versión «Mi dibujo» (el paso J), el modo manual y los perfiles estrictos (fase 6) y la fase de pulido (exportar, móvil, accesibilidad completa).
+Pasos: R (Revisar puntos) y A–I. Quedaron fuera de esta versión «Mi dibujo» (el paso J) y la fase de pulido (exportar, móvil, accesibilidad completa).
 
 ## Atajos
 
@@ -40,7 +41,7 @@ Pasos: R (Revisar puntos) y A–I. Quedaron fuera de esta versión «Mi dibujo»
 | F | Ajustar |
 | + / − | Acercar / alejar |
 | Ctrl + rueda | Zoom al cursor (en trackpad: pellizcar) |
-| Esc | Quitar selección |
+| Esc | Quitar selección; en modo manual, dejar de colocar puntos |
 
 ## Estructura
 
@@ -48,6 +49,7 @@ Pasos: R (Revisar puntos) y A–I. Quedaron fuera de esta versión «Mi dibujo»
 src/
   main.ts                    arranque y conexión de módulos
   state/store.ts, derived.ts estado único y valores derivados (por etapas, memorizados)
+  state/manual.ts            modo manual: colocar, mover, saltar y deshacer puntos
   detect/faceLandmarker.ts   carga local del modelo y detección
   detect/segment.ts          segmentación cabello / cara / fondo (local)
   detect/landmarkMap.ts      índices nombrados y cómo se verificaron
@@ -66,6 +68,7 @@ src/
   geom/light.ts              luz desde la foto: modelo lambertiano sobre los planos del blocking
   geom/lightPlanes.ts        paso E: luz, medio tono y sombra por plano; sombras proyectadas
   values/posterize.ts        pasos F–H: desenfoque, Otsu multinivel, terminador, bordes rectos
+  geom/manualFit.ts          modo manual: malla canónica ajustada y deformada a los puntos marcados
   geom/vec.ts                álgebra mínima
   sample/render.ts           muestra de ejemplo: cabeza 3D rasterizada en la app
   draw/layers/*.ts           una capa por archivo
@@ -99,6 +102,7 @@ node tests/visual/blocking-quality.mjs <carpeta>…            # planos sueltos,
 node tests/visual/mesh-labels.mjs <salida>                   # malla canónica con índices (para elegir semillas)
 node tests/visual/light-synth.mjs <salida>                   # luz con verdad conocida (muestra en 8 direcciones)
 node tests/visual/light-photos.mjs <salida> <carpeta>…       # luz en fotos; con tests/fixtures/user/luz.json mide el lado iluminado
+node tests/visual/manual.mjs <salida>                         # modo manual con la muestra girada (clics reales, verdad conocida)
 ```
 
 `test:visual` levanta Vite si hace falta y deja las capturas en `tests/screenshots/latest/`. Las capturas revisadas de cada fase se guardan en `tests/screenshots/faseN/`.
@@ -134,3 +138,13 @@ La primera vez, Playwright necesita su navegador: `npx playwright install chromi
 - **Solo mujeres.** Las herramientas que miden sobre las fotos del usuario (`invariance.mjs`, `blocking-quality.mjs`, `light-photos.mjs`) dejan fuera la lista local de exclusión (`tests/visual/solo-mujeres.mjs`; `TODAS=1` incluye todo). Quedan 139 fotos, 136 con cara detectada.
 - **Paso E: cara y cráneo.** Se quitaron el plano inferior de la mandíbula y el cuello: eran bloques deducidos, sin landmarks propios. Las sombras proyectadas que quedan son las de la cara (nariz sobre la mejilla, ceja sobre la órbita).
 - **Sin paso J.** «Mi dibujo» no entra en esta versión: el último paso es «Comparar con la foto» (I) y ya no hay pasos desactivados en el panel.
+
+## Decisiones de la fase 6
+
+- **Cuándo.** Si el detector no encuentra la cara (perfil puro, dibujos, caras tapadas), el aviso ofrece «Marcar a mano»; también se puede entrar desde «Revisar puntos» si la detección quedó mal, y volver a ella. La segmentación corre igual, así que la silueta con cabello sigue saliendo de la foto.
+- **Listas por vista.** De frente, 22 puntos con los lados de la foto; en ¾, 21, y de perfil, 16, nombrados «lado cercano» y «lado lejano». Hacia qué lado mira la cara no se pregunta: el ajuste prueba los dos y se queda con el que da el giro correcto. Cada punto se coloca con un clic, en orden; mientras hay uno pendiente los demás solo se agarran justo encima (radio de 4 px) y la lupa sigue al puntero. Se puede saltar lo que no se ve, deshacer y arrastrar.
+- **Malla deformada, no esferas.** Primero una semejanza ortográfica con escala por eje (varios arranques de giro según la vista, y el giro acotado a lo posible para esa vista); después el residuo de cada punto se reparte con gaussianas de 2 cm en el marco canónico, así la malla pasa por los puntos y lejos de ellos queda rígida (`geom/manualFit.ts`). Con esa malla corren todos los pasos.
+- **Perfil.** El óvalo de MediaPipe pasa unos 2 cm por delante del trago y del ángulo real de la mandíbula; de perfil se marcan esos puntos anatómicos: anclan el ajuste rígido con medio peso y llevan consigo el vértice del óvalo, así la malla llega a la oreja y al contorno real. De perfil (giro de 60° o más) los anchos no se miden, el paso C usa medidas de perfil en largos de nariz, el ancho del cráneo no se propone y la malla de «Revisar puntos» solo dibuja lo que mira a la cámara.
+- **Verificación.** Con la muestra 3D girada y clics reales con error de marcado de 1 % del alto de la cabeza: el giro queda a menos de 3.5° del real en perfil, ¾ y frente, y la malla a 0.7–1.1 % del alto de la cabeza (`tests/screenshots/fase6/manual.json`). Se probó además con las dos fotos del usuario que el detector no encuentra (un perfil y un dibujo a lápiz; capturas no versionadas).
+- **Segmentación sin cabello.** En la muestra de perfil el segmentador marca el cabello como ropa o como piel del cuerpo; si casi no encuentra cabello, esas clases cuentan como cabeza (siempre conectadas a la cara y por encima del corte bajo el mentón).
+

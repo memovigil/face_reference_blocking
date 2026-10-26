@@ -10,10 +10,12 @@ import type { ExpressionId } from '../geom/expression';
 import { ZERO_POSE, type PoseAngles } from '../geom/pose';
 import type { Vec2, Vec3 } from '../geom/vec';
 import type { WorkImage } from '../image/load';
+import type { ManualState } from './manual';
 
 export type StepId = 'R' | 'A' | 'B' | 'C' | 'D' | 'E' | 'F' | 'G' | 'H' | 'I';
 export type LayerId = 'values' | 'envelope' | 'structure' | 'measures' | 'points' | 'indices';
-export type Status = 'empty' | 'rendering-sample' | 'loading-model' | 'detecting' | 'ready' | 'no-face' | 'error';
+/** 'manual': modo manual con menos puntos de los necesarios para la malla. */
+export type Status = 'empty' | 'rendering-sample' | 'loading-model' | 'detecting' | 'ready' | 'no-face' | 'manual' | 'error';
 export type ViewMode = 'overlay' | 'side';
 export type Tool = 'select' | 'hand';
 export type Theme = 'auto' | 'light' | 'dark';
@@ -23,7 +25,12 @@ export interface AppState {
   status: Status;
   error: string | null;
   image: WorkImage | null;
+  /** Detección en uso: la del detector o, en modo manual, la malla ajustada a los puntos. */
   detection: Detection | null;
+  /** Lo que dio el detector (se conserva al pasar al modo manual, para volver). */
+  autoDetection: Detection | null;
+  /** Modo manual (§5.5): puntos marcados a mano; null = detección automática. */
+  manual: ManualState | null;
   /** Landmarks en uso (px de la imagen de trabajo), con las correcciones. */
   landmarks: Vec3[] | null;
   /** Puntos fuera de la malla que el usuario ya colocó (los demás se estiman). */
@@ -65,6 +72,8 @@ export const initialState: AppState = {
   error: null,
   image: null,
   detection: null,
+  autoDetection: null,
+  manual: null,
   landmarks: null,
   extrasPlaced: {},
   poseAdjust: ZERO_POSE,

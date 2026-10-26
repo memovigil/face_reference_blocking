@@ -62,9 +62,14 @@ export class Viewer {
   private pinch: { d: number; zoom: number; mid: Vec2 } | null = null;
   private drag: { id: string; pointer: number } | null = null;
   private crossAt: Vec2 | null = null;
+  /** Clic sin arrastre en el lienzo (para colocar un punto en modo manual). */
+  private tap: { x: number; y: number; pointer: number } | null = null;
+  private placing = false;
 
   onView: (v: ViewInfo) => void = () => {};
   handles: HandleEvents | null = null;
+  /** Clic en el lienzo fuera de un punto, en px de la imagen. */
+  onTap: ((p: Vec2) => void) | null = null;
 
   constructor(host: HTMLElement) {
     this.el = document.createElement('div');
@@ -88,7 +93,10 @@ export class Viewer {
     this.el.addEventListener('pointermove', (e) => this.onMove(e));
     this.el.addEventListener('pointerup', (e) => this.onUp(e));
     this.el.addEventListener('pointercancel', (e) => this.onUp(e));
-    this.el.addEventListener('pointerleave', () => this.setCross(null));
+    this.el.addEventListener('pointerleave', () => {
+      this.setCross(null);
+      if (this.placing && !this.drag) this.hideLoupe();
+    });
     window.addEventListener('keydown', (e) => {
       if (e.code === 'Space' && !isControl(e)) {
         if (!this.spaceDown) {
@@ -281,6 +289,12 @@ export class Viewer {
     return this.screenToImage(pane, v2(clientX - r.left, clientY - r.top));
   }
 
+  /** Inversa de `clientToImage` en el panel principal (para las pruebas). */
+  imageToClient(p: Vec2): Vec2 {
+    const r = this.main.el.getBoundingClientRect();
+    return v2(r.left + this.main.w / 2 + (p.x - this.cx) * this.scale, r.top + this.main.h / 2 + (p.y - this.cy) * this.scale);
+  }
+
   // ---------------------------------------------------------------- internos
 
   private screenToImage(pane: Pane, s: Vec2): Vec2 {
@@ -391,7 +405,15 @@ export class Viewer {
 
   private updateCursor(): void {
     const panning = !!this.pan;
-    this.el.dataset.cursor = panning ? 'grabbing' : this.handTool || this.spaceDown ? 'grab' : 'default';
+    this.el.dataset.cursor = panning ? 'grabbing' : this.handTool || this.spaceDown ? 'grab' : this.placing ? 'crosshair' : 'default';
+  }
+
+  /** Hay un punto por colocar: cursor de cruz y lupa al pasar el puntero. */
+  setPlacing(on: boolean): void {
+    if (on === this.placing) return;
+    this.placing = on;
+    if (!on) this.hideLoupe();
+    this.updateCursor();
   }
 
   private onWheel(e: WheelEvent): void {
@@ -419,6 +441,7 @@ export class Viewer {
       // Pellizco: cancela arrastres y hace zoom.
       this.drag = null;
       this.pan = null;
+      this.tap = null;
       this.hideLoupe();
       const [a, b] = [...this.pointers.values()];
       const r = this.main.el.getBoundingClientRect();
@@ -441,6 +464,7 @@ export class Viewer {
       e.preventDefault();
       return;
     }
+    if (!wantsPan && e.button === 0) this.tap = { x: e.clientX, y: e.clientY, pointer: e.pointerId };
     if (wantsPan || this.zoomRel > 1.0001) {
       this.pan = { x: e.clientX, y: e.clientY, cx: this.cx, cy: this.cy };
       this.el.setPointerCapture(e.pointerId);
@@ -451,6 +475,7 @@ export class Viewer {
 
   private onMove(e: PointerEvent): void {
     if (this.pointers.has(e.pointerId)) this.pointers.set(e.pointerId, v2(e.clientX, e.clientY));
+    if (this.tap && Math.hypot(e.clientX - this.tap.x, e.clientY - this.tap.y) > 5) this.tap = null;
     if (this.pinch && this.pointers.size === 2) {
       const [a, b] = [...this.pointers.values()];
       const d = Math.hypot(a.x - b.x, a.y - b.y);
@@ -471,6 +496,7 @@ export class Viewer {
     if (this.mode === 'side' && this.image && e.pointerType !== 'touch') {
       this.setCross(this.clientToImage(e.clientX, e.clientY));
     }
+    if (this.placing && this.image && e.pointerType === 'mouse') this.showLoupe(this.clientToImage(e.clientX, e.clientY), v2(e.clientX, e.clientY));
   }
 
   private onUp(e: PointerEvent): void {
@@ -483,6 +509,10 @@ export class Viewer {
     if (this.pan) {
       this.pan = null;
       this.updateCursor();
+    }
+    if (this.tap && this.tap.pointer === e.pointerId) {
+      this.tap = null;
+      this.onTap?.(this.clientToImage(e.clientX, e.clientY));
     }
     if (this.el.hasPointerCapture(e.pointerId)) this.el.releasePointerCapture(e.pointerId);
   }

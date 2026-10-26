@@ -171,6 +171,8 @@ export function estimateExtras(frame: SimilarityFit, sil: HeadSilhouette | null 
 
   const facing = col3(frame.rotation, 2); // hacia dónde mira la cara (marco K)
   const turned = Math.abs(Math.atan2(facing.x, facing.z)) > (20 * Math.PI) / 180;
+  // De perfil el ancho del cráneo no se ve: sus dos extremos caen en la frente y la nuca.
+  const sideways = Math.abs(Math.atan2(facing.x, facing.z)) > (60 * Math.PI) / 180;
   // Con la cabeza girada, el ancho del cráneo del lado de atrás es el contorno
   // trasero: se muestra ese punto en lugar del ancho de ese lado.
   const backDir = headAxis(frame.rotation, v3(0, 0, -1));
@@ -194,8 +196,8 @@ export function estimateExtras(frame: SimilarityFit, sil: HeadSilhouette | null 
     hairline: sil?.hairline
       ? { p: sil.hairline, visible: true, source: 'silhouette' }
       : { p: v2(hairCanon.x, hairCanon.y), visible: true, source: canon, caveat: sil?.hairlineCovered ? 'covered' : undefined },
-    skullR: { p: sil ? sil.skullR : extreme(side), visible: !(turned && backSide === 'R'), source: fromSil, caveat: cut(sil?.cropped.skullR) },
-    skullL: { p: sil ? sil.skullL : extreme(v2(-side.x, -side.y)), visible: !(turned && backSide === 'L'), source: fromSil, caveat: cut(sil?.cropped.skullL) },
+    skullR: { p: sil ? sil.skullR : extreme(side), visible: !sideways && !(turned && backSide === 'R'), source: fromSil, caveat: cut(sil?.cropped.skullR) },
+    skullL: { p: sil ? sil.skullL : extreme(v2(-side.x, -side.y)), visible: !sideways && !(turned && backSide === 'L'), source: fromSil, caveat: cut(sil?.cropped.skullL) },
     skullBack: { p: sil ? sil.back : extreme(backDir), visible: turned, source: fromSil, caveat: cut(sil?.cropped.back) },
     earTopR: { p: ear(EAR_TOP, 'R'), visible: earVisible('R'), source: canon },
     earLobeR: { p: ear(EAR_LOBE, 'R'), visible: earVisible('R'), source: canon },

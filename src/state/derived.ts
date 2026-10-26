@@ -6,9 +6,10 @@
 //         │                                    └──────────┘
 //   segmentación ─ silueta ─ envolvente
 
+import { MANUAL_POINTS, manualKey, type Facing } from '../geom/manualFit';
 import { buildKeyPoints, EAR_LOBE, EAR_TOP, earAnchors, estimateExtras, interpupillaryPx, type ExtraEstimate, type ExtraId, type KeyPoint } from '../detect/keypoints';
 import { FACE_OVAL, LM } from '../detect/landmarkMap';
-import { SEG } from '../detect/segment';
+import { headClassTest } from '../detect/segment';
 import { buildBlocking, type Blocking } from '../geom/blocking';
 import { estimateLight, lightFromAngles, lightSamples, type LightEstimate } from '../geom/light';
 import { shadePlanes, type ShadedPlanes } from '../geom/lightPlanes';
@@ -146,7 +147,18 @@ const loomisStage = memo((pose: PoseEstimate, landmarks: Vec3[], measure: Fronta
   });
 });
 
-const metricsStage = memo((pose: PoseEstimate, measure: FrontalFace, frontal: FrontalFace, expression: ExpressionReading, loomis: Loomis, kps: KeyPoint[], jawClosed: boolean) => {
+/** Modo manual: landmarks marcados (lo demás sale de la cabeza promedio). */
+const markedStage = memo((manual: AppState['manual'], facing: Facing | undefined): ReadonlySet<number> | undefined => {
+  if (!manual || !facing) return undefined;
+  const out = new Set<number>();
+  for (const id of MANUAL_POINTS[manual.view]) {
+    const k = manualKey(id, facing);
+    if (manual.points[id] && k.landmark !== undefined) out.add(k.landmark);
+  }
+  return out;
+});
+
+const metricsStage = memo((pose: PoseEstimate, measure: FrontalFace, frontal: FrontalFace, expression: ExpressionReading, loomis: Loomis, kps: KeyPoint[], jawClosed: boolean, marked: ReadonlySet<number> | undefined) => {
   const hair = keyPoint(kps, 'hairline');
   const crown = keyPoint(kps, 'crown');
   const side = nearSide(pose.angles.yaw);
@@ -172,6 +184,7 @@ const metricsStage = memo((pose: PoseEstimate, measure: FrontalFace, frontal: Fr
     hairline: { y: loomis.levels.hairline, confirmed: measured(hair) },
     head: { top: loomis.headTop, width: loomis.headWidth, confirmed: measured(crown), widthConfirmed: measured(crown) && frontalView },
     ears,
+    marked,
   });
 });
 
@@ -244,17 +257,22 @@ const valueMaskStage = memo((luma: LumaImage, seg: AppState['segmentation'], lan
     return m;
   }
   const cls = (x: number, y: number) => seg.mask[Math.min(seg.height - 1, Math.floor((y + 0.5) / scale)) * seg.width + Math.min(seg.width - 1, Math.floor((x + 0.5) / scale))];
-  const isHead = (c: number) => c === SEG.hair || c === SEG.faceSkin || c === SEG.other;
+  const isHead = headClassTest(seg);
   // Corte bajo el mentón, perpendicular al eje de la cabeza.
   const up = headAxis(pose.frame.rotation, v3(0, 1, 0));
   const chin = landmarks[LM.menton];
   const faceH = Math.hypot(landmarks[LM.foreheadTop].x - chin.x, landmarks[LM.foreheadTop].y - chin.y);
   const below = (x: number, y: number) => -((x / scale - chin.x) * up.x + (y / scale - chin.y) * up.y) > 0.35 * faceH;
-  const seedX = Math.round(landmarks[LM.noseTip].x * scale);
-  const seedY = Math.round(landmarks[LM.noseTip].y * scale);
-  if (seedX < 0 || seedY < 0 || seedX >= w || seedY >= h) return m;
-  const stack = [seedY * w + seedX];
-  m[stack[0]] = 1;
+  // Semillas dentro de la cara: la punta de la nariz puede caer justo en el
+  // borde de la silueta (de perfil), así que se prueban también puente y mejillas.
+  const stack: number[] = [];
+  for (const i of [LM.noseTip, 5, 195, 6, 205, 425, 50, 280, 117, 346]) {
+    const sx = Math.round(landmarks[i].x * scale);
+    const sy = Math.round(landmarks[i].y * scale);
+    if (sx < 0 || sy < 0 || sx >= w || sy >= h || !isHead(cls(sx, sy)) || m[sy * w + sx]) continue;
+    m[sy * w + sx] = 1;
+    stack.push(sy * w + sx);
+  }
   while (stack.length) {
     const i = stack.pop()!;
     const x = i % w;
@@ -291,7 +309,7 @@ export function derive(s: AppState): Derived | null {
   const frontal = frontalStage(s.landmarks, pose);
   const { jaw, measure, closed } = jawStage(frontal, expression, s.landmarks, pose);
   const loomis = loomisStage(pose, s.landmarks, measure, frontal, keypoints, closed);
-  const metrics = metricsStage(pose, measure, frontal, expression, loomis, keypoints, !!jaw);
+  const metrics = metricsStage(pose, measure, frontal, expression, loomis, keypoints, !!jaw, markedStage(s.manual, s.detection.manual?.facing));
   const envelope = envelopeStage(silhouette, s.segmentation, s.landmarks, keypoints, s.envelopeSides);
   const out: Derived = {
     pose,

@@ -3,6 +3,7 @@
 // raíz de la nariz.
 
 import type { KeyPoint } from '../detect/keypoints';
+import { manualBase, manualSide } from '../geom/manualFit';
 import { es } from '../i18n/es';
 
 export function keyBaseName(id: string, hasSide: boolean): string {
@@ -33,4 +34,13 @@ export function estimateTag(kp: KeyPoint): string {
   if (kp.caveat === 'covered') return `${es.review.estimated} · ${es.review.covered}`;
   if (kp.source === 'silhouette') return `${es.review.estimated} · ${es.review.fromSilhouette}`;
   return es.review.estimated;
+}
+
+/** Nombre de un punto del modo manual: de frente con el lado de la foto; en ¾ y perfil, cercano o lejano. */
+export function manualLabel(id: string): string {
+  const name = es.keys[manualBase(id)] ?? id;
+  const side = manualSide(id);
+  if (!side) return name;
+  const text = side === 'R' ? es.sidePhoto.left : side === 'L' ? es.sidePhoto.right : side === 'N' ? es.manual.near : es.manual.far;
+  return `${name} (${text})`;
 }

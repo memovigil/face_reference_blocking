@@ -1,12 +1,14 @@
 // Paso C · Medidas y triangulación, en el plano de la foto (lo que se mide con
 // el lápiz a la distancia de la vista): plomadas verticales, niveles
 // horizontales, triángulo pupilas–boca, anchos y ángulos. La unidad es la
-// distancia entre pupilas en la foto (DP).
+// distancia entre pupilas en la foto (DP). De perfil (un solo ojo a la vista)
+// no hay triángulo ni anchos: las medidas van en largos de nariz (raíz → base)
+// y se toman sobre el perfil, la nariz, la oreja y los niveles.
 
 import { LM } from '../detect/landmarkMap';
 import { es } from '../i18n/es';
 import type { Derived } from '../state/derived';
-import { nearSide } from './metrics';
+import { nearSide, SIDEWAYS_YAW } from './metrics';
 import { mid2, v2, type Vec2, type Vec3 } from './vec';
 
 export interface Measures {
@@ -18,6 +20,8 @@ export interface Measures {
   angles: { a: Vec2; b: Vec2; labelAt: Vec2; place: 'right' | 'left' | 'below'; label: string }[];
   /** Tabla «medidas para tu hoja». */
   items: { id: string; text: string }[];
+  /** De perfil: unidad = largo de la nariz y medidas propias del perfil. */
+  profile: boolean;
 }
 
 const deg = (r: number) => (r * 180) / Math.PI;
@@ -35,6 +39,7 @@ function tiltSide(a: Vec2, b: Vec2): string {
 }
 
 export function buildMeasures(lm: readonly Vec3[], d: Derived): Measures {
+  if (Math.abs(d.pose.angles.yaw) >= SIDEWAYS_YAW) return profileMeasures(lm, d);
   const P = (i: number) => v2(lm[i].x, lm[i].y);
   const pr = P(LM.subjectRight.pupil);
   const pl = P(LM.subjectLeft.pupil);
@@ -123,5 +128,70 @@ export function buildMeasures(lm: readonly Vec3[], d: Derived): Measures {
     const dl = (lobe!.p.y - sn.y) / ipd;
     items.push({ id: 'lobe', text: t.lobe(Math.abs(dl) < 0.08 ? es.measures.where.level : dl < 0 ? es.measures.where.above : es.measures.where.below) });
   }
-  return { triangle: [pr, pl, sto], plumbs, levels, widths, angles, items };
+  return { triangle: [pr, pl, sto], plumbs, levels, widths, angles, items, profile: false };
+}
+
+/** Medidas de perfil, en largos de nariz (raíz → base de la nariz). */
+function profileMeasures(lm: readonly Vec3[], d: Derived): Measures {
+  const P = (i: number) => v2(lm[i].x, lm[i].y);
+  const side = d.pose.angles.yaw > 0 ? LM.subjectRight : LM.subjectLeft;
+  const nasion = P(LM.nasion);
+  const sn = P(LM.subnasale);
+  const unit = Math.hypot(sn.x - nasion.x, sn.y - nasion.y) || 1;
+  const tip = P(LM.noseTip);
+  const glabella = P(LM.glabella);
+  const chin = P(LM.chinFront);
+  const me = P(LM.menton);
+  const eye = P(side.eyeOuter);
+  const corner = P(side.mouthCorner);
+  const ear = P(side.cheekTragus);
+  const jawA = P(side.jawAngle);
+  const sto = mid2(P(LM.upperLipInner), P(LM.lowerLipInner));
+  const browY = (lm[105].y + lm[52].y + lm[334].y + lm[282].y) / 4;
+  // «Adelante» = hacia donde mira la cara.
+  const fwd = Math.sign(tip.x - ear.x) || 1;
+  const xs = [tip.x, ear.x, jawA.x, chin.x];
+  const left = Math.min(...xs) - 0.4 * unit;
+  const right = Math.max(...xs) + 0.4 * unit;
+  const top = browY - 0.4 * unit;
+  const bottom = me.y + 0.3 * unit;
+
+  const levels: Measures['levels'] = [
+    { y: browY, label: es.measures.brow },
+    { y: sn.y, label: es.measures.nose },
+    { y: sto.y, label: es.measures.mouth },
+  ].map((l) => ({ left: v2(left, l.y), right: v2(right, l.y), label: l.label }));
+  const lobe = d.keypoints.find((k) => k.def.id === `earLobe${d.pose.angles.yaw > 0 ? 'R' : 'L'}`);
+  const lobeOk = !!lobe?.visible && !lobe.estimated;
+  if (lobeOk) levels.push({ left: v2(left, lobe!.p.y), right: v2(right, lobe!.p.y), label: es.measures.lobe });
+
+  const plumbs = [eye, ear].map((p) => ({ top: v2(p.x, top), bottom: v2(p.x, bottom) }));
+  const fromVertical = (a: Vec2, b: Vec2) => 90 - fromHorizontal(a, b);
+  const profileAngle = fromVertical(glabella, chin);
+  const noseAngle = fromVertical(nasion, tip);
+  const jawAngle = fromHorizontal(jawA, me);
+  const angles: Measures['angles'] = [
+    { a: glabella, b: chin, labelAt: mid2(glabella, chin), place: fwd > 0 ? 'right' : 'left', label: `${es.measures.profile} ${Math.round(profileAngle)}°` },
+    { a: nasion, b: tip, labelAt: tip, place: fwd > 0 ? 'right' : 'left', label: `${es.measures.nose} ${Math.round(noseAngle)}°` },
+    { a: jawA, b: me, labelAt: mid2(jawA, me), place: 'below', label: `${es.measures.jaw} ${Math.round(jawAngle)}°` },
+  ];
+
+  const t = es.measures.items;
+  const w = es.measures.where;
+  const chinWhere = (chin.x - glabella.x) * fwd;
+  const eyePlumb = (corner.x - eye.x) * fwd;
+  const items: Measures['items'] = [
+    { id: 'profileLine', text: t.profileLine(profileAngle, Math.abs(chinWhere) < 0.08 * unit ? w.level : chinWhere > 0 ? w.ahead : w.behind) },
+    { id: 'noseProfile', text: t.noseProfile(noseAngle, (Math.abs(tip.x - sn.x) / unit)) },
+    { id: 'eyeToEar', text: t.eyeToEar(Math.abs(eye.x - ear.x) / unit) },
+    { id: 'plumbEye', text: t.plumbEye(Math.abs(eyePlumb) < 0.08 * unit ? w.on : eyePlumb > 0 ? w.ahead : w.behind) },
+    { id: 'mouthDrop', text: t.mouthDrop(Math.abs(sto.y - sn.y) / unit) },
+    { id: 'chinDrop', text: t.chinDrop(Math.abs(me.y - sto.y) / unit) },
+    { id: 'jawLine', text: t.jawLine(jawAngle) },
+  ];
+  if (lobeOk) {
+    const dl = (lobe!.p.y - sn.y) / unit;
+    items.push({ id: 'lobe', text: t.lobe(Math.abs(dl) < 0.08 ? w.level : dl < 0 ? w.above : w.below) });
+  }
+  return { triangle: [], plumbs, levels, widths: [], angles, items, profile: true };
 }

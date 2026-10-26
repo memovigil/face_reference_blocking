@@ -8,6 +8,7 @@ import { valuesLayer } from './values';
 import { envelopeLayer } from './envelope';
 import { indicesLayer } from './indices';
 import { keypointsLayer } from './keypoints';
+import { drawManualPoints } from './manual';
 import { canonLayer, loomisLayer } from './loomis';
 import { measuresLayer } from './measures';
 import { meshLayer } from './mesh';
@@ -46,7 +47,10 @@ export class LayerRenderer {
   render(state: AppState, d: Derived | null): void {
     this.root.style.setProperty('--line-opacity', String(state.lineOpacity));
     this.root.dataset.step = state.step;
+    // Mientras hay un punto del modo manual por colocar, los demás se agarran solo justo encima.
+    this.root.dataset.placing = String(!!state.manual?.next);
     for (const g of this.groups.values()) g.replaceChildren();
+    if (state.manual && state.layers.points) drawManualPoints(this.groups.get('points')!, state);
     if (!d || !state.landmarks) return;
     for (const layer of LAYERS) {
       if (!state.layers[layer.layer]) continue;

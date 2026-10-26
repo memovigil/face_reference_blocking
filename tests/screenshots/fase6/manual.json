@@ -1,0 +1,77 @@
+{
+ "fecha": "2026-10-26T03:54:07.531Z",
+ "casos": [
+  {
+   "caso": "perfil-derecha",
+   "pose": {
+    "yaw": 85,
+    "pitch": 4,
+    "roll": 0
+   },
+   "detectada": false,
+   "errorPose": {
+    "yaw": 3.5,
+    "pitch": -1.6,
+    "roll": 1.3
+   },
+   "lado": "right",
+   "errorMallaPct": 1.08,
+   "rmsPx": 4.3,
+   "puntos": 15
+  },
+  {
+   "caso": "perfil-izquierda",
+   "pose": {
+    "yaw": -82,
+    "pitch": -6,
+    "roll": 4
+   },
+   "detectada": true,
+   "errorPose": {
+    "yaw": 2.1,
+    "pitch": -0.9,
+    "roll": -0.4
+   },
+   "lado": "left",
+   "errorMallaPct": 0.85,
+   "rmsPx": 4.7,
+   "puntos": 15
+  },
+  {
+   "caso": "tres-cuartos",
+   "pose": {
+    "yaw": 45,
+    "pitch": 5,
+    "roll": -3
+   },
+   "detectada": true,
+   "errorPose": {
+    "yaw": 0.8,
+    "pitch": 0.7,
+    "roll": -0.1
+   },
+   "lado": "right",
+   "errorMallaPct": 0.73,
+   "rmsPx": 5.2,
+   "puntos": 20
+  },
+  {
+   "caso": "frente",
+   "pose": {
+    "yaw": 6,
+    "pitch": -4,
+    "roll": 5
+   },
+   "detectada": true,
+   "errorPose": {
+    "yaw": -1.3,
+    "pitch": 2.2,
+    "roll": -0.2
+   },
+   "lado": "right",
+   "errorMallaPct": 0.66,
+   "rmsPx": 5.2,
+   "puntos": 22
+  }
+ ]
+}

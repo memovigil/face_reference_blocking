@@ -85,7 +85,7 @@ export interface MetricValue {
   /** false si depende de algo estimado o poco confiable en esta foto. */
   reliable: boolean;
   /** Clave del motivo (i18n) cuando no es confiable o hay que leerlo con cuidado. */
-  note?: 'estimated' | 'smile' | 'pucker' | 'mouthOpen' | 'turned' | 'depthFrontal' | 'jawClosed' | 'eyesClosed';
+  note?: 'estimated' | 'smile' | 'pucker' | 'mouthOpen' | 'turned' | 'depthFrontal' | 'jawClosed' | 'eyesClosed' | 'unmarked';
 }
 
 export interface ExpressionFlags {
@@ -111,7 +111,15 @@ export interface MetricInputs {
   /** `widthConfirmed`: el ancho solo se mide bien con la cabeza casi de frente. */
   head?: { top: number; width: number; confirmed: boolean; widthConfirmed?: boolean };
   ears?: { top?: number; lobe?: number; confirmed: boolean };
+  /**
+   * Modo manual: landmarks que el usuario marcó. Lo que depende de puntos sin
+   * marcar sale de la cabeza promedio, así que no se mide.
+   */
+  marked?: ReadonlySet<number>;
 }
+
+/** Desde este giro solo se ve un lado de la cara: los anchos no se miden. */
+export const SIDEWAYS_YAW = 60;
 
 // ---------------------------------------------------------------------------
 // Medidas sobre la malla en el marco de frente.
@@ -227,6 +235,14 @@ export function computeMetrics(inp: MetricInputs): MetricValue[] {
     out.push({ def, value, z: (value - def.canon) / def.sd, reliable, note });
   };
   const jawNote = inp.jawClosed ? 'jawClosed' : undefined;
+  const side = nearSide(inp.yaw);
+  const nearIds = (f: (s: typeof R) => number) => (side === 'R' ? [f(R)] : side === 'L' ? [f(L)] : [f(R), f(L)]);
+  /** ¿Se puede medir un ancho con estos landmarks? (cara de lado o puntos sin marcar en modo manual). */
+  const widthCheck = (ids: readonly number[]): { ok: boolean; note?: MetricValue['note'] } => {
+    if (Math.abs(inp.yaw) >= SIDEWAYS_YAW) return { ok: false, note: 'turned' };
+    if (inp.marked && !ids.every((i) => inp.marked!.has(i))) return { ok: false, note: 'unmarked' };
+    return { ok: true };
+  };
   // Boca en «O»: el labio superior se estira y el mentón no se puede cerrar con
   // los labios; el tercio inferior no se mide.
   const lowerOk = !expression.lipsO;
@@ -259,16 +275,22 @@ export function computeMetrics(inp: MetricInputs): MetricValue[] {
     const ok = inp.head.widthConfirmed ?? inp.head.confirmed;
     push('headWidthHeight', inp.head.width / (inp.head.top - m.menton), ok, ok ? jawNote : inp.head.confirmed ? 'turned' : 'estimated');
   }
-  push('eyeSpacing', m.eyeSpacing, !expression.eyesClosed, expression.eyesClosed ? 'eyesClosed' : undefined);
-  push('noseWidth', m.noseWidth);
+  const eyes = widthCheck([R.eyeInner, L.eyeInner, ...nearIds((s) => s.eyeOuter)]);
+  push('eyeSpacing', m.eyeSpacing, !expression.eyesClosed && eyes.ok, expression.eyesClosed ? 'eyesClosed' : eyes.note);
+  const nose = widthCheck([R.noseAla, L.noseAla]);
+  push('noseWidth', m.noseWidth, nose.ok, nose.note);
   const mouthMoved = expression.smile || expression.pucker || expression.jawOpen;
   const mouthNote = expression.smile ? 'smile' : expression.pucker ? 'pucker' : expression.jawOpen ? 'mouthOpen' : undefined;
-  push('mouthWidth', m.mouthWidth, !mouthMoved, mouthNote);
-  push('jawCheek', m.jawCheek);
+  const mouth = widthCheck([R.mouthCorner, L.mouthCorner]);
+  push('mouthWidth', m.mouthWidth, !mouthMoved && mouth.ok, mouthNote ?? mouth.note);
+  const jaw = widthCheck([...nearIds((s) => s.jawAngle), ...nearIds((s) => s.cheekTragus)]);
+  push('jawCheek', m.jawCheek, jaw.ok, jaw.note);
 
   // Ángulos
-  push('canthalTilt', m.canthalTilt, !expression.eyesClosed, expression.eyesClosed ? 'eyesClosed' : undefined);
-  push('mouthCorners', m.mouthCorners, !mouthMoved, mouthNote);
+  const tilt = widthCheck([...nearIds((s) => s.eyeOuter), ...nearIds((s) => s.eyeInner)]);
+  push('canthalTilt', m.canthalTilt, !expression.eyesClosed && tilt.ok, expression.eyesClosed ? 'eyesClosed' : tilt.note);
+  const corners = inp.marked && !(inp.marked.has(R.mouthCorner) && inp.marked.has(L.mouthCorner));
+  push('mouthCorners', m.mouthCorners, !mouthMoved && !corners, mouthNote ?? (corners ? 'unmarked' : undefined));
   if (inp.depthFace) {
     const d = inp.depthFace.points;
     const du = inp.depthFace.unit;

@@ -4,7 +4,13 @@ Herramienta local para construir retratos que se parezcan: detecta la cara, sus 
 
 Todo corre en tu navegador: la foto no sale de tu computadora y el modelo de detección se sirve desde el propio proyecto (sin CDNs).
 
-## Uso
+## Abrir la app
+
+**https://memovigil.github.io/face_reference_blocking/**
+
+Se abre como cualquier página web, sin instalar nada (mejor en Chrome o Edge). Todo se procesa en tu navegador: las fotos no se suben a ningún servidor. La página se publica desde la rama `gh-pages` con la versión compilada de `main`.
+
+## Uso local (para desarrollo)
 
 ```bash
 npm install        # instala, copia el WASM de MediaPipe a public/wasm y baja el modelo de segmentación
